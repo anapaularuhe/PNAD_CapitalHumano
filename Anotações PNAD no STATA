@@ -1,0 +1,39 @@
+ANOTAÇÕES PNAD
+> Trimestral
+>> Microdados
+  - Pasta zip em .txt
+  - Documentação: Deflatores + Dicionário
+>> Tabelas: conferir alguns dados agregados
+
+
+>> Importar variáveis:
+ - Primeiro, baixar os dados
+   1. infix: salvar variáveis individualmente
+   2. datazoom: permite importar variáveis já com label
+    - Obs:
+
+>> Salvar variáveis
+   save em formato.dta
+
+
+>> Funções:
+- log: função para salvar o histórico do prompt de comando
+- tab: resumo da variável
+- sum: função summarize (média, sd,...)
+  Ex: sum RENDIMENTO if SITUAÇÃODEOCUPAÇÃO == 1
+- drop/keep: eliminam/mantém da variável as observações que satisfazem condição lógica      
+  Ex: drop if SITUAÇÃODEOCUPAÇÃO =! 1
+  Ex: keep if VARIÁVEL =!. (elimina os missings)
+
+- collapse:
+
+- gen: criar variável
+- label: adiciona descrição da variável
+- append: empilha bases cujas colunas tenham o mesmo nome
+- merge: adicionar variáveis a uma base que já existe
+
+
+>> Pacotes:
+ssc install NOMEDOPACOTE
+- Ex: reghdfe (regressão com efeitos fixos)
+- Ex: tabout (gráficos)  
