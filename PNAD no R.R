@@ -1,16 +1,19 @@
 # PNADC NO R ------------------------------------
 # FGV IBRE - Instituto Brasileiro de Economia
-# N˙cleo de Mercado de Trabalho
+# N√∫cleo de Mercado de Trabalho
 # Ana Paula Nothen Ruhe
 
-# > PREPARA«√O ----------------------------------
-setwd("C:/Users/ana.ruhe/Documents/R")           # Definindo o diretÛrio 
+# Documenta√ß√£o CRAN: https://cran.r-project.org/web/packages/PNADcIBGE/PNADcIBGE.pdf
+# Tutorial: https://rpubs.com/gabriel-assuncao-ibge/pnadc
+
+# > PREPARA√á√ÉO ----------------------------------
+setwd("C:/Users/ana.ruhe/Documents/R")           # Definindo o diret√≥rio 
 
 # Pacotes
-  library(PNADcIBGE)                             # Necess·rio para importar os dados da PNAD  
-  library(survey)                                # Necess·rio para lidar com pesquisas amostrais
-  library(tidyverse)                             # Pacote de manipulaÁ„o de dados
+  library(PNADcIBGE)                             # Necess√°rio para importar os dados da PNAD  
+  library(survey)                                # Necess√°rio para lidar com pesquisas amostrais
+  library(tidyverse)                             # Pacote de manipula√ß√£o de dados
 
 # Importando dados:
-  pnad2021.2 = get_pnadc(2021, quarter = 2)      # Microdados 2∫ trimestre de 2021; formato "survey"
+  pnad2021.2 = get_pnadc(2021, quarter = 2)      # Microdados 2¬∫ trimestre de 2021; formato "survey"
   pnad2021.2$variables                           # Data frame
