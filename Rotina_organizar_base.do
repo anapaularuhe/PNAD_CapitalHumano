@@ -42,7 +42,7 @@ use "$dirdata/PNADC_trimestral_2021.dta"
 	V1028      | Peso trimestral com correção de não entrevista COM PÓS ESTRATIFICAÇÃO pela projeção de população  
 	V1029      | Projeção da população
 	
-    V2007      | Sexo
+        V2007      | Sexo
 	V2009      | Idade
 	V2010      | Cor ou raça
 	
