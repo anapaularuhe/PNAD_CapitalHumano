@@ -27,3 +27,6 @@ rm(list = ls())                                  # Equivalente do R a clear all 
 # Deflatores associados aos microdados:  
   deflator2021.2 = data.frame("Ano" = pnad2021.2$variables$Ano, "Trimestre" = pnad2021.2$variables$Trimestre, "UF" = pnad2021.2$variables$UF, "Efetivo" = pnad2021.2$variables$Efetivo, "Habitual" = pnad2021.2$variables$Habitual)
   
+# Salvando em .dta:  
+  write_dta(deflator2021.2, "deflator2021.2.dta")
+  
