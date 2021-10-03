@@ -4,7 +4,7 @@
 * Núcleo de Mercado de Trabalho
 * Projeto: Capital Humano e Produtividade
 * Ana Paula Nothen Ruhe
-* Outubro/2021
+* Setembro/2021
 ******************************************************
 
 
@@ -21,27 +21,16 @@ cd "C:/Users/ana.ruhe/Documents/Capital_Humano"
 global dirdata = "C:/Users/ana.ruhe/Documents/Capital_Humano/Dados"
 
 * Salvando log:
-log using "Rotina_organizar_base.log", replace
+log using "Rotina_organizar_base_2021.log", replace
 
 
 
-* IMPORTANDO DADOS: 2012-2020 ************************
+* IMPORTANDO DADOS: 2021 *****************************
 * Primeira vez: datazoom
-  * datazoom_pnadcontinua, years( 2012 2013 2014 2015 2016 2017 2018 2019 2020 ) original(C:\Users\ana.ruhe\Documents\Capital_Humano\PNAD_Original) saving (C:\Users\ana.ruhe\Documents\Capital_Humano\Dados) nid
-
+  * datazoom_pnadcontinua, years( 2021 ) original(C:\Users\ana.ruhe\Documents\Capital_Humano\PNAD_Original) saving(C:\Users\ana.ruhe\Documents\Capital_Humano\Dados) nid
   
-* Com os dados em .dta: criando base completa
-	use "$dirdata/PNADC_trimestral_2012.dta"
-	append using "$dirdata/PNADC_trimestral_2013.dta"
-	append using "$dirdata/PNADC_trimestral_2014.dta"
-	append using "$dirdata/PNADC_trimestral_2015.dta"
-	append using "$dirdata/PNADC_trimestral_2016.dta"
-	append using "$dirdata/PNADC_trimestral_2017.dta"
-	append using "$dirdata/PNADC_trimestral_2018.dta"
-	append using "$dirdata/PNADC_trimestral_2019.dta"
-	append using "$dirdata/PNADC_trimestral_2020.dta"
-
-	save "$dirdata/PNADC2012_2020.dta", replace
+* Com os dados em .dta:
+use "$dirdata/PNADC_trimestral_2021.dta"
 
 
 * LIMPANDO BASE: 2021 ********************************
@@ -87,7 +76,7 @@ keep Ano Trimestre UF V1027 V1028 V1029 V2007 V2009 V2010 VD3004 VD3005 VD3006 V
   rename V2009 Idade
   rename V2010 Cor
  
-  save "$dirdata/PNADC2012_2020_limpa.dta", replace
+  save "$dirdata/PNADC2021_limpa.dta", replace
 
   
 *** Variáveis categóricas: nomeando labels e criando dummies quando apropriado
@@ -125,7 +114,7 @@ keep Ano Trimestre UF V1027 V1028 V1029 V2007 V2009 V2010 VD3004 VD3005 VD3006 V
   gen byte dummy_educ4 = (VD3006==4)
   gen byte dummy_educ5 = (VD3006==5)
   gen byte dummy_educ6 = (VD3006==6)
-  
+	
 	  
 * VD4001: Condição na força de trabalho
   label define VD4001_label 1 "Na força de trabalho" 2 "Fora da força de trabalho"
@@ -173,7 +162,7 @@ keep Ano Trimestre UF V1027 V1028 V1029 V2007 V2009 V2010 VD3004 VD3005 VD3006 V
   label values VD4010 VD4010_label
      
 
-  save "$dirdata/PNADC2012_2020_limpa.dta", replace
+  save "$dirdata/PNADC2021_limpa.dta", replace	 
 
   
   
@@ -217,7 +206,7 @@ keep Ano Trimestre UF V1027 V1028 V1029 V2007 V2009 V2010 VD3004 VD3005 VD3006 V
 	order Regiao, after(UF)
 	
 	
-	save "$dirdata/PNADC2012_2020_limpa.dta", replace 
+	save "$dirdata/PNADC2021_limpa.dta", replace	 
 	
 	
 *** Criando variável de experiência (eliminamos observações com missing values de idade)
@@ -232,17 +221,7 @@ keep Ano Trimestre UF V1027 V1028 V1029 V2007 V2009 V2010 VD3004 VD3005 VD3006 V
 	gen Experiencia3 = Experiencia^3
 	gen Experiencia4 = Experiencia^4
 	
-	save "$dirdata/PNADC2012_2020_limpa.dta", replace
+	save "$dirdata/PNADC2021_limpa.dta", replace
 	
-	
-	
-* APPEND: DADOS 2021 *********************************
-* Base de 2021 havia sido feita em separado, como teste. Mas o código é essencialmente o mesmo.	
-  append using "$dirdata/PNADC2021_limpa.dta" 	
-  save "$dirdata/PNADC2012_2021_limpa.dta", replace
+	log close
 
-  log close
-  
-  
-
-  
