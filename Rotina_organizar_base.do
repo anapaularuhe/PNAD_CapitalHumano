@@ -25,9 +25,9 @@ log using "Rotina_organizar_base.log", replace
 
 
 
-* IMPORTANDO DADOS: 2012-2020 ************************
+* IMPORTANDO DADOS: 2012-2021 ************************
 * Primeira vez: datazoom
-  * datazoom_pnadcontinua, years( 2012 2013 2014 2015 2016 2017 2018 2019 2020 ) original(C:\Users\ana.ruhe\Documents\Capital_Humano\PNAD_Original) saving (C:\Users\ana.ruhe\Documents\Capital_Humano\Dados) nid
+  * datazoom_pnadcontinua, years( 2012 2013 2014 2015 2016 2017 2018 2019 2020 2021) original(C:\Users\ana.ruhe\Documents\Capital_Humano\PNAD_Original) saving (C:\Users\ana.ruhe\Documents\Capital_Humano\Dados) nid
 
   
 * Com os dados em .dta: criando base completa
@@ -40,11 +40,16 @@ log using "Rotina_organizar_base.log", replace
 	append using "$dirdata/PNADC_trimestral_2018.dta"
 	append using "$dirdata/PNADC_trimestral_2019.dta"
 	append using "$dirdata/PNADC_trimestral_2020.dta"
+	append using "$dirdata/PNADC_trimestral_2021.dta"
 
-	save "$dirdata/PNADC2012_2020.dta", replace
+	save "$dirdata/PNADC2012_2021.dta", replace
 
 
-* LIMPANDO BASE: 2021 ********************************
+* ADICIONANDO DEFLATORES *****************************	
+  merge using "$dirdata/Deflatores.dta" 	
+	
+	
+* LIMPANDO BASE **************************************
 /* Vamos manter as seguintes variáveis:
 	Ano        | Ano
 	Trimestre  | Trimestre
@@ -75,8 +80,11 @@ log using "Rotina_organizar_base.log", replace
 	VD4032     | Horas efetivamente trabalhadas na semana   (trabalho principal)
 	VD4035     | Horas efetivamente trabalhadas na semana   (todos os trabalhos)
 	
+	Efetivo    | Deflator com base nos redimentos efetivos
+	Habitual   | Deflator com base nos rendimentos habituais	
 */
-keep Ano Trimestre UF V1027 V1028 V1029 V2007 V2009 V2010 VD3004 VD3005 VD3006 VD4001 VD4002 VD4003 VD4009 VD4010 VD4016 VD4017 VD4019 VD4020 VD4031 VD4032 VD4035
+
+keep Ano Trimestre UF V1027 V1028 V1029 V2007 V2009 V2010 VD3004 VD3005 VD3006 VD4001 VD4002 VD4003 VD4009 VD4010 VD4016 VD4017 VD4019 VD4020 VD4031 VD4032 VD4035 Efetivo Habitual
 
 
 *** Nomeando variáveis de forma mais intuitiva:
@@ -87,7 +95,7 @@ keep Ano Trimestre UF V1027 V1028 V1029 V2007 V2009 V2010 VD3004 VD3005 VD3006 V
   rename V2009 Idade
   rename V2010 Cor
  
-  save "$dirdata/PNADC2012_2020_limpa.dta", replace
+  save "$dirdata/PNADC2012_2021_limpa.dta", replace
 
   
 *** Variáveis categóricas: nomeando labels e criando dummies quando apropriado
@@ -173,7 +181,7 @@ keep Ano Trimestre UF V1027 V1028 V1029 V2007 V2009 V2010 VD3004 VD3005 VD3006 V
   label values VD4010 VD4010_label
      
 
-  save "$dirdata/PNADC2012_2020_limpa.dta", replace
+  save "$dirdata/PNADC2012_2021_limpa.dta", replace
 
   
   
@@ -217,7 +225,7 @@ keep Ano Trimestre UF V1027 V1028 V1029 V2007 V2009 V2010 VD3004 VD3005 VD3006 V
 	order Regiao, after(UF)
 	
 	
-	save "$dirdata/PNADC2012_2020_limpa.dta", replace 
+	save "$dirdata/PNADC2012_2021_limpa.dta", replace 
 	
 	
 *** Criando variável de experiência (eliminamos observações com missing values de idade)
@@ -232,14 +240,9 @@ keep Ano Trimestre UF V1027 V1028 V1029 V2007 V2009 V2010 VD3004 VD3005 VD3006 V
 	gen Experiencia3 = Experiencia^3
 	gen Experiencia4 = Experiencia^4
 	
-	save "$dirdata/PNADC2012_2020_limpa.dta", replace
+	save "$dirdata/PNADC2012_2021_limpa.dta", replace
 	
 	
-	
-* APPEND: DADOS 2021 *********************************
-* Base de 2021 havia sido feita em separado, como teste. Mas o código é essencialmente o mesmo.	
-  append using "$dirdata/PNADC2021_limpa.dta" 	
-  save "$dirdata/PNADC2012_2021_limpa.dta", replace
 
   log close
   
