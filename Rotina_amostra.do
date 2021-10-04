@@ -63,8 +63,10 @@ log using "Rotina_amostra.log", replace
   
 * RESTRIÇÃO DA AMOSTRA *******************************
 *** Removendo observações com missing values em variáveis fundamentais ou em categorias não desejadas:
-* Manter apenas população ocupada (não precisamos mais da força de trabalho potencial)
+* Manter apenas população ocupada 
   keep if VD4002 == 1
+  
+*Não precisamos mais da força de trabalho potencial (só atinge não-ocupados)
   drop VD4003
 
 
@@ -110,7 +112,17 @@ log using "Rotina_amostra.log", replace
 */
 
 
-* LOG(WAGE) *************************************
+* CALCULANDO LOG DOS SALÁRIOS ************************
+  gen logW_Habitual = ln(VD4019_real)
+  gen logW_Efetivo = ln(VD4020_real)
+  *** ATENÇÃO: existem observações com rendimento efetivo = 0. Então logW_Efetivo = . para essas observações. 
+  *** Necessário eliminar missing values na hora de estimar coeficientes para Rendimento Efetivo.
+  
+  order logW_Habitual, after(VD4019_real)
+  order logW_Efetivo, after(VD4020_real)
+  
+  
+  save "$dirdata/PNADC_amostra.dta", replace
   
   log close
 
