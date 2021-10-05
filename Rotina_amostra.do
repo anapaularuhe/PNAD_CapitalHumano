@@ -1,4 +1,3 @@
-﻿
 ******************************************************
 * FGV IBRE - Instituto Brasileiro de Economia
 * Núcleo de Mercado de Trabalho
@@ -7,6 +6,8 @@
 * Outubro/2021
 ******************************************************
 
+* OBS: NECESSÁRIO INSTALAR PACOTE mdesc:
+* search mdesc
 
 * PREPARAÇÃO *****************************************
 * Garantindo que não há variáveis prévias na memória:
@@ -20,8 +21,10 @@ set maxvar 30000
 cd "C:/Users/ana.ruhe/Documents/Capital_Humano"
 global dirdata = "C:/Users/ana.ruhe/Documents/Capital_Humano/Dados"
 
+
 * Salvando log:
 log using "Rotina_amostra.log", replace
+
 
 
 * DADOS **********************************************
@@ -39,6 +42,11 @@ log using "Rotina_amostra.log", replace
 	V2009      | Idade
 	V2010      | Cor ou raça
 	
+	V3003      | Qual o curso que frequenta (Até 2o tri 2015)
+	V3003A     | Qual o curso que frequenta (A partir do 3o tri de 2015)
+	V3009      | Qual o curso mais elevado que frequentou anteriormente (Até 2o tri 2015)
+	V3009A     | Qual o curso mais elevado que frequentou anteriormente (A partir do 3o tri de 2015)
+		
 	VD3004	   | Nível de educação mais elevado alcançado (TRÊS FASES: 2012 a set/2015; out/2015 a dez/2017; jan/2018 a presente) 
 	VD3005     | Anos de estudo                           (TRÊS FASES: 2012 a set/2015; out/2015 a dez/2017; jan/2018 a presente) 
 	             * Obs: variável parcialmente categória; 16 = 16 anos ou mais 
@@ -46,7 +54,6 @@ log using "Rotina_amostra.log", replace
 	
 	VD4001     | Condição na força de trabalho
 	VD4002     | Condição de ocupação
-	VD4003     | Força de trabalho potencial
 	VD4009     | Posição na ocupação 
 	VD4010     | Atividade principal do setor
 	VD4016     | Rendimento habitual mensal (trabalho principal)
@@ -58,23 +65,42 @@ log using "Rotina_amostra.log", replace
 	VD4035     | Horas efetivamente trabalhadas na semana   (todos os trabalhos)
 	
 	Efetivo    | Deflator com base nos redimentos efetivos
-	Habitual   | Deflator com base nos rendimentos habituais
+	Habitual   | Deflator com base nos rendimentos habituais	
 */ 
   
 * RESTRIÇÃO DA AMOSTRA *******************************
 *** Removendo observações com missing values em variáveis fundamentais ou em categorias não desejadas:
+* Análise preliminar: 
+  mdesc VD4002 VD4019 VD4020 VD4031 VD4035 
+   
+* Olhando apenas para as observações na força de trabalho (VD4001=1):   
+  preserve
+  drop if VD4001!=1
+  mdesc VD4002 VD4019 VD4020 VD4031 VD4035
+  restore
+   
+* Características da população por ocupação/desocupação:   
+  tab VD4002
+  tab VD4002 [iw = Peso]
+  
+  preserve
+  keep if VD4002 == 1
+  ** Ocupados: 
+  sum Idade VD3005 VD4019 VD4020 VD4031 VD4035
+  restore
+  
+  preserve
+  drop if VD4002 == 1
+  ** Desocupados e missing: 
+  sum Idade VD3005 VD4019 VD4020 VD4031 VD4035
+  restore
+
+  
 * Manter apenas população ocupada 
   keep if VD4002 == 1
   
-*Não precisamos mais da força de trabalho potencial (só atinge não-ocupados)
-  drop VD4003
-
-
-* Posição na ocupação: eliminamos empregador, conta própria ou trabalhador familiar    
-  drop if VD4009>=08 & VD4009<=10
-  
-  
 * Missing values para rendimento de todos os trabalhos (habitual e efetivo)
+  mdesc VD4019 VD4020 VD4031 VD4035
   drop if VD4019 ==.
   drop if VD4020 ==. 
   
@@ -82,6 +108,7 @@ log using "Rotina_amostra.log", replace
 * Missing values para horas de todos os trabalhos (habitual e efetivo)
   drop if VD4031 ==.
   drop if VD4035 ==.
+
 
   save "$dirdata/PNADC_amostra.dta", replace
   
@@ -97,7 +124,7 @@ log using "Rotina_amostra.log", replace
 	save "$dirdata/PNADC_amostra.dta", replace
 
 	
-/* Conferindo se funcionou: plotando as variáveis (descomentar)
+/* Conferindo se funcionou: plotando as variáveis (descomentar) - média não representativa da população, apenas para ver o padrão geral.
  * Rendimento Habitual: 
    egen VD4019_medio = mean(VD4019), by(Ano)
    egen VD4019_real_medio = mean(VD4019_real), by(Ano)
@@ -115,19 +142,29 @@ log using "Rotina_amostra.log", replace
 * CALCULANDO LOG DOS SALÁRIOS ************************
   gen logW_Habitual = ln(VD4019_real)
   gen logW_Efetivo = ln(VD4020_real)
-  *** ATENÇÃO: existem observações com rendimento efetivo = 0. Então logW_Efetivo = . para essas observações. 
-  *** Necessário eliminar missing values na hora de estimar coeficientes para Rendimento Efetivo.
+  gen logW_Efetivo_0 = 0
+  replace logW_Efetivo_0 = ln(VD4020_real) if VD4020_real > 0
+  
+  *** ATENÇÃO: existem observações com rendimento efetivo = 0. logW_Efetivo = . para essas observações. 
+  *** A variável logW_Efetivo_0 atribui valor 0 ao log do salário dessas observações.
   
   order logW_Habitual, after(VD4019_real)
-  order logW_Efetivo, after(VD4020_real)
-  
+  order logW_Efetivo logW_Efetivo_0, after(VD4020_real)
   
   save "$dirdata/PNADC_amostra.dta", replace
   
+  * Analisando:
+    tab Sexo 
+	tab Cor 
+	tab VD3006 
+	
+	preserve
+	keep if VD4020_real==0
+ 	tab Sexo 
+	tab Cor 
+	tab VD3006 
+	restore
+  
   log close
 
-/* A fazer:
-
-1. Tirar logs dos rendimentos
- 
-*/
+  

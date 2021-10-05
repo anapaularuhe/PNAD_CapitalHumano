@@ -1,4 +1,3 @@
-﻿
 ******************************************************
 * FGV IBRE - Instituto Brasileiro de Economia
 * Núcleo de Mercado de Trabalho
@@ -7,6 +6,8 @@
 * Outubro/2021
 ******************************************************
 
+* OBS: NECESSÁRIO INSTALAR PACOTE mdesc:
+* search mdesc
 
 * PREPARAÇÃO *****************************************
 * Garantindo que não há variáveis prévias na memória:
@@ -20,17 +21,17 @@ set maxvar 30000
 cd "C:/Users/ana.ruhe/Documents/Capital_Humano"
 global dirdata = "C:/Users/ana.ruhe/Documents/Capital_Humano/Dados"
 
+
 * Salvando log:
 log using "Rotina_organizar_base.log", replace
 
 
-
 * IMPORTANDO DADOS: 2012-2021 ************************
-* Primeira vez: datazoom
-  * datazoom_pnadcontinua, years( 2012 2013 2014 2015 2016 2017 2018 2019 2020 2021) original(C:\Users\ana.ruhe\Documents\Capital_Humano\PNAD_Original) saving (C:\Users\ana.ruhe\Documents\Capital_Humano\Dados) nid
+/* Primeira vez: datazoom
+   datazoom_pnadcontinua, years( 2012 2013 2014 2015 2016 2017 2018 2019 2020 2021) original(C:\Users\ana.ruhe\Documents\Capital_Humano\PNAD_Original) saving (C:\Users\ana.ruhe\Documents\Capital_Humano\Dados) nid
 
   
-* Com os dados em .dta: criando base completa
+ Com os dados em .dta: criando base completa
 	use "$dirdata/PNADC_trimestral_2012.dta"
 	append using "$dirdata/PNADC_trimestral_2013.dta"
 	append using "$dirdata/PNADC_trimestral_2014.dta"
@@ -43,6 +44,10 @@ log using "Rotina_organizar_base.log", replace
 	append using "$dirdata/PNADC_trimestral_2021.dta"
 
 	save "$dirdata/PNADC2012_2021.dta", replace
+*/
+
+* Base já importada:
+  use "$dirdata/PNADC2012_2021.dta", clear
 
 
 * ADICIONANDO DEFLATORES *****************************	
@@ -62,6 +67,11 @@ log using "Rotina_organizar_base.log", replace
 	V2009      | Idade
 	V2010      | Cor ou raça
 	
+	V3003      | Qual o curso que frequenta (Até 2o tri 2015)
+	V3003A     | Qual o curso que frequenta (A partir do 3o tri de 2015)
+	V3009      | Qual o curso mais elevado que frequentou anteriormente (Até 2o tri 2015)
+	V3009A     | Qual o curso mais elevado que frequentou anteriormente (A partir do 3o tri de 2015)
+		
 	VD3004	   | Nível de educação mais elevado alcançado (TRÊS FASES: 2012 a set/2015; out/2015 a dez/2017; jan/2018 a presente) 
 	VD3005     | Anos de estudo                           (TRÊS FASES: 2012 a set/2015; out/2015 a dez/2017; jan/2018 a presente) 
 	             * Obs: variável parcialmente categória; 16 = 16 anos ou mais 
@@ -69,7 +79,6 @@ log using "Rotina_organizar_base.log", replace
 	
 	VD4001     | Condição na força de trabalho
 	VD4002     | Condição de ocupação
-	VD4003     | Força de trabalho potencial
 	VD4009     | Posição na ocupação 
 	VD4010     | Atividade principal do setor
 	VD4016     | Rendimento habitual mensal (trabalho principal)
@@ -84,7 +93,7 @@ log using "Rotina_organizar_base.log", replace
 	Habitual   | Deflator com base nos rendimentos habituais	
 */
 
-keep Ano Trimestre UF V1027 V1028 V1029 V2007 V2009 V2010 VD3004 VD3005 VD3006 VD4001 VD4002 VD4003 VD4009 VD4010 VD4016 VD4017 VD4019 VD4020 VD4031 VD4032 VD4035 Efetivo Habitual
+keep Ano Trimestre UF V1027 V1028 V1029 V2007 V2009 V2010 V3003 V3003A V3009 V3009A VD3004 VD3005 VD3006 VD4001 VD4002 VD4009 VD4010 VD4016 VD4017 VD4019 VD4020 VD4031 VD4032 VD4035 Efetivo Habitual
 
 
 *** Nomeando variáveis de forma mais intuitiva:
@@ -104,6 +113,7 @@ keep Ano Trimestre UF V1027 V1028 V1029 V2007 V2009 V2010 VD3004 VD3005 VD3006 V
   label define sexo 1 "Homem" 2 "Mulher" 
   label values Sexo sexo
   
+  mdesc Sexo
   drop if Sexo ==.
   gen byte dummy_Homem = (Sexo==1)
   gen byte dummy_Mulher = (Sexo==2)
@@ -117,14 +127,45 @@ keep Ano Trimestre UF V1027 V1028 V1029 V2007 V2009 V2010 VD3004 VD3005 VD3006 V
   label values Cor cor_label
 
 
+* V3003: Qual o curso que frequenta (Até 2o tri 2015)
+  label define V3003_label 1 "Pré-escolar (maternal e jardim de infância)" 2 "Alfabetização de jovens e adultos" 3 "Regular do ensino fundamental" 4 "Educação de jovens e adultos (EJA) ou supletivo do ensino fundamental" 5 "Regular do ensino médio" 6 "Educação de jovens e adultos (EJA) ou supletivo do ensino médio" 7 "Superior - graduação" 8 "Mestrado" 9 "Doutorado"
+  label values V3003 V3003_label
+  
+  
+* V3003A: Qual o curso que frequenta (A partir do 3o tri de 2015)
+  label define V3003A_label 1 "Creche" 2 "Pré-escola" 3 "Alfabetização de jovens e adultos" 4 "Regular do ensino fundamental" 5 "Educação de jovens e adultos (EJA) do ensino fundamental" 6 "Regular do ensino médio" 7 "Educação de jovens e adultos (EJA) do ensino médio" 8 "Superior - graduação" 9 "Especialização de nível superior" 10 "Mestrado" 11 "Doutorado"
+  label values V3003A V3003A_label
+  
+  
+* V3009: Qual o curso mais elevado que frequentou anteriormente (Até 2o tri 2015) 
+  label define V3009_label 1 "Classe de alfabetização" 2 "Alfabetização de jovens e adultos" 3 "Antigo primário (elementar)" 4 "Antigo ginásio (médio 1º ciclo)" 5 "Regular do ensino fundamental ou do 1º grau" 6 "Educação de jovens e adultos (EJA) ou supletivo do ensino fundamental" 7 "Antigo científico, clássico, etc. (médio 2º ciclo)" 8 "Regular do ensino médio ou do 2º grau" 9 "Educação de jovens e adultos (EJA) ou supletivo do ensino médio" 10 "Superior - graduação" 11 "Mestrado" 12 "Doutorado"
+  label values V3009 V3009_label
+  
+  
+* V3009A: Qual o curso mais elevado que frequentou anteriormente (A partir do 3o tri de 2015)
+  label define V3009A_label 1 "Creche" 2 "Pré-escola" 3 "Classe de alfabetização" 4 "Alfabetização de jovens e adultos" 5 "Antigo primário (elementar)" 6 "Antigo ginásio (médio 1º ciclo)" 7 "Regular do ensino fundamental ou do 1º grau" 8 "Educação de jovens e adultos (EJA) ou supletivo do 1º grau" 9 "Antigo científico, clássico, etc. (médio 2º ciclo)" 10 "Regular do ensino médio ou do 2º grau" 11 "Educação de jovens e adultos (EJA) ou supletivo do 2º grau" 12 "Superior - graduação" 13 "Especialização de nível superior" 14 "Mestrado" 15 "Doutorado"
+  label values V3009A V3009A_label
+  
+  
 * VD3004: Nível de instrução
   label define VD3004_label 1 "Sem instrução e menos de 1 ano de estudo" 2 "Fundamental incompleto ou equivalente" 3 "Fundamental completo ou equivalente" 4 "Médio incompleto ou equivalente" 5 "Médio completo ou equivalente" 6 "Superior incompleto ou equivalente" 7 "Superior completo" 
   label values VD3004 VD3004_label
      
 	 
 * VD3006: Grupo	de anos de estudo (eliminamos observações com missing values)  
+  
   label define VD3006_label 1 "Sem instrução e menos de 1 ano de estudo" 2 "1 a 4 anos de estudo" 3 "5 a 8 anos de estudo" 4 "9 a 11 anos de estudo" 5 "12 a 15 anos de estudo" 6 "16 anos ou mais de estudo"
   label values VD3006 VD3006_label
+  
+  ** Informações sobre missing values:
+     mdesc VD3006
+  ** Características das observações com missing values para grupo de educação (VD3006):
+	 preserve
+	 drop if VD3006 !=.
+	 sum Idade VD4001 VD4002 VD4016, detail
+	 restore
+  ** Características da amostra remanescente:
+     tab VD3006
   
   drop if VD3006 ==.
   gen byte dummy_educ1 = (VD3006==1)
@@ -144,11 +185,6 @@ keep Ano Trimestre UF V1027 V1028 V1029 V2007 V2009 V2010 VD3004 VD3005 VD3006 V
   label define VD4002_label 1 "Ocupado" 2 "Desocupado"
   label values VD4002 VD4002_label
    
-   
-* VD4003: Condição na FT potencial para aqueles fora da força de trabalho
-  label define VD4003_label 1 "Na FT potencial" 2 "Fora da FT potencial"
-  label values VD4003 VD4003_label
-  
   
 * VD4009: Posição na ocupação  
   label define VD4009_label 1 "Empregado setor privado COM carteira" 2 "Empregado setor privado SEM carteira" 3 "Trabalhador doméstico COM carteira" 4 "Trabalhador doméstico SEM carteira" 5 "Setor público COM carteira" 6 "Setor público SEM carteira" 7 "Militar e estatutário" 8 "Empregador" 9 "Conta-própria" 10 "Trabalhador familiar auxiliar"
@@ -158,7 +194,10 @@ keep Ano Trimestre UF V1027 V1028 V1029 V2007 V2009 V2010 VD3004 VD3005 VD3006 V
   gen byte dummy_setorpublico = (VD4009>=05 & VD4009<=07) if VD4009!=. 
   gen byte dummy_informal = (VD4009==02 | VD4009==04 | VD4009==06)
   
-  order dummy_setorprivado dummy_setorpublico dummy_informal, after(VD4009)
+  gen byte dummy_trabalhador = (VD4009>=01 & VD4009<=07) if VD4009!=.
+  gen byte dummy_trab_ou_empreg = (VD4009>=01 & VD4009<=09) if VD4009!=.
+  
+  order dummy_setorprivado dummy_setorpublico dummy_informal dummy_trabalhador dummy_trab_ou_empreg, after(VD4009)
    
 *VD4010: Setor de atividade
 /* Como os nomes são muito longos, vamos usar resumos:
@@ -229,6 +268,7 @@ keep Ano Trimestre UF V1027 V1028 V1029 V2007 V2009 V2010 VD3004 VD3005 VD3006 V
 	
 	
 *** Criando variável de experiência (eliminamos observações com missing values de idade)
+	mdesc Idade
 	drop if Idade == .
 	gen Experiencia = 0
 	order Experiencia, after(VD3006)
@@ -240,12 +280,36 @@ keep Ano Trimestre UF V1027 V1028 V1029 V2007 V2009 V2010 VD3004 VD3005 VD3006 V
 	gen Experiencia3 = Experiencia^3
 	gen Experiencia4 = Experiencia^4
 	
-	save "$dirdata/PNADC2012_2021_limpa.dta", replace
+    save "$dirdata/PNADC2012_2021_limpa.dta", replace
+  
+ *** Análise: 16 ou + anos de estudo. Quem são?
+   * Obs: todos com Especialização, Mestrado ou Doutorado tem VD3005 = 16
+  
+  * Criando dummies para aqueles cursando/já cursaram esses níveis educacionais: 
+	gen byte Especializacao = 0
+	replace Especializacao = 1 if V3003A==09 | V3009A==13
+
+	gen byte Mestrado = 0 
+	replace Mestrado = 1 if V3003==8 | V3009==11
+	replace Mestrado = 1 if V3003A==10 | V3009A==14
+
+	gen byte Doutorado = 0 
+	replace Doutorado = 1 if V3003==9 | V3009==12
+	replace Doutorado = 1 if V3003A==11 | V3009A==15
 	
+  * Avaliando participação na amostra e na população:	
+	gen byte Part16 = 0
+	replace Part16 = 1 if (VD3005==1 & Mestrado==0 & Doutorado==0 & Especializacao==0)
+	replace Part16 = 2 if Especializacao==1
+	replace Part16 = 3 if Mestrado==1
+	replace Part16 = 4 if Doutorado==1
 	
+	label variable Part16 "Participação: 16 anos ou mais de estudo"
+	label define Part16_labelh 0 "Menos de 16 anos de estudo" 1 "+16 anos sem pós" 2 "16+ e especializacao" 3 "16+ e mestrado" 4 "16+ e doutorado" 
+	label values Part16 Part16_labelh
+	
+	tab Part16
+	tab Part16 [iw = Peso]
+	tab Ano Part16
 
   log close
-  
-  
-
-  

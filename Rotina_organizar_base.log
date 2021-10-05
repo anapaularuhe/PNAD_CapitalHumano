@@ -1,0 +1,552 @@
+--------------------------------------------------------------------------------------------------------------------------------------------------------
+      name:  <unnamed>
+       log:  C:\Users\ana.ruhe\Documents\Capital_Humano\Rotina_organizar_base.log
+  log type:  text
+ opened on:   5 Oct 2021, 18:52:00
+
+. 
+. 
+. ******************************************************
+. * FGV IBRE - Instituto Brasileiro de Economia
+. * Núcleo de Mercado de Trabalho
+. * Projeto: Capital Humano e Produtividade
+. * Ana Paula Nothen Ruhe
+. * Outubro/2021
+. 
+. * ROTINA DE ORGANIZAÇÃO DA BASE
+. ******************************************************
+. 
+. 
+. * IMPORTANDO DADOS: 2012-2021 ************************
+. /* Primeira vez: datazoom
+>    datazoom_pnadcontinua, years( 2012 2013 2014 2015 2016 2017 2018 2019 2020 2021) original(C:\Users\ana.ruhe\Documents\Capital_Humano\PNAD_Original)
+>  saving (C:\Users\ana.ruhe\Documents\Capital_Humano\Dados) nid
+> 
+>   
+>  Com os dados em .dta: criando base completa
+>         use "$dirdata/PNADC_trimestral_2012.dta"
+>         append using "$dirdata/PNADC_trimestral_2013.dta"
+>         append using "$dirdata/PNADC_trimestral_2014.dta"
+>         append using "$dirdata/PNADC_trimestral_2015.dta"
+>         append using "$dirdata/PNADC_trimestral_2016.dta"
+>         append using "$dirdata/PNADC_trimestral_2017.dta"
+>         append using "$dirdata/PNADC_trimestral_2018.dta"
+>         append using "$dirdata/PNADC_trimestral_2019.dta"
+>         append using "$dirdata/PNADC_trimestral_2020.dta"
+>         append using "$dirdata/PNADC_trimestral_2021.dta"
+> 
+>         save "$dirdata/PNADC2012_2021.dta", replace
+> */
+. 
+. * Base já importada:
+.   use "$dirdata/PNADC2012_2021.dta", clear
+
+. 
+. 
+. * ADICIONANDO DEFLATORES *****************************  
+.   merge using "$dirdata/Deflatores.dta"         
+(note: you are using old merge syntax; see [D] merge for new syntax)
+(note: variable Ano was str4 in the using data, but will be int now)
+(note: variable UF was str19 in the using data, but will be int now)
+
+.         
+.         
+. * LIMPANDO BASE **************************************
+. /* Vamos manter as seguintes variáveis:
+>         Ano        | Ano
+>         Trimestre  | Trimestre
+>         UF         | UF
+>         V1027      | Peso trimestral com correção de não entrevista SEM PÓS ESTRATIFICAÇÃO pela projeção de população
+>         V1028      | Peso trimestral com correção de não entrevista COM PÓS ESTRATIFICAÇÃO pela projeção de população  
+>         V1029      | Projeção da população
+>         
+>     V2007      | Sexo
+>         V2009      | Idade
+>         V2010      | Cor ou raça
+>         
+>         V3003      | Qual o curso que frequenta (Até 2o tri 2015)
+>         V3003A     | Qual o curso que frequenta (A partir do 3o tri de 2015)
+>         V3009      | Qual o curso mais elevado que frequentou anteriormente (Até 2o tri 2015)
+>         V3009A     | Qual o curso mais elevado que frequentou anteriormente (A partir do 3o tri de 2015)
+>                 
+>         VD3004     | Nível de educação mais elevado alcançado (TRÊS FASES: 2012 a set/2015; out/2015 a dez/2017; jan/2018 a presente) 
+>         VD3005     | Anos de estudo                           (TRÊS FASES: 2012 a set/2015; out/2015 a dez/2017; jan/2018 a presente) 
+>                      * Obs: variável parcialmente categória; 16 = 16 anos ou mais 
+>         VD3006     | Grupos de anos de estudo                 (TRÊS FASES: 2012 a set/2015; out/2015 a dez/2017; jan/2018 a presente)
+>         
+>         VD4001     | Condição na força de trabalho
+>         VD4002     | Condição de ocupação
+>         VD4009     | Posição na ocupação 
+>         VD4010     | Atividade principal do setor
+>         VD4016     | Rendimento habitual mensal (trabalho principal)
+>         VD4017     | Rendimento efetivo mensal  (trabalho principal)
+>         VD4019     | Rendimento habitual mensal (todos os trabalhos)
+>         VD4020     | Rendimento efetivo mensal  (todos os trabalhos)
+>         VD4031     | Horas habitualmente trabalhadas por semana (todos os trabalhos)
+>         VD4032     | Horas efetivamente trabalhadas na semana   (trabalho principal)
+>         VD4035     | Horas efetivamente trabalhadas na semana   (todos os trabalhos)
+>         
+>         Efetivo    | Deflator com base nos redimentos efetivos
+>         Habitual   | Deflator com base nos rendimentos habituais        
+> */
+. 
+. keep Ano Trimestre UF V1027 V1028 V1029 V2007 V2009 V2010 V3003 V3003A V3009 V3009A VD3004 VD3005 VD3006 VD4001 VD4002 VD4009 VD4010 VD4016 VD4017 VD4
+> 019 VD4020 VD4031 VD4032 VD4035 Efetivo Habitual
+
+. 
+. 
+. *** Nomeando variáveis de forma mais intuitiva:
+.   rename V1028 Peso
+
+.   rename V1029 Populacao
+
+.   
+.   rename V2007 Sexo
+
+.   rename V2009 Idade
+
+.   rename V2010 Cor
+
+.  
+.   save "$dirdata/PNADC2012_2021_limpa.dta", replace
+file C:/Users/ana.ruhe/Documents/Capital_Humano/Dados/PNADC2012_2021_limpa.dta saved
+
+. 
+.   
+. *** Variáveis categóricas: nomeando labels e criando dummies quando apropriado
+. * Obs: variáveis dummy são do tipo byte - apenas 1 casa decimal, ocupam menos espaço na memória
+. * Sexo  (eliminamos observações com missing values) 
+.   label define sexo 1 "Homem" 2 "Mulher" 
+
+.   label values Sexo sexo
+
+.   
+.   mdesc Sexo
+
+    Variable    |     Missing          Total     Percent Missing
+----------------+-----------------------------------------------
+           Sexo |           0       20325587           0.00
+----------------+-----------------------------------------------
+
+.   drop if Sexo ==.
+(0 observations deleted)
+
+.   gen byte dummy_Homem = (Sexo==1)
+
+.   gen byte dummy_Mulher = (Sexo==2)
+
+.   
+.   order dummy_Homem, after(Sexo)
+
+.   order dummy_Mulher, after(dummy_Homem)  
+
+.           
+.           
+. * Cor
+.   label define cor_label 1 "Branca" 2 "Preta" 3 "Amarela" 4 "Parda" 5 "Indígena" 9 "Ignorado" 
+
+.   label values Cor cor_label
+
+. 
+. 
+. * V3003: Qual o curso que frequenta (Até 2o tri 2015)
+.   label define V3003_label 1 "Pré-escolar (maternal e jardim de infância)" 2 "Alfabetização de jovens e adultos" 3 "Regular do ensino fundamental" 4 "
+> Educação de jovens e adultos (EJA) ou supletivo do ensino fundamental" 5 "Regular do ensino médio" 6 "Educação de jovens e adultos (EJA) ou supletivo 
+> do ensino médio" 7 "Superior - graduação" 8 "Mestrado" 9 "Doutorado"
+
+.   label values V3003 V3003_label
+
+.   
+.   
+. * V3003A: Qual o curso que frequenta (A partir do 3o tri de 2015)
+.   label define V3003A_label 1 "Creche" 2 "Pré-escola" 3 "Alfabetização de jovens e adultos" 4 "Regular do ensino fundamental" 5 "Educação de jovens e 
+> adultos (EJA) do ensino fundamental" 6 "Regular do ensino médio" 7 "Educação de jovens e adultos (EJA) do ensino médio" 8 "Superior - graduação" 9 "Es
+> pecialização de nível superior" 10 "Mestrado" 11 "Doutorado"
+
+.   label values V3003A V3003A_label
+
+.   
+.   
+. * V3009: Qual o curso mais elevado que frequentou anteriormente (Até 2o tri 2015) 
+.   label define V3009_label 1 "Classe de alfabetização" 2 "Alfabetização de jovens e adultos" 3 "Antigo primário (elementar)" 4 "Antigo ginásio (médio 
+> 1º ciclo)" 5 "Regular do ensino fundamental ou do 1º grau" 6 "Educação de jovens e adultos (EJA) ou supletivo do ensino fundamental" 7 "Antigo científ
+> ico, clássico, etc. (médio 2º ciclo)" 8 "Regular do ensino médio ou do 2º grau" 9 "Educação de jovens e adultos (EJA) ou supletivo do ensino médio" 10
+>  "Superior - graduação" 11 "Mestrado" 12 "Doutorado"
+
+.   label values V3009 V3009_label
+
+.   
+.   
+. * V3009A: Qual o curso mais elevado que frequentou anteriormente (A partir do 3o tri de 2015)
+.   label define V3009A_label 1 "Creche" 2 "Pré-escola" 3 "Classe de alfabetização" 4 "Alfabetização de jovens e adultos" 5 "Antigo primário (elementar)
+> " 6 "Antigo ginásio (médio 1º ciclo)" 7 "Regular do ensino fundamental ou do 1º grau" 8 "Educação de jovens e adultos (EJA) ou supletivo do 1º grau" 9
+>  "Antigo científico, clássico, etc. (médio 2º ciclo)" 10 "Regular do ensino médio ou do 2º grau" 11 "Educação de jovens e adultos (EJA) ou supletivo d
+> o 2º grau" 12 "Superior - graduação" 13 "Especialização de nível superior" 14 "Mestrado" 15 "Doutorado"
+
+.   label values V3009A V3009A_label
+
+.   
+.   
+. * VD3004: Nível de instrução
+.   label define VD3004_label 1 "Sem instrução e menos de 1 ano de estudo" 2 "Fundamental incompleto ou equivalente" 3 "Fundamental completo ou equivale
+> nte" 4 "Médio incompleto ou equivalente" 5 "Médio completo ou equivalente" 6 "Superior incompleto ou equivalente" 7 "Superior completo" 
+
+.   label values VD3004 VD3004_label
+
+.      
+.          
+. * VD3006: Grupo de anos de estudo (eliminamos observações com missing values)  
+.   
+.   label define VD3006_label 1 "Sem instrução e menos de 1 ano de estudo" 2 "1 a 4 anos de estudo" 3 "5 a 8 anos de estudo" 4 "9 a 11 anos de estudo" 5
+>  "12 a 15 anos de estudo" 6 "16 anos ou mais de estudo"
+
+.   label values VD3006 VD3006_label
+
+.   
+.   ** Informações sobre missing values:
+.      mdesc VD3006
+
+    Variable    |     Missing          Total     Percent Missing
+----------------+-----------------------------------------------
+         VD3006 |   1,323,928       20325587           6.51
+----------------+-----------------------------------------------
+
+.   ** Características das observações com missing values para grupo de educação (VD3006):
+.          preserve
+
+.          drop if VD3006 !=.
+(19,001,659 observations deleted)
+
+.          sum Idade VD4001 VD4002 VD4016, detail
+
+                Idade na data de referência 
+-------------------------------------------------------------
+      Percentiles      Smallest
+ 1%            0              0
+ 5%            0              0
+10%            0              0       Obs           1,323,928
+25%            1              0       Sum of Wgt.   1,323,928
+
+50%            2                      Mean            2.07548
+                        Largest       Std. Dev.      1.397701
+75%            3              4
+90%            4              4       Variance       1.953569
+95%            4              4       Skewness      -.0572929
+99%            4              4       Kurtosis       1.726642
+
+           Condição em relação força d trab. 
+-------------------------------------------------------------
+no observations
+
+                  Condição de ocupação 
+-------------------------------------------------------------
+no observations
+
+               Rendim. habitual trab. princ. 
+-------------------------------------------------------------
+no observations
+
+.          restore
+
+.   ** Características da amostra remanescente:
+.      tab VD3006
+
+  Grupamento de anos de estudo (pessoas |
+       de 5 anos ou mais de idade) para |
+                               fundamen |      Freq.     Percent        Cum.
+----------------------------------------+-----------------------------------
+Sem instrução e menos de 1 ano de estud |  1,871,081        9.85        9.85
+                   1 a 4 anos de estudo |  3,176,015       16.71       26.56
+                   5 a 8 anos de estudo |  4,676,616       24.61       51.17
+                  9 a 11 anos de estudo |  2,876,659       15.14       66.31
+                 12 a 15 anos de estudo |  4,797,087       25.25       91.56
+              16 anos ou mais de estudo |  1,604,201        8.44      100.00
+----------------------------------------+-----------------------------------
+                                  Total | 19,001,659      100.00
+
+.   
+.   drop if VD3006 ==.
+(1,323,928 observations deleted)
+
+.   gen byte dummy_educ1 = (VD3006==1)
+
+.   gen byte dummy_educ2 = (VD3006==2)
+
+.   gen byte dummy_educ3 = (VD3006==3)
+
+.   gen byte dummy_educ4 = (VD3006==4)
+
+.   gen byte dummy_educ5 = (VD3006==5)
+
+.   gen byte dummy_educ6 = (VD3006==6)
+
+.   
+.           
+. * VD4001: Condição na força de trabalho
+.   label define VD4001_label 1 "Na força de trabalho" 2 "Fora da força de trabalho"
+
+.   label values VD4001 VD4001_label
+
+.   
+.  
+. * VD4002: Condição de ocupação
+.   label define VD4002_label 1 "Ocupado" 2 "Desocupado"
+
+.   label values VD4002 VD4002_label
+
+.    
+.   
+. * VD4009: Posição na ocupação  
+.   label define VD4009_label 1 "Empregado setor privado COM carteira" 2 "Empregado setor privado SEM carteira" 3 "Trabalhador doméstico COM carteira" 4
+>  "Trabalhador doméstico SEM carteira" 5 "Setor público COM carteira" 6 "Setor público SEM carteira" 7 "Militar e estatutário" 8 "Empregador" 9 "Conta-
+> própria" 10 "Trabalhador familiar auxiliar"
+
+.   label values VD4009 VD4009_label
+
+.   
+.   gen byte dummy_setorprivado = (VD4009>=01 & VD4009<=04) if VD4009!=. 
+(10,361,588 missing values generated)
+
+.   gen byte dummy_setorpublico = (VD4009>=05 & VD4009<=07) if VD4009!=. 
+(10,361,588 missing values generated)
+
+.   gen byte dummy_informal = (VD4009==02 | VD4009==04 | VD4009==06)
+
+.   
+.   gen byte dummy_trabalhador = (VD4009>=01 & VD4009<=07) if VD4009!=.
+(10,361,588 missing values generated)
+
+.   gen byte dummy_trab_ou_empreg = (VD4009>=01 & VD4009<=09) if VD4009!=.
+(10,361,588 missing values generated)
+
+.   
+.   order dummy_setorprivado dummy_setorpublico dummy_informal dummy_trabalhador dummy_trab_ou_empreg, after(VD4009)
+
+.    
+. *VD4010: Setor de atividade
+. /* Como os nomes são muito longos, vamos usar resumos:
+>    01   Agricultura, pecuária, produção florestal, pesca e aquicultura    | Agropecuária
+>    02   Indústria geral                                                   | Indústria
+>    03   Construção                                                        | Construção
+>    04   Comércio, reparação de veículos automotores e motocicletas        | Veículos
+>    05   Transporte, armazenagem e correio                                 | Transporte
+>    06   Alojamento e alimentação                                          | Alojamento e alimentação
+>    07   Informação, comunicação e atividades financeiras, imobiliárias,   | Serviços de informação 
+>            profissionais e administrativas
+>    08   Administração pública, defesa e seguridade social                 | Administração pública 
+>    09   Educação, saúde humana e serviços sociais                         | Educação e saúde  
+>    10   Outros Serviços                                                   | Outros serviços  
+>    11   Serviços domésticos                                               | Serviços domésticos
+>    12   Atividades mal definidas                                          | Atividades mal definidas
+> */
+. 
+.   label define VD4010_label 1 "Agropecuária" 2 "Indústria" 3 "Construção" 4 "Veículos" 5 "Transporte" 6 "Alojamento e alimentação" 7 "Serviços de info
+> rmação" 8 "Administração pública" 9 "Educação e saúde" 10 "Outros serviços" 11 "Serviços domésticos" 12 "Atividades mal definidas"
+
+.   label values VD4010 VD4010_label
+
+.      
+. 
+.   save "$dirdata/PNADC2012_2021_limpa.dta", replace
+file C:/Users/ana.ruhe/Documents/Capital_Humano/Dados/PNADC2012_2021_limpa.dta saved
+
+. 
+.   
+.   
+. *** Criando variável de região:
+. /* Classificação das UF:
+>         11      Rondônia
+>         12      Acre
+>         13      Amazonas
+>         14      Roraima
+>         15      Pará
+>         16      Amapá
+>         17      Tocantins
+>         21      Maranhão
+>         22      Piauí
+>         23      Ceará
+>         24      Rio Grande do Norte
+>         25      Paraíba
+>         26      Pernambuco
+>         27      Alagoas
+>         28      Sergipe
+>         29      Bahia
+>         31      Minas Gerais
+>         32      Espírito Santo
+>         33      Rio de Janeiro
+>         35      São Paulo
+>         41      Paraná
+>         42      Santa Catarina
+>         43      Rio Grande do Sul
+>         50      Mato Grosso do Sul
+>         51      Mato Grosso
+>         52      Goiás
+>         53      Distrito Federal
+> */
+.     gen Regiao=""
+(19,001,659 missing values generated)
+
+.         replace Regiao="NO" if UF>=11 & UF<=17
+variable Regiao was str1 now str2
+(2,599,941 real changes made)
+
+.         replace Regiao="NE" if UF>=21 & UF<=29
+(6,421,757 real changes made)
+
+.         replace Regiao="SE" if UF>=31 & UF<=35
+(4,990,029 real changes made)
+
+.         replace Regiao="SU" if UF>=41 & UF<=43
+(3,143,394 real changes made)
+
+.         replace Regiao="CO" if UF>=50 & UF<=53
+(1,846,538 real changes made)
+
+.     
+.         order Regiao, after(UF)
+
+.         
+.         
+.         save "$dirdata/PNADC2012_2021_limpa.dta", replace 
+file C:/Users/ana.ruhe/Documents/Capital_Humano/Dados/PNADC2012_2021_limpa.dta saved
+
+.         
+.         
+. *** Criando variável de experiência (eliminamos observações com missing values de idade)
+.         mdesc Idade
+
+    Variable    |     Missing          Total     Percent Missing
+----------------+-----------------------------------------------
+          Idade |           0       19001659           0.00
+----------------+-----------------------------------------------
+
+.         drop if Idade == .
+(0 observations deleted)
+
+.         gen Experiencia = 0
+
+.         order Experiencia, after(VD3006)
+
+.         replace Experiencia= Idade - VD3005 - 6 if VD3005>=9
+(8,735,886 real changes made)
+
+.         replace Experiencia= Idade - 15 if VD3005<9
+(9,549,176 real changes made)
+
+.         
+.   * Potências de Experiência:
+.         gen Experiencia2 = Experiencia^2
+
+.         gen Experiencia3 = Experiencia^3
+
+.         gen Experiencia4 = Experiencia^4
+
+.         
+.     save "$dirdata/PNADC2012_2021_limpa.dta", replace
+file C:/Users/ana.ruhe/Documents/Capital_Humano/Dados/PNADC2012_2021_limpa.dta saved
+
+.   
+.  *** Análise: 16 ou + anos de estudo. Quem são?
+.    * Obs: todos com Especialização, Mestrado ou Doutorado tem VD3005 = 16
+.   
+.   * Criando dummies para aqueles cursando/já cursaram esses níveis educacionais: 
+.         gen byte Especializacao = 0
+
+.         replace Especializacao = 1 if V3003A==09 | V3009A==13
+(279,129 real changes made)
+
+. 
+.         gen byte Mestrado = 0 
+
+.         replace Mestrado = 1 if V3003==8 | V3009==11
+(26,357 real changes made)
+
+.         replace Mestrado = 1 if V3003A==10 | V3009A==14
+(45,356 real changes made)
+
+. 
+.         gen byte Doutorado = 0 
+
+.         replace Doutorado = 1 if V3003==9 | V3009==12
+(9,652 real changes made)
+
+.         replace Doutorado = 1 if V3003A==11 | V3009A==15
+(20,381 real changes made)
+
+.         
+.   * Avaliando participação na amostra e na população:       
+.         gen byte Part16 = 0
+
+.         replace Part16 = 1 if (VD3005==1 & Mestrado==0 & Doutorado==0 & Especializacao==0)
+(758,870 real changes made)
+
+.         replace Part16 = 2 if Especializacao==1
+(279,129 real changes made)
+
+.         replace Part16 = 3 if Mestrado==1
+(71,713 real changes made)
+
+.         replace Part16 = 4 if Doutorado==1
+(30,033 real changes made)
+
+.         
+.         label variable Part16 "Participação: 16 anos ou mais de estudo"
+
+.         label define Part16_labelh 0 "Menos de 16 anos de estudo" 1 "+16 anos sem pós" 2 "16+ e especializacao" 3 "16+ e mestrado" 4 "16+ e doutorado"
+>  
+
+.         label values Part16 Part16_labelh
+
+.         
+.         tab Part16
+
+  Participação: 16 anos ou |
+            mais de estudo |      Freq.     Percent        Cum.
+---------------------------+-----------------------------------
+Menos de 16 anos de estudo | 17,861,914       94.00       94.00
+          +16 anos sem pós |    758,870        3.99       98.00
+      16+ e especializacao |    279,129        1.47       99.46
+            16+ e mestrado |     71,713        0.38       99.84
+           16+ e doutorado |     30,033        0.16      100.00
+---------------------------+-----------------------------------
+                     Total | 19,001,659      100.00
+
+.         tab Part16 [iw = Peso]
+
+  Participação: 16 anos ou |
+            mais de estudo |      Freq.     Percent        Cum.
+---------------------------+-----------------------------------
+Menos de 16 anos de estudo | 6.8679e+09       94.06       94.06
+          +16 anos sem pós |  244922764        3.35       97.42
+      16+ e especializacao |  137034629        1.88       99.29
+            16+ e mestrado | 35923606.4        0.49       99.79
+           16+ e doutorado | 15684225.3        0.21      100.00
+---------------------------+-----------------------------------
+                     Total | 7.3014e+09      100.00
+
+.         tab Ano Part16
+
+    Ano de |
+ referênci |        Participação: 16 anos ou mais de estudo
+        a  | Menos de   +16 anos   16+ e esp  16+ e mes  16+ e dou |     Total
+-----------+-------------------------------------------------------+----------
+      2012 | 1,980,692    104,151          0      6,960      2,362 | 2,094,165 
+      2013 | 2,012,506     98,089          0      6,816      2,506 | 2,119,917 
+      2014 | 2,036,063     96,737          0      7,130      2,655 | 2,142,585 
+      2015 | 2,024,454     92,733      5,873      7,124      2,830 | 2,133,014 
+      2016 | 1,994,488     92,914     34,460      6,958      3,173 | 2,131,993 
+      2017 | 1,985,375     77,214     48,979      7,938      3,557 | 2,123,063 
+      2018 | 1,950,790     67,823     57,467      9,305      4,043 | 2,089,428 
+      2019 | 1,917,443     66,914     61,594      9,485      4,133 | 2,059,569 
+      2020 | 1,364,954     43,593     50,030      7,004      3,294 | 1,468,875 
+      2021 |   595,149     18,702     20,726      2,993      1,480 |   639,050 
+-----------+-------------------------------------------------------+----------
+     Total |17,861,914    758,870    279,129     71,713     30,033 |19,001,659 
+
+. 
+.   log close
+      name:  <unnamed>
+       log:  C:\Users\ana.ruhe\Documents\Capital_Humano\Rotina_organizar_base.log
+  log type:  text
+ closed on:   5 Oct 2021, 18:55:42
+--------------------------------------------------------------------------------------------------------------------------------------------------------
