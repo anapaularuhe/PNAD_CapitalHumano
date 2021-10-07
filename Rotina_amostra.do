@@ -236,7 +236,7 @@ log using "Rotina_amostra.log", replace
 	
 * AMOSTRA FINAL **************************************
   describe
-  tab Ano
+  tab Ano Trimestre
   
   log close
 
