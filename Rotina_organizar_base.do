@@ -1,6 +1,6 @@
 ******************************************************
 * FGV IBRE - Instituto Brasileiro de Economia
-* Núcleo de Mercado de Trabalho
+* Núcleo de Produtividade e Mercado de Trabalho
 * Projeto: Capital Humano e Produtividade
 * Ana Paula Nothen Ruhe
 * Outubro/2021
@@ -63,7 +63,7 @@ log using "Rotina_organizar_base.log", replace
 	V1028      | Peso trimestral com correção de não entrevista COM PÓS ESTRATIFICAÇÃO pela projeção de população  
 	V1029      | Projeção da população
 	
-    V2007      | Sexo
+	V2007      | Sexo
 	V2009      | Idade
 	V2010      | Cor ou raça
 	
@@ -115,11 +115,10 @@ keep Ano Trimestre UF V1027 V1028 V1029 V2007 V2009 V2010 V3003 V3003A V3009 V30
   
   mdesc Sexo
   drop if Sexo ==.
-  gen byte dummy_Homem = (Sexo==1)
   gen byte dummy_Mulher = (Sexo==2)
+  label var dummy_Mulher "Dummy=1 se Mulher"
   
-  order dummy_Homem, after(Sexo)
-  order dummy_Mulher, after(dummy_Homem)  
+  order dummy_Mulher, after(Sexo)
 	  
 	  
 * Cor
@@ -175,6 +174,13 @@ keep Ano Trimestre UF V1027 V1028 V1029 V2007 V2009 V2010 V3003 V3003A V3009 V30
   gen byte dummy_educ5 = (VD3006==5)
   gen byte dummy_educ6 = (VD3006==6)
   
+  label var dummy_educ1 "Dummy 0<= educação < 1"
+  label var dummy_educ2 "Dummy 1<= educação <=4"
+  label var dummy_educ3 "Dummy 5<= educação <=8"
+  label var dummy_educ4 "Dummy 9<= educação <=11"
+  label var dummy_educ5 "Dummy 12<= educação <=15"
+  label var dummy_educ6 "Dummy educação >=16"
+  
 	  
 * VD4001: Condição na força de trabalho
   label define VD4001_label 1 "Na força de trabalho" 2 "Fora da força de trabalho"
@@ -191,11 +197,19 @@ keep Ano Trimestre UF V1027 V1028 V1029 V2007 V2009 V2010 V3003 V3003A V3009 V30
   label values VD4009 VD4009_label
   
   gen byte dummy_setorprivado = (VD4009>=01 & VD4009<=04) if VD4009!=. 
-  gen byte dummy_setorpublico = (VD4009>=05 & VD4009<=07) if VD4009!=. 
+  label var dummy_setorprivado "Dummy = 1 se ocupado no setor privado"
+  
+  gen byte dummy_setorpublico = (VD4009>=05 & VD4009<=07) if VD4009!=.
+  label var dummy_setorpublico "Dummy = 1 se ocupado no setor público"
+  
   gen byte dummy_informal = (VD4009==02 | VD4009==04 | VD4009==06)
+  label var dummy_informal "Dummy = 1 se ocupado no setor informal"
   
   gen byte dummy_trabalhador = (VD4009>=01 & VD4009<=07) if VD4009!=.
+  label var dummy_trabalhador "Dummy = 1 se ocupado como trabalhador"
+  
   gen byte dummy_trab_ou_empreg = (VD4009>=01 & VD4009<=09) if VD4009!=.
+  label var dummy_trab_ou_empreg "Dummy = 1 se ocupado como trabalhador, empregador ou conta própria"
   
   order dummy_setorprivado dummy_setorpublico dummy_informal dummy_trabalhador dummy_trab_ou_empreg, after(VD4009)
    
@@ -255,6 +269,7 @@ keep Ano Trimestre UF V1027 V1028 V1029 V2007 V2009 V2010 V3003 V3003A V3009 V30
 	53	Distrito Federal
 */
     gen Regiao=""
+	label var Regiao "Região"
 	replace Regiao="NO" if UF>=11 & UF<=17
 	replace Regiao="NE" if UF>=21 & UF<=29
 	replace Regiao="SE" if UF>=31 & UF<=35
@@ -271,6 +286,7 @@ keep Ano Trimestre UF V1027 V1028 V1029 V2007 V2009 V2010 V3003 V3003A V3009 V30
 	mdesc Idade
 	drop if Idade == .
 	gen Experiencia = 0
+	label var Experiencia "Experiência"
 	order Experiencia, after(VD3006)
 	replace Experiencia= Idade - VD3005 - 6 if VD3005>=9
 	replace Experiencia= Idade - 15 if VD3005<9
@@ -279,6 +295,10 @@ keep Ano Trimestre UF V1027 V1028 V1029 V2007 V2009 V2010 V3003 V3003A V3009 V30
 	gen Experiencia2 = Experiencia^2
 	gen Experiencia3 = Experiencia^3
 	gen Experiencia4 = Experiencia^4
+	
+	label var Experiencia2 "Experiência ao quadrado"
+	label var Experiencia3 "Experiência ao cubo"
+	label var Experiencia4 "Experiência elevada à 4 potência"
 	
     save "$dirdata/PNADC2012_2021_limpa.dta", replace
   
