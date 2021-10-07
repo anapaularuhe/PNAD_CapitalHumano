@@ -2,17 +2,16 @@
       name:  <unnamed>
        log:  C:\Users\ana.ruhe\Documents\Capital_Humano\Rotina_amostra.log
   log type:  text
- opened on:   5 Oct 2021, 20:32:53
+ opened on:   7 Oct 2021, 18:15:40
 
+. 
 . 
 . ******************************************************
 . * FGV IBRE - Instituto Brasileiro de Economia
-. * Núcleo de Mercado de Trabalho
+. * Núcleo de Produtividade e Mercado de Trabalho
 . * Projeto: Capital Humano e Produtividade
 . * Ana Paula Nothen Ruhe
 . * Outubro/2021
-. 
-. * ROTINA SELEÇÃO AMOSTRA
 . ******************************************************
 . 
 . 
@@ -28,7 +27,7 @@
 >         V1028      | Peso trimestral com correção de não entrevista COM PÓS ESTRATIFICAÇÃO pela projeção de população  
 >         V1029      | Projeção da população
 >         
->     V2007      | Sexo
+>         V2007      | Sexo
 >         V2009      | Idade
 >         V2010      | Cor ou raça
 >         
@@ -57,10 +56,12 @@
 >         Efetivo    | Deflator com base nos redimentos efetivos
 >         Habitual   | Deflator com base nos rendimentos habituais        
 > */ 
-.   
+.  
+.  
+.  
 . * RESTRIÇÃO DA AMOSTRA *******************************
-. *** Removendo observações com missing values em variáveis fundamentais ou em categorias não desejadas:
-. * Análise preliminar: 
+. * Removendo observações com missing values em variáveis fundamentais ou em categorias não desejadas:
+. * 1. Análise preliminar: quantidade de missing values por variável
 .   mdesc VD4002 VD4019 VD4020 VD4031 VD4035 
 
     Variable    |     Missing          Total     Percent Missing
@@ -73,13 +74,13 @@
 ----------------+-----------------------------------------------
 
 .    
-. * Olhando apenas para as observações na força de trabalho (VD4001=1):   
-.   preserve
+.   * Olhando apenas para as observações na força de trabalho (VD4001=1):   
+.     preserve
 
-.   drop if VD4001!=1
+.     drop if VD4001!=1
 (9,443,589 observations deleted)
 
-.   mdesc VD4002 VD4019 VD4020 VD4031 VD4035
+.     mdesc VD4002 VD4019 VD4020 VD4031 VD4035
 
     Variable    |     Missing          Total     Percent Missing
 ----------------+-----------------------------------------------
@@ -90,83 +91,13 @@
          VD4035 |     917,999      9,558,070           9.60
 ----------------+-----------------------------------------------
 
-.   restore
-
-.    
-. * Características da população por ocupação/desocupação:   
-.   tab VD4002
-
-   Condição |
-         de |
-  ocupação  |      Freq.     Percent        Cum.
-------------+-----------------------------------
-    Ocupado |  8,640,071       90.40       90.40
- Desocupado |    917,999        9.60      100.00
-------------+-----------------------------------
-      Total |  9,558,070      100.00
-
-.   tab VD4002 [iw = Peso]
-
-   Condição |
-         de |
-  ocupação  |      Freq.     Percent        Cum.
-------------+-----------------------------------
-    Ocupado | 3.4293e+09       89.54       89.54
- Desocupado |  400694699       10.46      100.00
-------------+-----------------------------------
-      Total | 3.8300e+09      100.00
-
 .   
-.   preserve
+.     ** Vemos que população fora da FT corresponde a maior parte dos missing values para as variáveis de trabalho, como esperado. 
+.     ** Desocupados têm missing values para rendimento e horas. Olhando apenas para população ocupada, então:
+.        keep if VD4002==1
+(917,999 observations deleted)
 
-.   keep if VD4002 == 1
-(10,361,588 observations deleted)
-
-.   ** Ocupados: 
-.   sum Idade VD3005 VD4019 VD4020 VD4031 VD4035
-
-    Variable |        Obs        Mean    Std. Dev.       Min        Max
--------------+---------------------------------------------------------
-       Idade |  8,640,071    39.09073    13.39964         14        123
-      VD3005 |  8,640,071    9.775828    4.444877          0         16
-      VD4019 |  8,249,275    1753.435    2715.215          1     350000
-      VD4020 |  8,249,275    1778.272    2905.754          0     500000
-      VD4031 |  8,640,071    39.34076    12.93436          1        120
--------------+---------------------------------------------------------
-      VD4035 |  8,640,071    37.65024    14.58981          0        120
-
-.   restore
-
-.   
-.   preserve
-
-.   drop if VD4002 == 1
-(8,640,071 observations deleted)
-
-.   ** Desocupados e missing: 
-.   sum Idade VD3005 VD4019 VD4020 VD4031 VD4035
-
-    Variable |        Obs        Mean    Std. Dev.       Min        Max
--------------+---------------------------------------------------------
-       Idade | 10,361,588    34.32455     24.4811          5        130
-      VD3005 | 10,361,588    6.267832    4.564556          0         16
-      VD4019 |          0
-      VD4020 |          0
-      VD4031 |          0
--------------+---------------------------------------------------------
-      VD4035 |          0
-
-.   restore
-
-. 
-.   
-. * Manter apenas população ocupada 
-.   keep if VD4002 == 1
-(10,361,588 observations deleted)
-
-.   
-. * Missing values para rendimento de todos os trabalhos (habitual e efetivo)
-.   mdesc VD4019 VD4020 VD4031 VD4035
+.        mdesc  VD4019 VD4020 VD4031 VD4035
 
     Variable    |     Missing          Total     Percent Missing
 ----------------+-----------------------------------------------
@@ -176,6 +107,389 @@
          VD4035 |           0      8,640,071           0.00
 ----------------+-----------------------------------------------
 
+.     ** Isso soluciona o problema de missing values para horas, mas não para rendimentos. Vamos voltar nesse grupo depois.
+.     restore      
+
+.   
+.   
+. * 2. Queremos entender quais observações são eliminadas ao restringir a amostra à população ocupada.
+.   * Definimos dummy para ocupação que atribua 0 também a quem está fora da FT:
+.     gen byte ocup=(VD4002==1)
+
+.     label var ocup "Condição na População Ocupada"
+
+.     label define ocup_label 0 "Não ocupado" 1 "Ocupado"
+
+.     label values ocup ocup_label
+
+. 
+. ** Características:    
+.   * Ao longo do tempo:
+.     tab Ano [iw = Peso] if ocup==0
+
+     Ano de |
+ referência |      Freq.     Percent        Cum.
+------------+-----------------------------------
+       2012 |  382016672        9.87        9.87
+       2013 |  383899043        9.91       19.78
+       2014 |  386161382        9.97       29.75
+       2015 |  393572342       10.16       39.92
+       2016 |  406746953       10.50       50.42
+       2017 |  412422028       10.65       61.07
+       2018 |  413556944       10.68       71.75
+       2019 |  412715244       10.66       82.41
+       2020 |  452074938       11.68       94.09
+       2021 |  228949700        5.91      100.00
+------------+-----------------------------------
+      Total | 3.8721e+09      100.00
+
+.     ** Não parece que estamos "penalizando" algum ano de forma mais intensa do que os demais.
+.    
+.   * Participação por cor e gênero:
+.     tab Sexo ocup [iw = Peso], row
+
++----------------+
+| Key            |
+|----------------|
+|   frequency    |
+| row percentage |
++----------------+
+
+           |      Condição na
+           |   População Ocupada
+     Sexo  | Não ocupa    Ocupado |     Total
+-----------+----------------------+----------
+     Homem |1556119804 1950591350 |3506711154 
+           |     44.38      55.62 |    100.00 
+-----------+----------------------+----------
+    Mulher |2315995442 1478732633 |3794728075 
+           |     61.03      38.97 |    100.00 
+-----------+----------------------+----------
+     Total |3872115246 3429323983 |7301439229 
+           |     53.03      46.97 |    100.00 
+
+.     tab Cor ocup [iw = Peso], row
+
++----------------+
+| Key            |
+|----------------|
+|   frequency    |
+| row percentage |
++----------------+
+
+           |      Condição na
+    Cor ou |   População Ocupada
+     raça  | Não ocupa    Ocupado |     Total
+-----------+----------------------+----------
+    Branca |1642775451 1597992329 |3240767780 
+           |     50.69      49.31 |    100.00 
+-----------+----------------------+----------
+     Preta | 3.003e+08  295173949 | 5.954e+08 
+           |     50.43      49.57 |    100.00 
+-----------+----------------------+----------
+   Amarela |  21230910   21935099 |  43166010 
+           |     49.18      50.82 |    100.00 
+-----------+----------------------+----------
+     Parda |1897285859 1505445343 |3402731202 
+           |     55.76      44.24 |    100.00 
+-----------+----------------------+----------
+  Indígena |9586651.92  7962269.9 |  17548922 
+           |     54.63      45.37 |    100.00 
+-----------+----------------------+----------
+  Ignorado | 965857.61  814993.59 | 1780851.2 
+           |     54.24      45.76 |    100.00 
+-----------+----------------------+----------
+     Total |3872115246 3429323983 |7301439229 
+           |     53.03      46.97 |    100.00 
+
+.    
+.   * Idade
+.     tab ocup, sum(Idade)
+
+   Condição |
+         na |    Summary of  Idade na data de
+  População |             referência 
+    Ocupada |        Mean   Std. Dev.       Freq.
+------------+------------------------------------
+  Não ocupa |   34.324551   24.481099  10,361,588
+    Ocupado |   39.090726   13.399638   8,640,071
+------------+------------------------------------
+      Total |   36.491735   20.349082  19,001,659
+
+.    
+.   * Participação por região:
+.     tab Regiao ocup [iw = Peso], row
+
++----------------+
+| Key            |
+|----------------|
+|   frequency    |
+| row percentage |
++----------------+
+
+           |      Condição na
+           |   População Ocupada
+    Região | Não ocupa    Ocupado |     Total
+-----------+----------------------+----------
+        CO | 2.723e+08  2.806e+08 | 5.529e+08 
+           |     49.25      50.75 |    100.00 
+-----------+----------------------+----------
+        NE |1183631590  8.046e+08 |1988205630 
+           |     59.53      40.47 |    100.00 
+-----------+----------------------+----------
+        NO | 3.415e+08  2.690e+08 | 6.105e+08 
+           |     55.93      44.07 |    100.00 
+-----------+----------------------+----------
+        SE |1571665449 1528792970 |3100458418 
+           |     50.69      49.31 |    100.00 
+-----------+----------------------+----------
+        SU | 5.030e+08  546362402 |1049370790 
+           |     47.93      52.07 |    100.00 
+-----------+----------------------+----------
+     Total |3872115246 3429323983 |7301439229 
+           |     53.03      46.97 |    100.00 
+
+.    
+.   * Participação por grupo de escolaridade:
+.     tab VD3006 ocup [iw = Peso], row
+
++----------------+
+| Key            |
+|----------------|
+|   frequency    |
+| row percentage |
++----------------+
+
+Grupamento de anos de |
+ estudo (pessoas de 5 |      Condição na
+      anos ou mais de |   População Ocupada
+ idade) para fundamen | Não ocupa    Ocupado |     Total
+----------------------+----------------------+----------
+Sem instrução e menos | 507215377   92303767 | 5.995e+08 
+                      |     84.60      15.40 |    100.00 
+----------------------+----------------------+----------
+ 1 a 4 anos de estudo | 8.238e+08  2.385e+08 |1062338177 
+                      |     77.55      22.45 |    100.00 
+----------------------+----------------------+----------
+ 5 a 8 anos de estudo |1065336322  6.303e+08 |1695631846 
+                      |     62.83      37.17 |    100.00 
+----------------------+----------------------+----------
+9 a 11 anos de estudo | 5.811e+08  5.309e+08 |1111984938 
+                      |     52.26      47.74 |    100.00 
+----------------------+----------------------+----------
+12 a 15 anos de estud | 7.170e+08 1351467773 |2068438575 
+                      |     34.66      65.34 |    100.00 
+----------------------+----------------------+----------
+16 anos ou mais de es | 1.777e+08  585866600 | 7.635e+08 
+                      |     23.27      76.73 |    100.00 
+----------------------+----------------------+----------
+                Total |3872115246 3429323983 |7301439229 
+                      |     53.03      46.97 |    100.00 
+
+. 
+.    
+. * 3. Mantemos apenas a população ocupada 
+.   keep if VD4002 == 1
+(10,361,588 observations deleted)
+
+.   drop ocup
+
+.   
+. * 4. Missing values para rendimento de todos os trabalhos (habitual e efetivo)
+.   * Definimos dummy que atribui 1 para quem não tem informação de rendimento:
+.     gen byte rendNA=(VD4019==.)
+
+.     label var rendNA "Missing Value para Rendimento"
+
+.     label define rend_label 0 "Observado" 1 "Missing Value"
+
+.     label values rendNA rend_label
+
+.         
+.   * Conferimos que as observações faltantes são as mesmas para os dois tipos de rendimento:
+.     count if (VD4020==. & rendNA==0)
+  0
+
+.     count if (VD4020!=. & rendNA==1)
+  0
+
+.         
+.         tab rendNA
+
+Missing Value |
+         para |
+   Rendimento |      Freq.     Percent        Cum.
+--------------+-----------------------------------
+    Observado |  8,249,275       95.48       95.48
+Missing Value |    390,796        4.52      100.00
+--------------+-----------------------------------
+        Total |  8,640,071      100.00
+
+.         
+. ** Características:
+.   * Ao longo do tempo:
+.     tab Ano [iw = Peso] if rendNA==1
+
+     Ano de |
+ referência |      Freq.     Percent        Cum.
+------------+-----------------------------------
+       2012 | 12516990.1       12.96       12.96
+       2013 | 12,607,029       13.06       26.02
+       2014 | 11767193.6       12.19       38.21
+       2015 | 11,400,981       11.81       50.01
+       2016 |  8,861,746        9.18       59.19
+       2017 |  9,105,747        9.43       68.62
+       2018 |  9,014,444        9.34       77.96
+       2019 |  8,925,243        9.24       87.20
+       2020 |  8,130,332        8.42       95.62
+       2021 |4,230,071.1        4.38      100.00
+------------+-----------------------------------
+      Total | 96559776.8      100.00
+
+.    
+.   * Participação por cor e gênero:
+.     tab Sexo rendNA [iw = Peso], row
+
++----------------+
+| Key            |
+|----------------|
+|   frequency    |
+| row percentage |
++----------------+
+
+           |  Missing Value para
+           |      Rendimento
+     Sexo  | Observado  Missing V |     Total
+-----------+----------------------+----------
+     Homem |1913339006   37252344 |1950591350 
+           |     98.09       1.91 |    100.00 
+-----------+----------------------+----------
+    Mulher |1419425200   59307433 |1478732633 
+           |     95.99       4.01 |    100.00 
+-----------+----------------------+----------
+     Total |3332764206   96559777 |3429323983 
+           |     97.18       2.82 |    100.00 
+
+.     tab Cor rendNA [iw = Peso], row
+
++----------------+
+| Key            |
+|----------------|
+|   frequency    |
+| row percentage |
++----------------+
+
+           |  Missing Value para
+    Cor ou |      Rendimento
+     raça  | Observado  Missing V |     Total
+-----------+----------------------+----------
+    Branca |1558286167   39706161 |1597992329 
+           |     97.52       2.48 |    100.00 
+-----------+----------------------+----------
+     Preta | 2.900e+08  5202841.5 | 295173949 
+           |     98.24       1.76 |    100.00 
+-----------+----------------------+----------
+   Amarela |  21410299  524800.64 |  21935099 
+           |     97.61       2.39 |    100.00 
+-----------+----------------------+----------
+     Parda |1454721163   50724180 |1505445343 
+           |     96.63       3.37 |    100.00 
+-----------+----------------------+----------
+  Indígena | 7629784.9  332485.04 | 7962269.9 
+           |     95.82       4.18 |    100.00 
+-----------+----------------------+----------
+  Ignorado |745685.455  69308.137 | 814993.59 
+           |     91.50       8.50 |    100.00 
+-----------+----------------------+----------
+     Total |3332764206   96559777 |3429323983 
+           |     97.18       2.82 |    100.00 
+
+.    
+.   * Idade
+.     tab rendNA, sum(Idade)
+
+    Missing |    Summary of  Idade na data de
+ Value para |             referência 
+ Rendimento |        Mean   Std. Dev.       Freq.
+------------+------------------------------------
+  Observado |   39.275445   13.214828   8,249,275
+  Missing V |   35.191509   16.353991     390,796
+------------+------------------------------------
+      Total |   39.090726   13.399638   8,640,071
+
+.    
+.   * Participação por região:
+.     tab Regiao rendNA [iw = Peso], row
+
++----------------+
+| Key            |
+|----------------|
+|   frequency    |
+| row percentage |
++----------------+
+
+           |  Missing Value para
+           |      Rendimento
+    Região | Observado  Missing V |     Total
+-----------+----------------------+----------
+        CO | 2.763e+08  4220987.6 | 2.806e+08 
+           |     98.50       1.50 |    100.00 
+-----------+----------------------+----------
+        NE | 7.692e+08   35399851 | 8.046e+08 
+           |     95.60       4.40 |    100.00 
+-----------+----------------------+----------
+        NO | 2.513e+08   17769024 | 2.690e+08 
+           |     93.40       6.60 |    100.00 
+-----------+----------------------+----------
+        SE |1507235413   21557557 |1528792970 
+           |     98.59       1.41 |    100.00 
+-----------+----------------------+----------
+        SU | 5.288e+08   17612357 | 546362402 
+           |     96.78       3.22 |    100.00 
+-----------+----------------------+----------
+     Total |3332764206   96559777 |3429323983 
+           |     97.18       2.82 |    100.00 
+
+.    
+.   * Participação por grupo de escolaridade:
+.     tab VD3006 rendNA [iw = Peso], row
+
++----------------+
+| Key            |
+|----------------|
+|   frequency    |
+| row percentage |
++----------------+
+
+Grupamento de anos de |
+ estudo (pessoas de 5 |  Missing Value para
+      anos ou mais de |      Rendimento
+ idade) para fundamen | Observado  Missing V |     Total
+----------------------+----------------------+----------
+Sem instrução e menos |  86348931  5954835.7 |  92303767 
+                      |     93.55       6.45 |    100.00 
+----------------------+----------------------+----------
+ 1 a 4 anos de estudo | 2.254e+08   13150997 | 2.385e+08 
+                      |     94.49       5.51 |    100.00 
+----------------------+----------------------+----------
+ 5 a 8 anos de estudo | 6.008e+08 29508052.7 | 6.303e+08 
+                      |     95.32       4.68 |    100.00 
+----------------------+----------------------+----------
+9 a 11 anos de estudo | 5.105e+08   20410751 | 5.309e+08 
+                      |     96.16       3.84 |    100.00 
+----------------------+----------------------+----------
+12 a 15 anos de estud |1327455716   24012057 |1351467773 
+                      |     98.22       1.78 |    100.00 
+----------------------+----------------------+----------
+16 anos ou mais de es | 5.823e+08  3523083.6 | 585866600 
+                      |     99.40       0.60 |    100.00 
+----------------------+----------------------+----------
+                Total |3332764206   96559777 |3429323983 
+                      |     97.18       2.82 |    100.00 
+
+.   
+.   
+. ** Eliminamos as observações faltantes: 
 .   drop if VD4019 ==.
 (390,796 observations deleted)
 
@@ -183,15 +497,8 @@
 (0 observations deleted)
 
 .   
-.   
-. * Missing values para horas de todos os trabalhos (habitual e efetivo)
-.   drop if VD4031 ==.
-(0 observations deleted)
+.   drop rendNA
 
-.   drop if VD4035 ==.
-(0 observations deleted)
-
-. 
 . 
 .   save "$dirdata/PNADC_amostra.dta", replace
 file C:/Users/ana.ruhe/Documents/Capital_Humano/Dados/PNADC_amostra.dta saved
@@ -203,6 +510,11 @@ file C:/Users/ana.ruhe/Documents/Capital_Humano/Dados/PNADC_amostra.dta saved
 .     gen VD4019_real = VD4019*Habitual
 
 .     gen VD4020_real = VD4020*Efetivo
+
+.         
+.         label var VD4019_real "Rendimento real habitual de todos os trabalhos"
+
+.         label var VD4020_real "Rendimento real efetivo de todos os trabalhos"
 
 .   
 .     order VD4019_real, after(VD4019)
@@ -242,6 +554,14 @@ file C:/Users/ana.ruhe/Documents/Capital_Humano/Dados/PNADC_amostra.dta saved
 (8,024,574 real changes made)
 
 .   
+.   label var logW_Habitual "Log do rendimento real habitual de todos os trabalhos"
+
+.   label var logW_Efetivo "Log do rendimento real efetivo de todos os trabalhos"
+
+.   label var logW_Efetivo_0 "Log do rendimento real efetivo de todos os trabalhos sem missing values"
+
+.   
+.   
 .   *** ATENÇÃO: existem observações com rendimento efetivo = 0. logW_Efetivo = . para essas observações. 
 .   *** A variável logW_Efetivo_0 atribui valor 0 ao log do salário dessas observações.
 .   
@@ -254,95 +574,289 @@ file C:/Users/ana.ruhe/Documents/Capital_Humano/Dados/PNADC_amostra.dta saved
 file C:/Users/ana.ruhe/Documents/Capital_Humano/Dados/PNADC_amostra.dta saved
 
 .   
-.   * Analisando:
-.     tab Sexo 
+. ** Analisando:
+.  * Definimos dummy que atribui 1 para quem tem salário efetivo nulo:
+.     gen byte Wnulo=(VD4020_real==0)
 
-      Sexo  |      Freq.     Percent        Cum.
-------------+-----------------------------------
-      Homem |  4,910,014       59.52       59.52
-     Mulher |  3,339,261       40.48      100.00
-------------+-----------------------------------
-      Total |  8,249,275      100.00
+.     label var Wnulo "Salário Efetivo Nulo"
 
-.         tab Cor 
+.     label define Wnulo_label 0 "W > 0" 1 "W = 0"
 
-     Cor ou |
-      raça  |      Freq.     Percent        Cum.
-------------+-----------------------------------
-     Branca |  3,507,838       42.52       42.52
-      Preta |    671,057        8.13       50.66
-    Amarela |     35,380        0.43       51.09
-      Parda |  4,008,668       48.59       99.68
-   Indígena |     24,239        0.29       99.97
-   Ignorado |      2,093        0.03      100.00
-------------+-----------------------------------
-      Total |  8,249,275      100.00
-
-.         tab VD3006 
-
-  Grupamento de anos de estudo (pessoas |
-       de 5 anos ou mais de idade) para |
-                               fundamen |      Freq.     Percent        Cum.
-----------------------------------------+-----------------------------------
-Sem instrução e menos de 1 ano de estud |    307,603        3.73        3.73
-                   1 a 4 anos de estudo |    723,018        8.76       12.49
-                   5 a 8 anos de estudo |  1,667,154       20.21       32.70
-                  9 a 11 anos de estudo |  1,295,081       15.70       48.40
-                 12 a 15 anos de estudo |  3,031,352       36.75       85.15
-              16 anos ou mais de estudo |  1,225,067       14.85      100.00
-----------------------------------------+-----------------------------------
-                                  Total |  8,249,275      100.00
+.     label values Wnulo Wnulo_label
 
 .         
-.         preserve
+.         tab Wnulo
 
-.         keep if VD4020_real==0
-(8,024,574 observations deleted)
-
-.         tab Sexo 
-
-      Sexo  |      Freq.     Percent        Cum.
+    Salário |
+    Efetivo |
+       Nulo |      Freq.     Percent        Cum.
 ------------+-----------------------------------
-      Homem |    153,575       68.35       68.35
-     Mulher |     71,126       31.65      100.00
+      W > 0 |  8,024,574       97.28       97.28
+      W = 0 |    224,701        2.72      100.00
 ------------+-----------------------------------
-      Total |    224,701      100.00
+      Total |  8,249,275      100.00
 
-.         tab Cor 
+.         
+.   * Ao longo do tempo:
+.     tab Ano [iw = Peso] if Wnulo==1
 
-     Cor ou |
-      raça  |      Freq.     Percent        Cum.
+     Ano de |
+ referência |      Freq.     Percent        Cum.
 ------------+-----------------------------------
-     Branca |     76,637       34.11       34.11
-      Preta |     19,462        8.66       42.77
-    Amarela |        718        0.32       43.09
-      Parda |    126,674       56.37       99.46
-   Indígena |      1,132        0.50       99.97
-   Ignorado |         78        0.03      100.00
+       2012 |  5,887,373        7.61        7.61
+       2013 |  5,404,281        6.98       14.59
+       2014 |  5,691,116        7.35       21.94
+       2015 |  7,074,090        9.14       31.08
+       2016 |  6,837,120        8.83       39.91
+       2017 |  8,813,999       11.39       51.29
+       2018 |  9,849,892       12.72       64.02
+       2019 |  9,872,280       12.75       76.77
+       2020 | 13339738.7       17.23       94.00
+       2021 |  4,644,368        6.00      100.00
 ------------+-----------------------------------
-      Total |    224,701      100.00
+      Total | 77414257.4      100.00
 
-.         tab VD3006 
+.    
+.   * Participação por cor e gênero:
+.     tab Sexo Wnulo [iw = Peso], row
 
-  Grupamento de anos de estudo (pessoas |
-       de 5 anos ou mais de idade) para |
-                               fundamen |      Freq.     Percent        Cum.
-----------------------------------------+-----------------------------------
-Sem instrução e menos de 1 ano de estud |     20,454        9.10        9.10
-                   1 a 4 anos de estudo |     41,107       18.29       27.40
-                   5 a 8 anos de estudo |     63,529       28.27       55.67
-                  9 a 11 anos de estudo |     36,141       16.08       71.75
-                 12 a 15 anos de estudo |     51,054       22.72       94.47
-              16 anos ou mais de estudo |     12,416        5.53      100.00
-----------------------------------------+-----------------------------------
-                                  Total |    224,701      100.00
++----------------+
+| Key            |
+|----------------|
+|   frequency    |
+| row percentage |
++----------------+
 
-.         restore
+           | Salário Efetivo Nulo
+     Sexo  |     W > 0      W = 0 |     Total
+-----------+----------------------+----------
+     Homem |1864382282   48956724 |1913339006 
+           |     97.44       2.56 |    100.00 
+-----------+----------------------+----------
+    Mulher |1390967666   28457534 |1419425200 
+           |     98.00       2.00 |    100.00 
+-----------+----------------------+----------
+     Total |3255349949   77414257 |3332764206 
+           |     97.68       2.32 |    100.00 
+
+.     tab Cor Wnulo [iw = Peso], row
+
++----------------+
+| Key            |
+|----------------|
+|   frequency    |
+| row percentage |
++----------------+
+
+    Cor ou | Salário Efetivo Nulo
+     raça  |     W > 0      W = 0 |     Total
+-----------+----------------------+----------
+    Branca |1529233367   29052800 |1558286167 
+           |     98.14       1.86 |    100.00 
+-----------+----------------------+----------
+     Preta | 2.826e+08  7372804.9 | 2.900e+08 
+           |     97.46       2.54 |    100.00 
+-----------+----------------------+----------
+   Amarela |  21064001 346297.835 |  21410299 
+           |     98.38       1.62 |    100.00 
+-----------+----------------------+----------
+     Parda |1414368855   40352308 |1454721163 
+           |     97.23       2.77 |    100.00 
+-----------+----------------------+----------
+  Indígena | 7370315.3  259469.54 | 7629784.9 
+           |     96.60       3.40 |    100.00 
+-----------+----------------------+----------
+  Ignorado | 715108.31  30577.148 |745685.455 
+           |     95.90       4.10 |    100.00 
+-----------+----------------------+----------
+     Total |3255349949   77414257 |3332764206 
+           |     97.68       2.32 |    100.00 
+
+.    
+.   * Idade
+.     tab Wnulo, sum(Idade)
+
+    Salário |    Summary of  Idade na data de
+    Efetivo |             referência 
+       Nulo |        Mean   Std. Dev.       Freq.
+------------+------------------------------------
+      W > 0 |   39.243687    13.14017   8,024,574
+      W = 0 |   40.409615   15.607005     224,701
+------------+------------------------------------
+      Total |   39.275445   13.214828   8,249,275
+
+.    
+.   * Participação por região:
+.     tab Regiao Wnulo [iw = Peso], row
+
++----------------+
+| Key            |
+|----------------|
+|   frequency    |
+| row percentage |
++----------------+
+
+           | Salário Efetivo Nulo
+    Região |     W > 0      W = 0 |     Total
+-----------+----------------------+----------
+        CO | 2.719e+08    4485078 | 2.763e+08 
+           |     98.38       1.62 |    100.00 
+-----------+----------------------+----------
+        NE | 7.421e+08 27085402.2 | 7.692e+08 
+           |     96.48       3.52 |    100.00 
+-----------+----------------------+----------
+        NO | 2.434e+08  7872149.4 | 2.513e+08 
+           |     96.87       3.13 |    100.00 
+-----------+----------------------+----------
+        SE |1480395662   26839751 |1507235413 
+           |     98.22       1.78 |    100.00 
+-----------+----------------------+----------
+        SU | 517618168   11131877 | 5.288e+08 
+           |     97.89       2.11 |    100.00 
+-----------+----------------------+----------
+     Total |3255349949   77414257 |3332764206 
+           |     97.68       2.32 |    100.00 
+
+.    
+.   * Participação por grupo de escolaridade:
+.     tab VD3006 Wnulo [iw = Peso], row
+
++----------------+
+| Key            |
+|----------------|
+|   frequency    |
+| row percentage |
++----------------+
+
+Grupamento de anos de |
+ estudo (pessoas de 5 |
+      anos ou mais de | Salário Efetivo Nulo
+ idade) para fundamen |     W > 0      W = 0 |     Total
+----------------------+----------------------+----------
+Sem instrução e menos |  81359445  4989486.3 |  86348931 
+                      |     94.22       5.78 |    100.00 
+----------------------+----------------------+----------
+ 1 a 4 anos de estudo | 2.143e+08   11037425 | 2.254e+08 
+                      |     95.10       4.90 |    100.00 
+----------------------+----------------------+----------
+ 5 a 8 anos de estudo | 5.809e+08   19936105 | 6.008e+08 
+                      |     96.68       3.32 |    100.00 
+----------------------+----------------------+----------
+9 a 11 anos de estudo | 497485806   12979017 | 5.105e+08 
+                      |     97.46       2.54 |    100.00 
+----------------------+----------------------+----------
+12 a 15 anos de estud |1305422951   22032765 |1327455716 
+                      |     98.34       1.66 |    100.00 
+----------------------+----------------------+----------
+16 anos ou mais de es | 5.759e+08  6439459.3 | 5.823e+08 
+                      |     98.89       1.11 |    100.00 
+----------------------+----------------------+----------
+                Total |3255349949   77414257 |3332764206 
+                      |     97.68       2.32 |    100.00 
+
+.         
+.         drop Wnulo
+
+.         
+.         
+. * AMOSTRA FINAL **************************************
+.   describe
+
+Contains data from C:/Users/ana.ruhe/Documents/Capital_Humano/Dados/PNADC_amostra.dta
+  obs:     8,249,275                          
+ vars:            51                          7 Oct 2021 18:16
+--------------------------------------------------------------------------------------------------------------------------------------------------------
+              storage   display    value
+variable name   type    format     label      variable label
+--------------------------------------------------------------------------------------------------------------------------------------------------------
+Ano             int     %8.0g                  Ano de referência
+Trimestre       str2    %9s                    Trimestre de referência
+UF              int     %8.0g                  Unidade da Federação
+Regiao          str2    %9s                   Região
+V1027           float   %9.0g                  Peso SEM pós estratificação
+Peso            float   %9.0g                  Peso COM pós estratificação
+Populacao       long    %12.0g                 Projeção da população
+Sexo            byte    %8.0g      sexo        Sexo
+dummy_Mulher    byte    %8.0g                 Dummy=1 se Mulher
+Idade           int     %8.0g                  Idade na data de referência
+Cor             byte    %9.0g      cor_label
+                                               Cor ou raça
+V3003           int     %71.0g     V3003_label
+                                               Qual é o curso que frequenta
+V3003A          int     %58.0g     V3003A_label
+                                               Qual é o curso que frequenta
+V3009           int     %71.0g     V3009_label
+                                               Curso mais elevado que frequentou
+V3009A          int     %61.0g     V3009A_label
+                                               Curso mais elevado que frequentou
+VD3004          byte    %42.0g     VD3004_label
+                                               Nível de instrução mais elevado alcançado (5 anos ou mais de idade)
+VD3005          int     %8.0g                  Anos de estudo (5 anos ou mais de idade) para fundamental de 9 anos
+VD3006          byte    %42.0g     VD3006_label
+                                               Grupamento de anos de estudo (pessoas de 5 anos ou mais de idade) para fundamen
+Experiencia     float   %9.0g                 Experiência
+VD4001          byte    %26.0g     VD4001_label
+                                               Condição em relação força d trab.
+VD4002          byte    %10.0g     VD4002_label
+                                               Condição de ocupação
+VD4009          int     %36.0g     VD4009_label
+                                               Posição na ocupação trab. princ.
+dummy_setorpr~o byte    %8.0g                 Dummy = 1 se ocupado no setor privado
+dummy_setorpu~o byte    %8.0g                 Dummy = 1 se ocupado no setor público
+dummy_informal  byte    %8.0g                 Dummy = 1 se ocupado no setor informal
+dummy_trabalh~r byte    %8.0g                 Dummy = 1 se ocupado como trabalhador
+dummy_trab_ou~g byte    %8.0g                 Dummy = 1 se ocupado como trabalhador, empregador ou conta própria
+VD4010          int     %26.0g     VD4010_label
+                                               Grupamen. d ativid. trab. princ.
+VD4016          long    %12.0g                 Rendim. habitual trab. princ.
+VD4017          long    %12.0g                 Rendim. efetivo trab. princ.
+VD4019          long    %12.0g                 Rendim. habitual qq trabalho
+VD4019_real     float   %9.0g                 Rendimento real habitual de todos os trabalhos
+logW_Habitual   float   %9.0g                 Log do rendimento real habitual de todos os trabalhos
+VD4020          long    %12.0g                 Rendim. efetivo qq trabalho
+VD4020_real     float   %9.0g                 Rendimento real efetivo de todos os trabalhos
+logW_Efetivo    float   %9.0g                 Log do rendimento real efetivo de todos os trabalhos
+logW_Efetivo_0  float   %9.0g                 Log do rendimento real efetivo de todos os trabalhos sem missing values
+VD4031          int     %8.0g                  Hrs habituais em todos trab.
+VD4032          int     %8.0g                  Hrs efetivas no trab. princ.
+VD4035          int     %8.0g                  Hrs efetivas em todos trab.
+Efetivo         double  %10.0g                
+Habitual        double  %10.0g                
+dummy_educ1     byte    %8.0g                 Dummy 0<= educação < 1
+dummy_educ2     byte    %8.0g                 Dummy 1<= educação <=4
+dummy_educ3     byte    %8.0g                 Dummy 5<= educação <=8
+dummy_educ4     byte    %8.0g                 Dummy 9<= educação <=11
+dummy_educ5     byte    %8.0g                 Dummy 12<= educação <=15
+dummy_educ6     byte    %8.0g                 Dummy educação >=16
+Experiencia2    float   %9.0g                 Experiência ao quadrado
+Experiencia3    float   %9.0g                 Experiência ao cubo
+Experiencia4    float   %9.0g                 Experiência elevada à 4 potência
+--------------------------------------------------------------------------------------------------------------------------------------------------------
+Sorted by: 
+     Note: Dataset has changed since last saved.
+
+.   tab Ano
+
+     Ano de |
+ referência |      Freq.     Percent        Cum.
+------------+-----------------------------------
+       2012 |    926,916       11.24       11.24
+       2013 |    940,795       11.40       22.64
+       2014 |    957,430       11.61       34.25
+       2015 |    946,308       11.47       45.72
+       2016 |    923,120       11.19       56.91
+       2017 |    909,396       11.02       67.93
+       2018 |    899,484       10.90       78.84
+       2019 |    896,414       10.87       89.70
+       2020 |    592,990        7.19       96.89
+       2021 |    256,422        3.11      100.00
+------------+-----------------------------------
+      Total |  8,249,275      100.00
 
 .   
 .   log close
       name:  <unnamed>
        log:  C:\Users\ana.ruhe\Documents\Capital_Humano\Rotina_amostra.log
   log type:  text
- closed on:   5 Oct 2021, 20:34:01
+ closed on:   7 Oct 2021, 18:16:53
 --------------------------------------------------------------------------------------------------------------------------------------------------------

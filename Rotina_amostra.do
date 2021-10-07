@@ -1,6 +1,6 @@
 ******************************************************
 * FGV IBRE - Instituto Brasileiro de Economia
-* Núcleo de Mercado de Trabalho
+* Núcleo de Produtividade e Mercado de Trabalho
 * Projeto: Capital Humano e Produtividade
 * Ana Paula Nothen Ruhe
 * Outubro/2021
@@ -38,7 +38,7 @@ log using "Rotina_amostra.log", replace
 	V1028      | Peso trimestral com correção de não entrevista COM PÓS ESTRATIFICAÇÃO pela projeção de população  
 	V1029      | Projeção da população
 	
-    V2007      | Sexo
+	V2007      | Sexo
 	V2009      | Idade
 	V2010      | Cor ou raça
 	
@@ -67,48 +67,93 @@ log using "Rotina_amostra.log", replace
 	Efetivo    | Deflator com base nos redimentos efetivos
 	Habitual   | Deflator com base nos rendimentos habituais	
 */ 
-  
+ 
+ 
+ 
 * RESTRIÇÃO DA AMOSTRA *******************************
-*** Removendo observações com missing values em variáveis fundamentais ou em categorias não desejadas:
-* Análise preliminar: 
+* Removendo observações com missing values em variáveis fundamentais ou em categorias não desejadas:
+* 1. Análise preliminar: quantidade de missing values por variável
   mdesc VD4002 VD4019 VD4020 VD4031 VD4035 
    
-* Olhando apenas para as observações na força de trabalho (VD4001=1):   
-  preserve
-  drop if VD4001!=1
-  mdesc VD4002 VD4019 VD4020 VD4031 VD4035
-  restore
-   
-* Características da população por ocupação/desocupação:   
-  tab VD4002
-  tab VD4002 [iw = Peso]
+  * Olhando apenas para as observações na força de trabalho (VD4001=1):   
+    preserve
+    drop if VD4001!=1
+    mdesc VD4002 VD4019 VD4020 VD4031 VD4035
   
-  preserve
-  keep if VD4002 == 1
-  ** Ocupados: 
-  sum Idade VD3005 VD4019 VD4020 VD4031 VD4035
-  restore
+    ** Vemos que população fora da FT corresponde a maior parte dos missing values para as variáveis de trabalho, como esperado. 
+    ** Desocupados têm missing values para rendimento e horas. Olhando apenas para população ocupada, então:
+       keep if VD4002==1
+       mdesc  VD4019 VD4020 VD4031 VD4035
+    ** Isso soluciona o problema de missing values para horas, mas não para rendimentos. Vamos voltar nesse grupo depois.
+    restore	 
   
-  preserve
-  drop if VD4002 == 1
-  ** Desocupados e missing: 
-  sum Idade VD3005 VD4019 VD4020 VD4031 VD4035
-  restore
+  
+* 2. Queremos entender quais observações são eliminadas ao restringir a amostra à população ocupada.
+  * Definimos dummy para ocupação que atribua 0 também a quem está fora da FT:
+    gen byte ocup=(VD4002==1)
+    label var ocup "Condição na População Ocupada"
+    label define ocup_label 0 "Não ocupado" 1 "Ocupado"
+    label values ocup ocup_label
 
-  
-* Manter apenas população ocupada 
+** Características:	
+  * Ao longo do tempo:
+    tab Ano [iw = Peso] if ocup==0
+    ** Não parece que estamos "penalizando" algum ano de forma mais intensa do que os demais.
+   
+  * Participação por cor e gênero:
+    tab Sexo ocup [iw = Peso], row
+    tab Cor ocup [iw = Peso], row
+   
+  * Idade
+    tab ocup, sum(Idade)
+   
+  * Participação por região:
+    tab Regiao ocup [iw = Peso], row
+   
+  * Participação por grupo de escolaridade:
+    tab VD3006 ocup [iw = Peso], row
+
+   
+* 3. Mantemos apenas a população ocupada 
   keep if VD4002 == 1
+  drop ocup
   
-* Missing values para rendimento de todos os trabalhos (habitual e efetivo)
-  mdesc VD4019 VD4020 VD4031 VD4035
+* 4. Missing values para rendimento de todos os trabalhos (habitual e efetivo)
+  * Definimos dummy que atribui 1 para quem não tem informação de rendimento:
+    gen byte rendNA=(VD4019==.)
+    label var rendNA "Missing Value para Rendimento"
+    label define rend_label 0 "Observado" 1 "Missing Value"
+    label values rendNA rend_label
+	
+  * Conferimos que as observações faltantes são as mesmas para os dois tipos de rendimento:
+    count if (VD4020==. & rendNA==0)
+    count if (VD4020!=. & rendNA==1)
+	
+	tab rendNA
+	
+** Características:
+  * Ao longo do tempo:
+    tab Ano [iw = Peso] if rendNA==1
+   
+  * Participação por cor e gênero:
+    tab Sexo rendNA [iw = Peso], row
+    tab Cor rendNA [iw = Peso], row
+   
+  * Idade
+    tab rendNA, sum(Idade)
+   
+  * Participação por região:
+    tab Regiao rendNA [iw = Peso], row
+   
+  * Participação por grupo de escolaridade:
+    tab VD3006 rendNA [iw = Peso], row
+  
+  
+** Eliminamos as observações faltantes: 
   drop if VD4019 ==.
   drop if VD4020 ==. 
   
-  
-* Missing values para horas de todos os trabalhos (habitual e efetivo)
-  drop if VD4031 ==.
-  drop if VD4035 ==.
-
+  drop rendNA
 
   save "$dirdata/PNADC_amostra.dta", replace
   
@@ -117,6 +162,9 @@ log using "Rotina_amostra.log", replace
 *** Calculando rendimentos (de todos os trabalhos) deflacionados  
     gen VD4019_real = VD4019*Habitual
     gen VD4020_real = VD4020*Efetivo
+	
+	label var VD4019_real "Rendimento real habitual de todos os trabalhos"
+	label var VD4020_real "Rendimento real efetivo de todos os trabalhos"
   
     order VD4019_real, after(VD4019)
     order VD4020_real, after(VD4020)
@@ -145,6 +193,11 @@ log using "Rotina_amostra.log", replace
   gen logW_Efetivo_0 = 0
   replace logW_Efetivo_0 = ln(VD4020_real) if VD4020_real > 0
   
+  label var logW_Habitual "Log do rendimento real habitual de todos os trabalhos"
+  label var logW_Efetivo "Log do rendimento real efetivo de todos os trabalhos"
+  label var logW_Efetivo_0 "Log do rendimento real efetivo de todos os trabalhos sem missing values"
+  
+  
   *** ATENÇÃO: existem observações com rendimento efetivo = 0. logW_Efetivo = . para essas observações. 
   *** A variável logW_Efetivo_0 atribui valor 0 ao log do salário dessas observações.
   
@@ -153,17 +206,37 @@ log using "Rotina_amostra.log", replace
   
   save "$dirdata/PNADC_amostra.dta", replace
   
-  * Analisando:
-    tab Sexo 
-	tab Cor 
-	tab VD3006 
+** Analisando:
+ * Definimos dummy que atribui 1 para quem tem salário efetivo nulo:
+    gen byte Wnulo=(VD4020_real==0)
+    label var Wnulo "Salário Efetivo Nulo"
+    label define Wnulo_label 0 "W > 0" 1 "W = 0"
+    label values Wnulo Wnulo_label
 	
-	preserve
-	keep if VD4020_real==0
- 	tab Sexo 
-	tab Cor 
-	tab VD3006 
-	restore
+	tab Wnulo
+	
+  * Ao longo do tempo:
+    tab Ano [iw = Peso] if Wnulo==1
+   
+  * Participação por cor e gênero:
+    tab Sexo Wnulo [iw = Peso], row
+    tab Cor Wnulo [iw = Peso], row
+   
+  * Idade
+    tab Wnulo, sum(Idade)
+   
+  * Participação por região:
+    tab Regiao Wnulo [iw = Peso], row
+   
+  * Participação por grupo de escolaridade:
+    tab VD3006 Wnulo [iw = Peso], row
+	
+	drop Wnulo
+	
+	
+* AMOSTRA FINAL **************************************
+  describe
+  tab Ano
   
   log close
 
