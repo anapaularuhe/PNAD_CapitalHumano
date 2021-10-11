@@ -2,7 +2,7 @@
       name:  <unnamed>
        log:  C:\Users\ana.ruhe\Documents\Capital_Humano\Rotina_organizar_base.log
   log type:  text
- opened on:   7 Oct 2021, 18:02:02
+ opened on:  11 Oct 2021, 16:27:49
 
 . 
 . ******************************************************
@@ -459,6 +459,11 @@ file C:/Users/ana.ruhe/Documents/Capital_Humano/Dados/PNADC2012_2021_limpa.dta s
 (9,549,176 real changes made)
 
 .         
+.   * Corrigindo valores negativos:
+.     replace Experiencia= 0 if Experiencia<0 
+(3,334,748 real changes made)
+
+.         
 .   * Potências de Experiência:
 .         gen Experiencia2 = Experiencia^2
 
@@ -580,5 +585,5 @@ Menos de 16 anos de estudo | 6.8679e+09       94.06       94.06
       name:  <unnamed>
        log:  C:\Users\ana.ruhe\Documents\Capital_Humano\Rotina_organizar_base.log
   log type:  text
- closed on:   7 Oct 2021, 18:06:25
+ closed on:  11 Oct 2021, 16:33:58
 --------------------------------------------------------------------------------------------------------------------------------------------------------

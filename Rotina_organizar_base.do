@@ -291,6 +291,9 @@ keep Ano Trimestre UF V1027 V1028 V1029 V2007 V2009 V2010 V3003 V3003A V3009 V30
 	replace Experiencia= Idade - VD3005 - 6 if VD3005>=9
 	replace Experiencia= Idade - 15 if VD3005<9
 	
+  * Corrigindo valores negativos:
+    replace Experiencia= 0 if Experiencia<0 
+	
   * Potências de Experiência:
 	gen Experiencia2 = Experiencia^2
 	gen Experiencia3 = Experiencia^3
