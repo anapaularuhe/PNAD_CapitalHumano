@@ -2,9 +2,8 @@
       name:  <unnamed>
        log:  C:\Users\ana.ruhe\Documents\Capital_Humano\Rotina_amostra.log
   log type:  text
- opened on:   7 Oct 2021, 18:15:40
+ opened on:  11 Oct 2021, 16:50:34
 
-. 
 . 
 . ******************************************************
 . * FGV IBRE - Instituto Brasileiro de Economia
@@ -13,6 +12,8 @@
 . * Ana Paula Nothen Ruhe
 . * Outubro/2021
 . ******************************************************
+. 
+. 
 . 
 . 
 . * DADOS **********************************************
@@ -541,33 +542,52 @@ file C:/Users/ana.ruhe/Documents/Capital_Humano/Dados/PNADC_amostra.dta saved
 >    line VD4020_medio VD4020_real_medio Ano
 > */
 . 
+. *** Calculando salário por hora:
+.     gen VD4019_real_hora = VD4019_real/(4*VD4031)
+
+.         gen VD4020_real_hora = VD4020_real/(4*VD4035)
+(218,245 missing values generated)
+
+.         replace VD4020_real_hora = VD4020_real/4 if VD4035==0
+(218,245 real changes made)
+
+.         
+.         order VD4019_real_hora, after(VD4019_real)
+
+.     order VD4020_real_hora, after(VD4020_real)
+
+.         
+.         save "$dirdata/PNADC_amostra.dta", replace
+file C:/Users/ana.ruhe/Documents/Capital_Humano/Dados/PNADC_amostra.dta saved
+
+. 
 . 
 . * CALCULANDO LOG DOS SALÁRIOS ************************
-.   gen logW_Habitual = ln(VD4019_real)
+.   gen logW_Habitual = ln(VD4019_real_hora)
 
-.   gen logW_Efetivo = ln(VD4020_real)
+.   gen logW_Efetivo = ln(VD4020_real_hora)
 (224,701 missing values generated)
 
 .   gen logW_Efetivo_0 = 0
 
-.   replace logW_Efetivo_0 = ln(VD4020_real) if VD4020_real > 0
+.   replace logW_Efetivo_0 = ln(VD4020_real_hora) if VD4020_real_hora > 0
 (8,024,574 real changes made)
 
 .   
-.   label var logW_Habitual "Log do rendimento real habitual de todos os trabalhos"
+.   label var logW_Habitual "Log do rendimento real habitual de todos os trabalhos por hora"
 
-.   label var logW_Efetivo "Log do rendimento real efetivo de todos os trabalhos"
+.   label var logW_Efetivo "Log do rendimento real efetivo de todos os trabalhos por hora"
 
-.   label var logW_Efetivo_0 "Log do rendimento real efetivo de todos os trabalhos sem missing values"
+.   label var logW_Efetivo_0 "Log do rendimento real efetivo de todos os trabalhos por hora sem missing values"
 
 .   
 .   
 .   *** ATENÇÃO: existem observações com rendimento efetivo = 0. logW_Efetivo = . para essas observações. 
 .   *** A variável logW_Efetivo_0 atribui valor 0 ao log do salário dessas observações.
 .   
-.   order logW_Habitual, after(VD4019_real)
+.   order logW_Habitual, after(VD4019_real_hora)
 
-.   order logW_Efetivo logW_Efetivo_0, after(VD4020_real)
+.   order logW_Efetivo logW_Efetivo_0, after(VD4020_real_hora)
 
 .   
 .   save "$dirdata/PNADC_amostra.dta", replace
@@ -764,7 +784,7 @@ Sem instrução e menos |  81359445  4989486.3 |  86348931
 
 Contains data from C:/Users/ana.ruhe/Documents/Capital_Humano/Dados/PNADC_amostra.dta
   obs:     8,249,275                          
- vars:            51                          7 Oct 2021 18:16
+ vars:            53                          11 Oct 2021 16:51
 --------------------------------------------------------------------------------------------------------------------------------------------------------
               storage   display    value
 variable name   type    format     label      variable label
@@ -812,11 +832,13 @@ VD4016          long    %12.0g                 Rendim. habitual trab. princ.
 VD4017          long    %12.0g                 Rendim. efetivo trab. princ.
 VD4019          long    %12.0g                 Rendim. habitual qq trabalho
 VD4019_real     float   %9.0g                 Rendimento real habitual de todos os trabalhos
-logW_Habitual   float   %9.0g                 Log do rendimento real habitual de todos os trabalhos
+VD4019_real_h~a float   %9.0g                 
+logW_Habitual   float   %9.0g                 Log do rendimento real habitual de todos os trabalhos por hora
 VD4020          long    %12.0g                 Rendim. efetivo qq trabalho
 VD4020_real     float   %9.0g                 Rendimento real efetivo de todos os trabalhos
-logW_Efetivo    float   %9.0g                 Log do rendimento real efetivo de todos os trabalhos
-logW_Efetivo_0  float   %9.0g                 Log do rendimento real efetivo de todos os trabalhos sem missing values
+VD4020_real_h~a float   %9.0g                 
+logW_Efetivo    float   %9.0g                 Log do rendimento real efetivo de todos os trabalhos por hora
+logW_Efetivo_0  float   %9.0g                 Log do rendimento real efetivo de todos os trabalhos por hora sem missing values
 VD4031          int     %8.0g                  Hrs habituais em todos trab.
 VD4032          int     %8.0g                  Hrs efetivas no trab. princ.
 VD4035          int     %8.0g                  Hrs efetivas em todos trab.
@@ -835,28 +857,29 @@ Experiencia4    float   %9.0g                 Experiência elevada à 4 potênci
 Sorted by: 
      Note: Dataset has changed since last saved.
 
-.   tab Ano
+.   tab Ano Trimestre
 
-     Ano de |
- referência |      Freq.     Percent        Cum.
-------------+-----------------------------------
-       2012 |    926,916       11.24       11.24
-       2013 |    940,795       11.40       22.64
-       2014 |    957,430       11.61       34.25
-       2015 |    946,308       11.47       45.72
-       2016 |    923,120       11.19       56.91
-       2017 |    909,396       11.02       67.93
-       2018 |    899,484       10.90       78.84
-       2019 |    896,414       10.87       89.70
-       2020 |    592,990        7.19       96.89
-       2021 |    256,422        3.11      100.00
-------------+-----------------------------------
-      Total |  8,249,275      100.00
+    Ano de |
+ referênci |          Trimestre de referência 
+        a  |         1          2          3          4 |     Total
+-----------+--------------------------------------------+----------
+      2012 |   231,637    233,265    232,110    229,904 |   926,916 
+      2013 |   230,940    235,757    236,778    237,320 |   940,795 
+      2014 |   237,295    238,305    240,816    241,014 |   957,430 
+      2015 |   237,221    237,943    237,415    233,729 |   946,308 
+      2016 |   231,407    232,783    229,889    229,041 |   923,120 
+      2017 |   225,625    227,089    228,566    228,116 |   909,396 
+      2018 |   223,346    222,879    227,265    225,994 |   899,484 
+      2019 |   222,676    225,341    225,221    223,176 |   896,414 
+      2020 |   196,786    136,743    132,967    126,494 |   592,990 
+      2021 |   119,802    136,620          0          0 |   256,422 
+-----------+--------------------------------------------+----------
+     Total | 2,156,735  2,126,725  1,991,027  1,974,788 | 8,249,275 
 
 .   
 .   log close
       name:  <unnamed>
        log:  C:\Users\ana.ruhe\Documents\Capital_Humano\Rotina_amostra.log
   log type:  text
- closed on:   7 Oct 2021, 18:16:53
+ closed on:  11 Oct 2021, 16:51:52
 --------------------------------------------------------------------------------------------------------------------------------------------------------

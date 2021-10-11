@@ -186,23 +186,33 @@ log using "Rotina_amostra.log", replace
    line VD4020_medio VD4020_real_medio Ano
 */
 
+*** Calculando salário por hora:
+    gen VD4019_real_hora = VD4019_real/(4*VD4031)
+	gen VD4020_real_hora = VD4020_real/(4*VD4035)
+	replace VD4020_real_hora = VD4020_real/4 if VD4035==0
+	
+	order VD4019_real_hora, after(VD4019_real)
+    order VD4020_real_hora, after(VD4020_real)
+	
+	save "$dirdata/PNADC_amostra.dta", replace
+
 
 * CALCULANDO LOG DOS SALÁRIOS ************************
-  gen logW_Habitual = ln(VD4019_real)
-  gen logW_Efetivo = ln(VD4020_real)
+  gen logW_Habitual = ln(VD4019_real_hora)
+  gen logW_Efetivo = ln(VD4020_real_hora)
   gen logW_Efetivo_0 = 0
-  replace logW_Efetivo_0 = ln(VD4020_real) if VD4020_real > 0
+  replace logW_Efetivo_0 = ln(VD4020_real_hora) if VD4020_real_hora > 0
   
-  label var logW_Habitual "Log do rendimento real habitual de todos os trabalhos"
-  label var logW_Efetivo "Log do rendimento real efetivo de todos os trabalhos"
-  label var logW_Efetivo_0 "Log do rendimento real efetivo de todos os trabalhos sem missing values"
+  label var logW_Habitual "Log do rendimento real habitual de todos os trabalhos por hora"
+  label var logW_Efetivo "Log do rendimento real efetivo de todos os trabalhos por hora"
+  label var logW_Efetivo_0 "Log do rendimento real efetivo de todos os trabalhos por hora sem missing values"
   
   
   *** ATENÇÃO: existem observações com rendimento efetivo = 0. logW_Efetivo = . para essas observações. 
   *** A variável logW_Efetivo_0 atribui valor 0 ao log do salário dessas observações.
   
-  order logW_Habitual, after(VD4019_real)
-  order logW_Efetivo logW_Efetivo_0, after(VD4020_real)
+  order logW_Habitual, after(VD4019_real_hora)
+  order logW_Efetivo logW_Efetivo_0, after(VD4020_real_hora)
   
   save "$dirdata/PNADC_amostra.dta", replace
   
