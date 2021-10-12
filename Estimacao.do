@@ -162,10 +162,21 @@ forvalues t = 1/38 {
        drop WRegEfetivo_`t'
    }  
  
+ 
+ * Visualizando estimação: rendimento real médio por hora observado x predito, por trimestre
+   egen W_medio = mean(VD4020_real_hora), by(T)
+   egen Wpred_medio = mean(WEfetivo_T), by(T)
+   
+   label var W_medio "Rendimento médio observado"
+   label var Wpred_medio "Rendimento médio predito"
+  
+   twoway (line W_medio T) (line Wpred_medio T), xtitle(" ") xlabel(1(2)38, angle(vertical) valuelabel) name(W_efetivo, replace)
+ 
+ 
    save "$dirdata/PNADC_amostra_efetivo.dta", replace
    
   
-   
+  
 ** Pesos por hora média:
  * Calculando hora média por grupo (Educ e Experiencia) para cada t:     
    bysort T VD3006 Experiencia: egen HorasEfetivasMedia = mean(VD4035)
@@ -239,18 +250,20 @@ forvalues t = 1/38 {
    replace IQT_Efetivo = IQT_Efetivo[_n-1]* dIQT_Efetivo if _n > 1
    label var IQT_Efetivo "IQT Efetivo"
    
+   gen IQT_Efetivo_2012t2 = 100 if T==2
+   replace IQT_Efetivo_2012t2 = IQT_Efetivo_2012t2[_n-1]* dIQT_Efetivo if _n > 2
+   label var IQT_Efetivo_2012t2 "IQT Efetivo: 2012.2 = 100"
+   
    save "$dirdata/dIQT_Efetivo.dta", replace
 
    twoway (line dIQT0_Efetivo T) (line dIQT1_Efetivo T) (line dIQT_Efetivo T), xtitle(" ") xlabel(1(2)38, angle(vertical) valuelabel) name(dIQT_Efetivo, replace)
    twoway (line IQT_Efetivo T), xtitle(" ") xlabel(1(2)38, angle(vertical) valuelabel) name(IQT_Efetivo, replace)
+   twoway (line IQT_Efetivo_2012t2 T), xtitle(" ") xlabel(1(2)38, angle(vertical) valuelabel) name(IQT_Efetivo_2012t2, replace)
    
    restore
   
    
    log close
-   
-   
-
    
    
 /* ETAPAS:
@@ -264,12 +277,15 @@ ok 7. Pesos ponderados por horas médias
 ok 8. IQT0
 ok 9. IQT1
 ok 10. IQT
-ok    - Valores
-ok	  - Gráfico
-ok    - Base 100
+   ok - Valores
+   ok - Gráfico
+   ok - Base 100
    11. Repetir para:
-ok    - Peso2
+   ok - Peso2
 	  - Rendimento efetivo nulo
 	  - Rendimento e horas habituais
 	  - Com controles
+	  - Restringindo grupos de trabalhadores
+	  - Por região
+	  - Por área de atividade
 */   
