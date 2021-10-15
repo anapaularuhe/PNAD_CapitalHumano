@@ -26,14 +26,6 @@ global dirdata = "C:/Users/ana.ruhe/Documents/Capital_Humano/Dados"
 * Salvando log:
 log using "Estimacao.log", replace
 
-*********************************************************************
-* FGV IBRE - Instituto Brasileiro de Economia
-* Núcleo de Produtividade e Mercado de Trabalho
-* Projeto: Capital Humano e Produtividade
-* Ana Paula Nothen Ruhe
-* Outubro/2021
-*********************************************************************
-
 
 * RETORNOS DE EDUCAÇÃO E EXPERIÊNCIA: RENDIMENTO EFETIVO ************
 * 1. PRELIMINARES
@@ -56,6 +48,7 @@ log using "Estimacao.log", replace
    
    save "$dirdata/PNADC_amostraT.dta", replace
 
+   
 * 2. ESTIMAÇÃO BASELINE    
 ** Grupo de educação 1 é omitido (referencial):   
 forvalues t = 1/38 {  
@@ -92,10 +85,10 @@ forvalues t = 1/38 {
 
   * Coeficientes estimados dão retornos diferenciais. Vamos calcular os retornos acumulados:	
  	gen Educ2 = _b_cons + _b_dummy_educ2
- 	gen Educ3 = Educ2 + _b_dummy_educ3
- 	gen Educ4 = Educ3 + _b_dummy_educ4
- 	gen Educ5 = Educ4 + _b_dummy_educ5
- 	gen Educ6 = Educ5 + _b_dummy_educ6
+ 	gen Educ3 = _b_cons + _b_dummy_educ3
+ 	gen Educ4 = _b_cons + _b_dummy_educ4
+ 	gen Educ5 = _b_cons + _b_dummy_educ5
+ 	gen Educ6 = _b_cons + _b_dummy_educ6
 
  	label var Educ2 "Educação Grupo 2"
  	label var Educ3 "Educação Grupo 3"
@@ -104,11 +97,17 @@ forvalues t = 1/38 {
  	label var Educ6 "Educação Grupo 6"
   
   * Gráficos:
-	line _b_cons Educ2 Educ3 Educ4 Educ5 Educ6 T if(dummy_Mulher==0), name(RetornosEducHomens)
-	line _b_cons Educ2 Educ3 Educ4 Educ5 Educ6 T if(dummy_Mulher==1), name(RetornosEducMulheres)
+	twoway (line _b_cons T if(dummy_Mulher==0)) (line Educ2 T if(dummy_Mulher==0)) (line Educ3 T if(dummy_Mulher==0)) (line Educ4 T if(dummy_Mulher==0)) (line Educ5 T if(dummy_Mulher==0)) (line Educ6 T if(dummy_Mulher==0)), xtitle(" ") xlabel(1(2)38, angle(vertical) valuelabel) name(RetornosEducHomens, replace)
+	twoway (line _b_cons T if(dummy_Mulher==1)) (line Educ2 T if(dummy_Mulher==1)) (line Educ3 T if(dummy_Mulher==1)) (line Educ4 T if(dummy_Mulher==1)) (line Educ5 T if(dummy_Mulher==1)) (line Educ6 T if(dummy_Mulher==1)), xtitle(" ") xlabel(1(2)38, angle(vertical) valuelabel) name(RetornosEducMulheres, replace)
+	
+	twoway (line _b_Experiencia T if(dummy_Mulher==0)) (line _b_Experiencia2 T if(dummy_Mulher==0)) (line _b_Experiencia3 T if(dummy_Mulher==0)) (line _b_Experiencia4 T if(dummy_Mulher==0)), xtitle(" ") xlabel(1(2)38, angle(vertical) valuelabel) name(RetornosExperHomens, replace)
+	twoway (line _b_Experiencia T if(dummy_Mulher==1)) (line _b_Experiencia2 T if(dummy_Mulher==1)) (line _b_Experiencia3 T if(dummy_Mulher==1)) (line _b_Experiencia4 T if(dummy_Mulher==1)), xtitle(" ") xlabel(1(2)38, angle(vertical) valuelabel) name(RetornosExperMulheres, replace)
+	
+	*line _b_cons Educ2 Educ3 Educ4 Educ5 Educ6 T if(dummy_Mulher==0), name(RetornosEducHomens)
+	*line _b_cons Educ2 Educ3 Educ4 Educ5 Educ6 T if(dummy_Mulher==1), name(RetornosEducMulheres)
 
-	line _b_Experiencia _b_Experiencia2 _b_Experiencia3 _b_Experiencia4 T if(dummy_Mulher==0), name(RetornosExperHomens)
-	line _b_Experiencia _b_Experiencia2 _b_Experiencia3 _b_Experiencia4 T if(dummy_Mulher==1), name(RetornosExperMulheres)
+	*line _b_Experiencia _b_Experiencia2 _b_Experiencia3 _b_Experiencia4 T if(dummy_Mulher==0), name(RetornosExperHomens)
+	*line _b_Experiencia _b_Experiencia2 _b_Experiencia3 _b_Experiencia4 T if(dummy_Mulher==1), name(RetornosExperMulheres)
    
     save "$dirdata/coeficientes_efetivo_baseline.dta", replace
    restore
