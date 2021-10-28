@@ -43,7 +43,7 @@ Arquivos referentes ao uso da PNAD Contínua no projeto sobre Capital Humano e P
 > ---------------------------------------------------------
 
 > D. ESTIMAÇÕES E IQT - SALÁRIO EFETIVO
-  * D_Rotina_estimacao_IQT
+  * Rotina: D_Rotina_estimacao_IQT
   * Inputs:
    - C_PNADC_POamostra.dta
   * Outputs:
@@ -54,6 +54,15 @@ Arquivos referentes ao uso da PNAD Contínua no projeto sobre Capital Humano e P
    - DC1_Estimacoes.ster                          | Arquivo que armazena as regressões - Salário Efetivo - Estratégia C
    - DC2_Coeficientes_unico.dta                   | Base com os coeficientes da regressão única - Salário Efetivo - Estratégia C
    - DC2_Coeficientes_genero.dta                  | Base com os coeficientes das regressões separadas por gênero - Salário Efetivo - Estratégia C
+
+   - DC10_Estimacoes.ster                         | Arquivo que armazena as regressões - Salário Efetivo - Estratégia C - logW=0 se W=0 
+   - DC20_Coeficientes_genero.dta                 | Base com os coeficientes das regressões separadas por gênero - Salário Efetivo - Estratégia C - logW=0 se W=0 
+
+   - DC1_Estimacoes_peso.ster                     | Arquivo que armazena as regressões com peso - Salário Efetivo - Estratégia C 
+   - DC2_Coeficientes_genero_peso.dta             | Base com os coeficientes das regressões com peso separadas por gênero - Salário Efetivo - Estratégia C
+
+   - DC10_Estimacoes_peso.ster                    | Arquivo que armazena as regressões com peso- Salário Efetivo - Estratégia C - logW=0 se W=0 
+   - DC20_Coeficientes_genero_peso.dta            | Base com os coeficientes das regressões com peso separadas por gênero - Salário Efetivo - Estratégia C - logW=0 se W=0 
 
    - DD1_Estimacoes.ster                          | Arquivo que armazena as regressões - Salário Efetivo - Estratégia D
    - DD2_Coeficientes_unico.dta                   | Base com os coeficientes da regressão única - Salário Efetivo - Estratégia D
