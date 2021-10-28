@@ -2,11 +2,13 @@
 * FGV IBRE - Instituto Brasileiro de Economia
 * Núcleo de Produtividade e Mercado de Trabalho
 * Projeto: Capital Humano e Produtividade
-* Ana Paula Nothen Ruhe
 * Outubro/2021
 *******************************************************************************
 
 * PREPARAÇÃO ******************************************************************
+* Pacotes:
+*ssc install sg97_5
+
 * Garantindo que não há variáveis prévias na memória:
 clear all
 cls								
@@ -65,7 +67,7 @@ log using "D_Estimacao_IQT.log", replace
  {                
    forvalues t = 1/`=Tmax' {  
     * Regressão única: 
-	  regress logW_efet_A mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 if T==`t'
+	  regress logW_efet_A mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 if T==`t' 
 	  *predict Reg_logW_efet_A_`t' if(T>=(`t'-1) & T<=(`t'+1))	 
 	  estimates save "$dirdata/DA1_Estimacoes", append
 	
@@ -367,7 +369,9 @@ log using "D_Estimacao_IQT.log", replace
 * D.C: IMPUTANDO HORAS HABITUAIS **********************************************
 {                
 ** D.C.1: RETORNOS EDUCAÇÃO E EXPERIÊNCIA *************************************
- {                
+ {
+*** D.C.1.I: Estimações convencionais 
+  { 
    forvalues t = 1/`=Tmax' {  
     * Regressão única: 
 	  regress logW_efet_C mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 if T==`t'
@@ -383,25 +387,78 @@ log using "D_Estimacao_IQT.log", replace
 	  regress logW_efet_C educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 if (T==`t' & mulher==1)
 	  predict RegMulher_logW_efet_C_`t' if(T>=(`t'-1) & T<=(`t'+1) & mulher==1)	 
 	  estimates save "$dirdata/DC1_Estimacoes", append
+	  
+	  
+	* Estimação para salário efetivo nulo (log = 0):
+	 * Homens:  
+	  regress logW_efet0_C educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 if (T==`t' & mulher==0)
+	  predict RegHomem_logW_efet0_C_`t' if(T>=(`t'-1) & T<=(`t'+1) & mulher==0)	 
+	  estimates save "$dirdata/DC10_Estimacoes", append
+	
+	 * Mulheres:
+	  regress logW_efet0_C educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 if (T==`t' & mulher==1)
+	  predict RegMulher_logW_efet0_C_`t' if(T>=(`t'-1) & T<=(`t'+1) & mulher==1)	 
+	  estimates save "$dirdata/DC10_Estimacoes", append
    }
    
  * Salvando os coeficientes:	
    statsby, by(T) saving("$dirdata/DC2_Coeficientes_unico.dta", replace): regress logW_efet_C mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4
  
    statsby, by(T mulher) saving("$dirdata/DC2_Coeficientes_genero.dta", replace): regress logW_efet_C educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4
+
+   statsby, by(T mulher) saving("$dirdata/DC20_Coeficientes_genero.dta", replace): regress logW_efet0_C educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4
  
    estimates clear  
+  } 
+  
+*** D.C.1.II: Estimações com peso
+  {
+  forvalues t = 1/`=Tmax' {  
+	* Homens:  
+	  regress logW_efet_C educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 if (T==`t' & mulher==0) [iw = Peso]
+	  predict RegHomem_logW_efet_C_peso_`t' if(T>=(`t'-1) & T<=(`t'+1) & mulher==0)	 
+	  estimates save "$dirdata/DC1_Estimacoes_peso", append
+	
+	* Mulheres:
+	  regress logW_efet_C educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 if (T==`t' & mulher==1) [iw = Peso]
+	  predict RegMulher_logW_efet_C_peso_`t' if(T>=(`t'-1) & T<=(`t'+1) & mulher==1)	 
+	  estimates save "$dirdata/DC1_Estimacoes_peso", append
+	  
+	* Estimação para salário efetivo nulo (log = 0):
+	 * Homens:  
+	  regress logW_efet0_C educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 if (T==`t' & mulher==0) [iw = Peso]
+	  predict RegHomem_logW_efet0_C_peso_`t' if(T>=(`t'-1) & T<=(`t'+1) & mulher==0)	 
+	  estimates save "$dirdata/DC10_Estimacoes_peso", append
+	
+	 * Mulheres:
+	  regress logW_efet0_C educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 if (T==`t' & mulher==1) [iw = Peso]
+	  predict RegMulher_logW_efet0_C_peso_`t' if(T>=(`t'-1) & T<=(`t'+1) & mulher==1)	 
+	  estimates save "$dirdata/DC10_Estimacoes_peso", append
+   }
+   
+ * Salvando os coeficientes:	
+   statsby, by(T mulher) saving("$dirdata/DC2_Coeficientes_genero_peso.dta", replace): regress logW_efet_C educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 [iw = Peso]
+
+   statsby, by(T mulher) saving("$dirdata/DC20_Coeficientes_genero_peso.dta", replace): regress logW_efet0_C educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 [iw = Peso]
+ 
+   estimates clear  
+  }
  } 
 
 
 ** D.C.2: SALÁRIOS PREDITOS ***************************************************
  { 
+*** D.C.2.I: Estimações convencionais 
+  { 
  * Exponencial + sintetizamos salários de homens e mulheres em mesma variável + descartamos log para economizar memória
    forvalues t = 1/`=Tmax' {
 	  gen RegW_efet_C_`t' = exp(RegHomem_logW_efet_C_`t') if mulher==0
 	  replace RegW_efet_C_`t' = exp(RegMulher_logW_efet_C_`t') if mulher==1
 	  
-	  drop RegHomem_logW_efet_C_`t' RegMulher_logW_efet_C_`t' 
+	  gen RegW_efet0_C_`t' = exp(RegHomem_logW_efet0_C_`t') if mulher==0
+	  replace RegW_efet0_C_`t' = exp(RegMulher_logW_efet0_C_`t') if mulher==1
+	  
+	  drop RegHomem_logW_efet_C_`t' RegMulher_logW_efet_C_`t' RegHomem_logW_efet0_C_`t' RegMulher_logW_efet0_C_`t' 
    }
 
  
@@ -420,26 +477,99 @@ log using "D_Estimacao_IQT.log", replace
    label var WefetC_Tprox "Rendimento efetivo por hora em t predito pelos coeficientes estimados de t+1 (C)"
    
    
+   gen WefetC0_T = .
+   gen WefetC0_Tante = .
+   gen WefetC0_Tprox = .
+   
+   label var WefetC0_T "Rendimento efetivo por hora em t predito pelos coeficientes estimados de t (C) - log = 0"
+   label var WefetC0_Tante "Rendimento efetivo por hora em t predito pelos coeficientes estimados de t-1 (C) - log = 0"
+   label var WefetC0_Tprox "Rendimento efetivo por hora em t predito pelos coeficientes estimados de t+1 (C) - log = 0"
+   
+   
    forvalues t = 1/`=Tmax' {
       replace WefetC_T = RegW_efet_C_`t' if T==`t'
+	  replace WefetC0_T = RegW_efet0_C_`t' if T==`t'
 	  
 	  local i = `t'-1
 	  if `t' > 1 replace WefetC_Tante = RegW_efet_C_`i' if T==`t'
+	  if `t' > 1 replace WefetC0_Tante = RegW_efet0_C_`i' if T==`t'
 	  
 	  local j = `t'+1 
 	  if `t' < `=Tmax' replace WefetC_Tprox = RegW_efet_C_`j' if T==`t'
+	  if `t' < `=Tmax' replace WefetC0_Tprox = RegW_efet0_C_`j' if T==`t'
    }
  
-   order WefetC_T WefetC_Tante WefetC_Tprox, before(RegW_efet_C_1)
+   order WefetC_T WefetC_Tante WefetC_Tprox WefetC0_T WefetC0_Tante WefetC0_Tprox, before(RegW_efet_C_1)
 
  * Podemos eliminar os salários efetivos separados por período, para economizar memória:
    forvalues t = 1/`=Tmax' { 
-       drop RegW_efet_C_`t'
+       drop RegW_efet_C_`t' RegW_efet0_C_`t'
    }  
  
  
    save "$dirdata/D0_BaseEstimacao.dta", replace
-  } 
+   }
+ 
+*** D.C.2.II: Estimações com peso 
+  { 
+ * Exponencial + sintetizamos salários de homens e mulheres em mesma variável + descartamos log para economizar memória
+   forvalues t = 1/`=Tmax' {
+	  gen RegW_efet_C_peso_`t' = exp(RegHomem_logW_efet_C_peso_`t') if mulher==0
+	  replace RegW_efet_C_peso_`t' = exp(RegMulher_logW_efet_C_peso_`t') if mulher==1
+	  
+	  gen RegW_efet0_C_peso_`t' = exp(RegHomem_logW_efet0_C_peso_`t') if mulher==0
+	  replace RegW_efet0_C_peso_`t' = exp(RegMulher_logW_efet0_C_peso_`t') if mulher==1
+	  
+	  drop RegHomem_logW_efet_C_peso_`t' RegMulher_logW_efet_C_peso_`t' RegHomem_logW_efet0_C_peso_`t' RegMulher_logW_efet0_C_peso_`t' 
+   }
+
+ 
+ /* Vamos consolidar os salários preditos em 3 variáveis: 
+    - Wefet_T     = salários em t preditos pelos coeficientes estimados de t
+	- WEefet_Tante = salários em t preditos pelos coeficientes estimados de t-1
+	- WEefet_Tprox = salários em t preditos pelos coeficientes estimados de t+1
+ */
+   
+   gen WefetC_peso_T = .
+   gen WefetC_peso_Tante = .
+   gen WefetC_peso_Tprox = .
+   
+   label var WefetC_peso_T "Rendimento efetivo por hora em t predito pelos coeficientes estimados de t (C)"
+   label var WefetC_peso_Tante "Rendimento efetivo por hora em t predito pelos coeficientes estimados de t-1 (C)"
+   label var WefetC_peso_Tprox "Rendimento efetivo por hora em t predito pelos coeficientes estimados de t+1 (C)"
+   
+   
+   gen WefetC0_peso_T = .
+   gen WefetC0_peso_Tante = .
+   gen WefetC0_peso_Tprox = .
+   
+   label var WefetC0_peso_T "Rendimento efetivo por hora em t predito pelos coeficientes estimados de t (C) - log = 0"
+   label var WefetC0_peso_Tante "Rendimento efetivo por hora em t predito pelos coeficientes estimados de t-1 (C) - log = 0"
+   label var WefetC0_peso_Tprox "Rendimento efetivo por hora em t predito pelos coeficientes estimados de t+1 (C) - log = 0"
+   
+   
+   forvalues t = 1/`=Tmax' {
+      replace WefetC_peso_T = RegW_efet_C_peso_`t' if T==`t'
+	  replace WefetC0_peso_T = RegW_efet0_C_peso_`t' if T==`t'
+	  
+	  local i = `t'-1
+	  if `t' > 1 replace WefetC_peso_Tante = RegW_efet_C_peso_`i' if T==`t'
+	  if `t' > 1 replace WefetC0_peso_Tante = RegW_efet0_C_peso_`i' if T==`t'
+	  
+	  local j = `t'+1 
+	  if `t' < `=Tmax' replace WefetC_peso_Tprox = RegW_efet_C_peso_`j' if T==`t'
+	  if `t' < `=Tmax' replace WefetC0_peso_Tprox = RegW_efet0_C_peso_`j' if T==`t'
+   }
+
+
+ * Podemos eliminar os salários efetivos separados por período, para economizar memória:
+   forvalues t = 1/`=Tmax' { 
+       drop RegW_efet_C_peso_`t' RegW_efet0_C_peso_`t'
+   }  
+ 
+   save "$dirdata/D0_BaseEstimacao.dta", replace
+   } 
+ } 
   
 
 ** D.C.3: PESOS PONDERADOS POR HORAS ******************************************  
@@ -461,6 +591,25 @@ log using "D_Estimacao_IQT.log", replace
    
    order PEfetC, after(Peso) 
    drop PEfetC_i PEfetC_t
+   
+   
+  ** Estratégia C alternativa: usando horas efetivas para o IQT, deixando imputação apenas para a regressão
+     bysort T VD3006 Experiencia: egen HEfetC_alt = mean(VD4035)
+     label var HEfetC_alt "Horas efetivas médias por grupo de educação e experiência para cada trimestre (C_alt)"
+
+   * Peso original multiplicado pelas horas efetivas médias do grupo i
+     gen PEfetC_ialt = Peso*HEfetC_alt
+   
+   * Soma (por trimestre) do produto peso x horas médias efetivas 
+     bysort T: egen PEfetC_talt = sum(PEfetC_ialt)
+  
+   * Peso final:
+     gen PEfetC_alt = PEfetC_ialt/PEfetC_talt
+     label var PEfetC_alt "Peso para cálculo do IQT de rendimento efetivo (C_alt)"
+   
+     order PEfetC_alt, after(PEfetC) 
+     drop PEfetC_ialt PEfetC_talt
+  
 
    save "$dirdata/D0_BaseEstimacao.dta", replace
   }
@@ -468,8 +617,14 @@ log using "D_Estimacao_IQT.log", replace
 
 ** D.C.4: IQT *****************************************************************   
  {
+*** D.C.4.I: Estimações convencionais  
+  {
  * IQT0:
-   gen dIQT0_efetC = .
+   gen dIQT0_efetC = .        // Baseline
+   gen dIQT0_efetC_alt = .    // Estratégia alternativa (imputação apenas na regressão, não no peso)
+   
+   gen dIQT0_efetC0 = .       // log = 0
+   gen dIQT0_efetC0_alt = .   // log = 0 + Estratégia alternativa
   
    forvalues t = 2/`=Tmax'{
       gen num = PEfetC*WefetC_Tante if T==`t'
@@ -479,13 +634,41 @@ log using "D_Estimacao_IQT.log", replace
 	  egen sum_den = sum(den)
 	  
 	  replace dIQT0_efetC = sum_num/sum_den if T==`t'
+	  
+	  gen num_alt = PEfetC_alt*WefetC_Tante if T==`t'
+	  gen den_alt = PEfetC_alt*WefetC_T if T==(`t'-1)
+   
+      egen sum_num_alt = sum(num_alt)
+	  egen sum_den_alt = sum(den_alt)
+	  
+	  replace dIQT0_efetC_alt = sum_num_alt/sum_den_alt if T==`t'
+	  
+	  gen num0 = PEfetC*WefetC0_Tante if T==`t'
+	  gen den0 = PEfetC*WefetC0_T if T==(`t'-1)
+   
+      egen sum_num0 = sum(num0)
+	  egen sum_den0 = sum(den0)
+	  
+	  replace dIQT0_efetC0 = sum_num0/sum_den0 if T==`t'
+	  
+	  gen num_alt0 = PEfetC_alt*WefetC0_Tante if T==`t'
+	  gen den_alt0 = PEfetC_alt*WefetC0_T if T==(`t'-1)
+   
+      egen sum_num_alt0 = sum(num_alt0)
+	  egen sum_den_alt0 = sum(den_alt0)
+	  
+	  replace dIQT0_efetC0_alt = sum_num_alt0/sum_den_alt0 if T==`t'
 
-	  drop num den sum_num sum_den
+	  drop num den sum_num sum_den num_alt den_alt sum_num_alt sum_den_alt num0 den0 sum_num0 sum_den0 num_alt0 den_alt0 sum_num_alt0 sum_den_alt0
    }
   
   
  * IQT1:
    gen dIQT1_efetC = .
+   gen dIQT1_efetC_alt = .
+   
+   gen dIQT1_efetC0 = .
+   gen dIQT1_efetC0_alt = .
   
    forvalues t = 2/`=Tmax'{
       gen num = PEfetC*WefetC_T if T==`t'
@@ -496,19 +679,61 @@ log using "D_Estimacao_IQT.log", replace
 	  
 	  replace dIQT1_efetC = sum_num/sum_den if T==`t'
 	  
-	  drop num den sum_num sum_den 
+	  gen num_alt = PEfetC_alt*WefetC_T if T==`t'
+	  gen den_alt = PEfetC_alt*WefetC_Tprox if T==(`t'-1)
+   
+      egen sum_num_alt = sum(num_alt)
+	  egen sum_den_alt = sum(den_alt)
+	  
+	  replace dIQT1_efetC_alt = sum_num_alt/sum_den_alt if T==`t'
+	  
+	  gen num0 = PEfetC*WefetC0_T if T==`t'
+	  gen den0 = PEfetC*WefetC0_Tprox if T==(`t'-1)
+   
+      egen sum_num0 = sum(num0)
+	  egen sum_den0 = sum(den0)
+	  
+	  replace dIQT1_efetC0 = sum_num0/sum_den0 if T==`t'
+	  
+	  gen num_alt0 = PEfetC_alt*WefetC0_T if T==`t'
+	  gen den_alt0 = PEfetC_alt*WefetC0_Tprox if T==(`t'-1)
+   
+      egen sum_num_alt0 = sum(num_alt0)
+	  egen sum_den_alt0 = sum(den_alt0)
+	  
+	  replace dIQT1_efetC0_alt = sum_num_alt0/sum_den_alt0 if T==`t'
+	  
+	  drop num den sum_num sum_den num_alt den_alt sum_num_alt sum_den_alt num0 den0 sum_num0 sum_den0 num_alt0 den_alt0 sum_num_alt0 sum_den_alt0
    }  
    
  * IQT: índice de Fisher   
    gen dIQT_efetC = (dIQT0_efetC*dIQT1_efetC)^(1/2)
+   gen dIQT_efetC_alt = (dIQT0_efetC_alt*dIQT1_efetC_alt)^(1/2)
    
    label var dIQT0_efetC "Variação IQT0 Efetivo (C)"
    label var dIQT1_efetC "Variação IQT1 Efetivo (C)"
    label var dIQT_efetC "Variação IQT Efetivo (C)"
    
+   label var dIQT0_efetC_alt "Variação IQT0 Efetivo (C_alt)"
+   label var dIQT1_efetC_alt "Variação IQT1 Efetivo (C_alt)"
+   label var dIQT_efetC_alt "Variação IQT Efetivo (C_alt)"
+   
+   
+   gen dIQT_efetC0 = (dIQT0_efetC0*dIQT1_efetC0)^(1/2)
+   gen dIQT_efetC0_alt = (dIQT0_efetC0_alt*dIQT1_efetC0_alt)^(1/2)
+   
+   label var dIQT0_efetC0 "Variação IQT0 Efetivo (C0)"
+   label var dIQT1_efetC0 "Variação IQT1 Efetivo (C0)"
+   label var dIQT_efetC0 "Variação IQT Efetivo (C0)"
+   
+   label var dIQT0_efetC0_alt "Variação IQT0 Efetivo (C0_alt)"
+   label var dIQT1_efetC0_alt "Variação IQT1 Efetivo (C0_alt)"
+   label var dIQT_efetC0_alt "Variação IQT Efetivo (C0_alt)"
+   
+   
 ** Salvando base apenas do IQT:   
    preserve
-   keep T dIQT0_efetC dIQT1_efetC dIQT_efetC
+   keep T dIQT0_efetC dIQT1_efetC dIQT_efetC dIQT0_efetC_alt dIQT1_efetC_alt dIQT_efetC_alt dIQT0_efetC0 dIQT1_efetC0 dIQT_efetC0 dIQT0_efetC0_alt dIQT1_efetC0_alt dIQT_efetC0_alt
    duplicates drop
      
    gen IQT_efetC = 100 if T==1
@@ -519,13 +744,204 @@ log using "D_Estimacao_IQT.log", replace
    replace IQT_efetC_2012t2 = IQT_efetC_2012t2[_n-1]*dIQT_efetC if _n > 2
    label var IQT_efetC_2012t2 "IQT Efetivo (C): 2012.2 = 100"
    
+   gen IQT_efetC_alt = 100 if T==1
+   replace IQT_efetC_alt = IQT_efetC_alt[_n-1]*dIQT_efetC_alt if _n > 1
+   label var IQT_efetC_alt "IQT Efetivo (C_alt)"
+   
+   gen IQT_efetC_alt_2012t2 = 100 if T==2
+   replace IQT_efetC_alt_2012t2 = IQT_efetC_alt_2012t2[_n-1]*dIQT_efetC_alt if _n > 2
+   label var IQT_efetC_alt_2012t2 "IQT Efetivo (C_alt): 2012.2 = 100"
+   
+     
+   gen IQT_efetC0 = 100 if T==1
+   replace IQT_efetC0 = IQT_efetC0[_n-1]*dIQT_efetC0 if _n > 1
+   label var IQT_efetC0 "IQT Efetivo (C0)"
+   
+   gen IQT_efetC0_2012t2 = 100 if T==2
+   replace IQT_efetC0_2012t2 = IQT_efetC0_2012t2[_n-1]*dIQT_efetC0 if _n > 2
+   label var IQT_efetC0_2012t2 "IQT Efetivo (C0): 2012.2 = 100"
+   
+   
+   gen IQT_efetC0_alt = 100 if T==1
+   replace IQT_efetC0_alt = IQT_efetC0_alt[_n-1]*dIQT_efetC0_alt if _n > 1
+   label var IQT_efetC0_alt "IQT Efetivo (C0_alt)"
+   
+   gen IQT_efetC0_alt_2012t2 = 100 if T==2
+   replace IQT_efetC0_alt_2012t2 = IQT_efetC0_alt_2012t2[_n-1]*dIQT_efetC0_alt if _n > 2
+   label var IQT_efetC0_alt_2012t2 "IQT Efetivo (C0_alt): 2012.2 = 100"
+   
+   
    merge 1:1 T using "$dirdata/D_IQT_Efetivo.dta"
    drop _merge
    save "$dirdata/D_IQT_Efetivo.dta", replace
    restore
   
-   drop dIQT0_efetC dIQT1_efetC dIQT_efetC
+   drop dIQT0_efetC dIQT1_efetC dIQT_efetC dIQT0_efetC0 dIQT1_efetC0 dIQT_efetC0 dIQT0_efetC_alt dIQT1_efetC_alt dIQT_efetC_alt dIQT0_efetC0_alt dIQT1_efetC0_alt dIQT_efetC0_alt
    save "$dirdata/D0_BaseEstimacao.dta", replace 
+  } 
+ 
+*** D.C.4.II: Estimações com peso
+  { 
+* IQT0:
+   gen dIQT0_efetC_peso = .        // Baseline
+   gen dIQT0_efetC_peso_alt = .    // Estratégia alternativa (imputação apenas na regressão, não no peso)
+   
+   gen dIQT0_efetC0_peso = .       // log = 0
+   gen dIQT0_efetC0_peso_alt = .   // log = 0 + Estratégia alternativa
+  
+   forvalues t = 2/`=Tmax'{
+      gen num = PEfetC*WefetC_peso_Tante if T==`t'
+	  gen den = PEfetC*WefetC_peso_T if T==(`t'-1)
+   
+      egen sum_num = sum(num)
+	  egen sum_den = sum(den)
+	  
+	  replace dIQT0_efetC_peso = sum_num/sum_den if T==`t'
+	  
+	  gen num_alt = PEfetC_alt*WefetC_peso_Tante if T==`t'
+	  gen den_alt = PEfetC_alt*WefetC_peso_T if T==(`t'-1)
+   
+      egen sum_num_alt = sum(num_alt)
+	  egen sum_den_alt = sum(den_alt)
+	  
+	  replace dIQT0_efetC_peso_alt = sum_num_alt/sum_den_alt if T==`t'
+	  
+	  gen num0 = PEfetC*WefetC0_peso_Tante if T==`t'
+	  gen den0 = PEfetC*WefetC0_peso_T if T==(`t'-1)
+   
+      egen sum_num0 = sum(num0)
+	  egen sum_den0 = sum(den0)
+	  
+	  replace dIQT0_efetC0_peso = sum_num0/sum_den0 if T==`t'
+	  
+	  gen num_alt0 = PEfetC_alt*WefetC0_peso_Tante if T==`t'
+	  gen den_alt0 = PEfetC_alt*WefetC0_peso_T if T==(`t'-1)
+   
+      egen sum_num_alt0 = sum(num_alt0)
+	  egen sum_den_alt0 = sum(den_alt0)
+	  
+	  replace dIQT0_efetC0_peso_alt = sum_num_alt0/sum_den_alt0 if T==`t'
+
+	  drop num den sum_num sum_den num_alt den_alt sum_num_alt sum_den_alt num0 den0 sum_num0 sum_den0 num_alt0 den_alt0 sum_num_alt0 sum_den_alt0
+   }
+  
+  
+ * IQT1:
+   gen dIQT1_efetC_peso = .
+   gen dIQT1_efetC_peso_alt = .
+   
+   gen dIQT1_efetC0_peso = .
+   gen dIQT1_efetC0_peso_alt = .
+  
+   forvalues t = 2/`=Tmax'{
+      gen num = PEfetC*WefetC_peso_T if T==`t'
+	  gen den = PEfetC*WefetC_peso_Tprox if T==(`t'-1)
+   
+      egen sum_num = sum(num)
+	  egen sum_den = sum(den)
+	  
+	  replace dIQT1_efetC_peso = sum_num/sum_den if T==`t'
+	  
+	  gen num_alt = PEfetC_alt*WefetC_peso_T if T==`t'
+	  gen den_alt = PEfetC_alt*WefetC_peso_Tprox if T==(`t'-1)
+   
+      egen sum_num_alt = sum(num_alt)
+	  egen sum_den_alt = sum(den_alt)
+	  
+	  replace dIQT1_efetC_peso_alt = sum_num_alt/sum_den_alt if T==`t'
+	  
+	  gen num0 = PEfetC*WefetC0_peso_T if T==`t'
+	  gen den0 = PEfetC*WefetC0_peso_Tprox if T==(`t'-1)
+   
+      egen sum_num0 = sum(num0)
+	  egen sum_den0 = sum(den0)
+	  
+	  replace dIQT1_efetC0_peso = sum_num0/sum_den0 if T==`t'
+	  
+	  gen num_alt0 = PEfetC_alt*WefetC0_peso_T if T==`t'
+	  gen den_alt0 = PEfetC_alt*WefetC0_peso_Tprox if T==(`t'-1)
+   
+      egen sum_num_alt0 = sum(num_alt0)
+	  egen sum_den_alt0 = sum(den_alt0)
+	  
+	  replace dIQT1_efetC0_peso_alt = sum_num_alt0/sum_den_alt0 if T==`t'
+	  
+	  drop num den sum_num sum_den num_alt den_alt sum_num_alt sum_den_alt num0 den0 sum_num0 sum_den0 num_alt0 den_alt0 sum_num_alt0 sum_den_alt0
+   }  
+   
+ * IQT: índice de Fisher   
+   gen dIQT_efetC_peso = (dIQT0_efetC_peso*dIQT1_efetC_peso)^(1/2)
+   gen dIQT_efetC_peso_alt = (dIQT0_efetC_peso_alt*dIQT1_efetC_peso_alt)^(1/2)
+   
+   label var dIQT0_efetC_peso "Variação IQT0 Efetivo (C)"
+   label var dIQT1_efetC_peso "Variação IQT1 Efetivo (C)"
+   label var dIQT_efetC_peso "Variação IQT Efetivo (C)"
+   
+   label var dIQT0_efetC_peso_alt "Variação IQT0 Efetivo (C_alt)"
+   label var dIQT1_efetC_peso_alt "Variação IQT1 Efetivo (C_alt)"
+   label var dIQT_efetC_peso_alt "Variação IQT Efetivo (C_alt)"
+   
+   
+   gen dIQT_efetC0_peso = (dIQT0_efetC0_peso*dIQT1_efetC0_peso)^(1/2)
+   gen dIQT_efetC0_peso_alt = (dIQT0_efetC0_peso_alt*dIQT1_efetC0_peso_alt)^(1/2)
+   
+   label var dIQT0_efetC0_peso "Variação IQT0 Efetivo (C0)"
+   label var dIQT1_efetC0_peso "Variação IQT1 Efetivo (C0)"
+   label var dIQT_efetC0_peso "Variação IQT Efetivo (C0)"
+   
+   label var dIQT0_efetC0_peso_alt "Variação IQT0 Efetivo (C0_alt)"
+   label var dIQT1_efetC0_peso_alt "Variação IQT1 Efetivo (C0_alt)"
+   label var dIQT_efetC0_peso_alt "Variação IQT Efetivo (C0_alt)"
+   
+   
+** Salvando base apenas do IQT:   
+   preserve
+   keep T dIQT0_efetC_peso dIQT1_efetC_peso dIQT_efetC_peso dIQT0_efetC_peso_alt dIQT1_efetC_peso_alt dIQT_efetC_peso_alt dIQT0_efetC0_peso dIQT1_efetC0_peso dIQT_efetC0_peso dIQT0_efetC0_peso_alt dIQT1_efetC0_peso_alt dIQT_efetC0_peso_alt
+   duplicates drop
+     
+   gen IQT_efetC_peso = 100 if T==1
+   replace IQT_efetC_peso = IQT_efetC_peso[_n-1]*dIQT_efetC_peso if _n > 1
+   label var IQT_efetC_peso "IQT Efetivo (C) - Peso"
+   
+   gen IQT_efetC_peso_2012t2 = 100 if T==2
+   replace IQT_efetC_peso_2012t2 = IQT_efetC_peso_2012t2[_n-1]*dIQT_efetC_peso if _n > 2
+   label var IQT_efetC_peso_2012t2 "IQT Efetivo (C): 2012.2 = 100 - Peso"
+   
+   gen IQT_efetC_peso_alt = 100 if T==1
+   replace IQT_efetC_peso_alt = IQT_efetC_peso_alt[_n-1]*dIQT_efetC_peso_alt if _n > 1
+   label var IQT_efetC_peso_alt "IQT Efetivo (C_alt) - Peso"
+   
+   gen IQT_efetC_peso_alt_2012t2 = 100 if T==2
+   replace IQT_efetC_peso_alt_2012t2 = IQT_efetC_peso_alt_2012t2[_n-1]*dIQT_efetC_peso_alt if _n > 2
+   label var IQT_efetC_peso_alt_2012t2 "IQT Efetivo (C_alt): 2012.2 = 100 - Peso"
+   
+     
+   gen IQT_efetC0_peso = 100 if T==1
+   replace IQT_efetC0_peso = IQT_efetC0_peso[_n-1]*dIQT_efetC0_peso if _n > 1
+   label var IQT_efetC0_peso "IQT Efetivo (C0) - Peso"
+   
+   gen IQT_efetC0_peso_2012t2 = 100 if T==2
+   replace IQT_efetC0_peso_2012t2 = IQT_efetC0_peso_2012t2[_n-1]*dIQT_efetC0_peso if _n > 2
+   label var IQT_efetC0_peso_2012t2 "IQT Efetivo (C0): 2012.2 = 100 - Peso"
+   
+   
+   gen IQT_efetC0_peso_alt = 100 if T==1
+   replace IQT_efetC0_peso_alt = IQT_efetC0_peso_alt[_n-1]*dIQT_efetC0_peso_alt if _n > 1
+   label var IQT_efetC0_peso_alt "IQT Efetivo (C0_alt) - Peso"
+   
+   gen IQT_efetC0_peso_alt_2012t2 = 100 if T==2
+   replace IQT_efetC0_peso_alt_2012t2 = IQT_efetC0_peso_alt_2012t2[_n-1]*dIQT_efetC0_peso_alt if _n > 2
+   label var IQT_efetC0_peso_alt_2012t2 "IQT Efetivo (C0_alt): 2012.2 = 100 - Peso"
+   
+   
+   merge 1:1 T using "$dirdata/D_IQT_Efetivo.dta"
+   drop _merge
+   save "$dirdata/D_IQT_Efetivo.dta", replace
+   restore
+  
+   drop dIQT0_efetC_peso dIQT1_efetC_peso dIQT_efetC_peso dIQT0_efetC0_peso dIQT1_efetC0_peso dIQT_efetC0_peso dIQT0_efetC_peso_alt dIQT1_efetC_peso_alt dIQT_efetC_peso_alt dIQT0_efetC0_peso_alt dIQT1_efetC0_peso_alt dIQT_efetC0_peso_alt
+   save "$dirdata/D0_BaseEstimacao.dta", replace  
+  }
  } 
 }
 
@@ -1222,8 +1638,10 @@ log using "D_Estimacao_IQT.log", replace
  egen Tmax = max(T)
  
  * Efetivo  
-   twoway (line IQT_efetA T) (line IQT_efetB T) (line IQT_efetC T) (line IQT_efetD T), xtitle(" ") xlabel(1(2)`=Tmax', angle(vertical) valuelabel) name(IQT_Efetivo, replace)
-   twoway (line IQT_efetA_2012t2 T) (line IQT_efetB_2012t2 T) (line IQT_efetC_2012t2 T) (line IQT_efetD_2012t2 T), xtitle(" ") xlabel(1(2)`=Tmax', angle(vertical) valuelabel) name(IQT_Efetivo2012, replace)
+   twoway (line IQT_efetA T) (line IQT_efetB T) (line IQT_efetC T) (line IQT_efetC_alt T) (line IQT_efetD T), xtitle(" ") xlabel(1(2)`=Tmax', angle(vertical) valuelabel) name(IQT_Efetivo, replace)
+   twoway (line IQT_efetA_2012t2 T) (line IQT_efetB_2012t2 T) (line IQT_efetC_2012t2 T) (line IQT_efetC_alt_2012t2 T) (line IQT_efetD_2012t2 T), xtitle(" ") xlabel(1(2)`=Tmax', angle(vertical) valuelabel) name(IQT_Efetivo2012, replace)
+   twoway (line IQT_efetA_2012t2 T) (line IQT_efetB_2012t2 T) (line IQT_efetC_2012t2 T) (line IQT_efetC_alt_2012t2 T) (line IQT_efetC0_2012t2 T) (line IQT_efetC0_alt_2012t2 T) (line IQT_efetD_2012t2 T), xtitle(" ") xlabel(1(2)`=Tmax', angle(vertical) valuelabel) name(IQT_Efetivo02012, replace)
+   
    
  * Habitual
    twoway (line IQT_habA T) (line IQT_habB T) (line IQT_habC T) (line IQT_habD T), xtitle(" ") xlabel(1(2)`=Tmax', angle(vertical) valuelabel) name(IQT_Habitual, replace)
@@ -1240,12 +1658,21 @@ log using "D_Estimacao_IQT.log", replace
 	 twoway (line IQT_efetB_2012t2 T) (line IQT_habB_2012t2 T), xtitle(" ") xlabel(1(2)`=Tmax', angle(vertical) valuelabel) name(IQT_B2012, replace)
    
    * C
-     twoway (line IQT_efetC T) (line IQT_habC T), xtitle(" ") xlabel(1(2)`=Tmax', angle(vertical) valuelabel) name(IQT_C, replace)
-	 twoway (line IQT_efetC_2012t2 T) (line IQT_habC_2012t2 T), xtitle(" ") xlabel(1(2)`=Tmax', angle(vertical) valuelabel) name(IQT_C2012, replace)
+     twoway (line IQT_efetC T) (line IQT_efetC_alt T) (line IQT_habC T), xtitle(" ") xlabel(1(2)`=Tmax', angle(vertical) valuelabel) name(IQT_C, replace)
+	 twoway (line IQT_efetC T) (line IQT_efetC_alt T) (line IQT_efetC0 T) (line IQT_efetC0_alt T) (line IQT_habC T), xtitle(" ") xlabel(1(2)`=Tmax', angle(vertical) valuelabel) name(IQT_C0, replace)
+	 twoway (line IQT_efetC_2012t2 T) (line IQT_efetC_alt_2012t2 T) (line IQT_habC_2012t2 T), xtitle(" ") xlabel(1(2)`=Tmax', angle(vertical) valuelabel) name(IQT_C2012, replace)
+	 twoway (line IQT_efetC_2012t2 T) (line IQT_efetC_alt_2012t2 T) (line IQT_efetC0_2012t2 T) (line IQT_efetC0_alt_2012t2 T) (line IQT_habC_2012t2 T), xtitle(" ") xlabel(1(2)`=Tmax', angle(vertical) valuelabel) name(IQT_C02012, replace)
    
    * D
      twoway (line IQT_efetD T) (line IQT_habD T), xtitle(" ") xlabel(1(2)`=Tmax', angle(vertical) valuelabel) name(IQT_D, replace)
 	 twoway (line IQT_efetD_2012t2 T) (line IQT_habD_2012t2 T), xtitle(" ") xlabel(1(2)`=Tmax', angle(vertical) valuelabel) name(IQT_D2012, replace)
+	 
+	 
+ * Regressões com peso:
+  * Estratégia C:
+    twoway (line IQT_efetC_2012t2 T) (line IQT_efetC0_2012t2 T) (line IQT_efetC_peso_2012t2 T) (line IQT_efetC0_peso_2012t2 T), xtitle(" ") xlabel(1(2)`=Tmax', angle(vertical) valuelabel) name(IQT_C2012_peso, replace)
+	
+	twoway (line IQT_efetC_alt_2012t2 T) (line IQT_efetC0_alt_2012t2 T) (line IQT_efetC_peso_alt_2012t2 T) (line IQT_efetC0_peso_alt_2012t2 T), xtitle(" ") xlabel(1(2)`=Tmax', angle(vertical) valuelabel) name(IQT_C2012_peso_alt, replace)
 	 
   save "$dirdata/F_IQT.dta", replace	 
  }  
@@ -1269,8 +1696,9 @@ ok 10. IQT
    ok - Base 100
    11. Repetir para:
    ok - Peso2
-	  - Rendimento efetivo nulo
+   ok - Rendimento efetivo nulo
    ok - Rendimento e horas habituais
+   ok - Com peso
 	  - Com controles
 	  - Por região
 	  - Por área de atividade

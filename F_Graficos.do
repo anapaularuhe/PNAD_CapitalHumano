@@ -36,9 +36,11 @@ global dirdata = "C:/Users/ana.ruhe/Documents/Capital_Humano/Dados"
 *******************************************************************************
   use "$dirdata/F_IQT.dta", clear
  
- * Efetivo  
-   twoway (line IQT_efetA T) (line IQT_efetB T) (line IQT_efetC T) (line IQT_efetD T), xtitle(" ") xlabel(1(2)`=Tmax', angle(vertical) valuelabel) name(IQT_Efetivo, replace)
-   twoway (line IQT_efetA_2012t2 T) (line IQT_efetB_2012t2 T) (line IQT_efetC_2012t2 T) (line IQT_efetD_2012t2 T), xtitle(" ") xlabel(1(2)`=Tmax', angle(vertical) valuelabel) name(IQT_Efetivo2012, replace)
+  * Efetivo  
+   twoway (line IQT_efetA T) (line IQT_efetB T) (line IQT_efetC T) (line IQT_efetC_alt T) (line IQT_efetD T), xtitle(" ") xlabel(1(2)`=Tmax', angle(vertical) valuelabel) name(IQT_Efetivo, replace)
+   twoway (line IQT_efetA_2012t2 T) (line IQT_efetB_2012t2 T) (line IQT_efetC_2012t2 T) (line IQT_efetC_alt_2012t2 T) (line IQT_efetD_2012t2 T), xtitle(" ") xlabel(1(2)`=Tmax', angle(vertical) valuelabel) name(IQT_Efetivo2012, replace)
+   twoway (line IQT_efetA_2012t2 T) (line IQT_efetB_2012t2 T) (line IQT_efetC_2012t2 T) (line IQT_efetC_alt_2012t2 T) (line IQT_efetC0_2012t2 T) (line IQT_efetC0_alt_2012t2 T) (line IQT_efetD_2012t2 T), xtitle(" ") xlabel(1(2)`=Tmax', angle(vertical) valuelabel) name(IQT_Efetivo02012, replace)
+   
    
  * Habitual
    twoway (line IQT_habA T) (line IQT_habB T) (line IQT_habC T) (line IQT_habD T), xtitle(" ") xlabel(1(2)`=Tmax', angle(vertical) valuelabel) name(IQT_Habitual, replace)
@@ -55,10 +57,18 @@ global dirdata = "C:/Users/ana.ruhe/Documents/Capital_Humano/Dados"
 	 twoway (line IQT_efetB_2012t2 T) (line IQT_habB_2012t2 T), xtitle(" ") xlabel(1(2)`=Tmax', angle(vertical) valuelabel) name(IQT_B2012, replace)
    
    * C
-     twoway (line IQT_efetC T) (line IQT_habC T), xtitle(" ") xlabel(1(2)`=Tmax', angle(vertical) valuelabel) name(IQT_C, replace)
-	 twoway (line IQT_efetC_2012t2 T) (line IQT_habC_2012t2 T), xtitle(" ") xlabel(1(2)`=Tmax', angle(vertical) valuelabel) name(IQT_C2012, replace)
+     twoway (line IQT_efetC T) (line IQT_efetC_alt T) (line IQT_habC T), xtitle(" ") xlabel(1(2)`=Tmax', angle(vertical) valuelabel) name(IQT_C, replace)
+	 twoway (line IQT_efetC T) (line IQT_efetC_alt T) (line IQT_efetC0 T) (line IQT_efetC0_alt T) (line IQT_habC T), xtitle(" ") xlabel(1(2)`=Tmax', angle(vertical) valuelabel) name(IQT_C0, replace)
+	 twoway (line IQT_efetC_2012t2 T) (line IQT_efetC_alt_2012t2 T) (line IQT_habC_2012t2 T), xtitle(" ") xlabel(1(2)`=Tmax', angle(vertical) valuelabel) name(IQT_C2012, replace)
+	 twoway (line IQT_efetC_2012t2 T) (line IQT_efetC_alt_2012t2 T) (line IQT_efetC0_2012t2 T) (line IQT_efetC0_alt_2012t2 T) (line IQT_habC_2012t2 T), xtitle(" ") xlabel(1(2)`=Tmax', angle(vertical) valuelabel) name(IQT_C02012, replace)
    
    * D
      twoway (line IQT_efetD T) (line IQT_habD T), xtitle(" ") xlabel(1(2)`=Tmax', angle(vertical) valuelabel) name(IQT_D, replace)
 	 twoway (line IQT_efetD_2012t2 T) (line IQT_habD_2012t2 T), xtitle(" ") xlabel(1(2)`=Tmax', angle(vertical) valuelabel) name(IQT_D2012, replace)
 	 
+	 
+ * Regressões com peso:
+  * Estratégia C:
+    twoway (line IQT_efetC_2012t2 T) (line IQT_efetC0_2012t2 T) (line IQT_efetC_peso_2012t2 T) (line IQT_efetC0_peso_2012t2 T), xtitle(" ") xlabel(1(2)`=Tmax', angle(vertical) valuelabel) name(IQT_C2012_peso, replace)
+	
+	twoway (line IQT_efetC_alt_2012t2 T) (line IQT_efetC0_alt_2012t2 T) (line IQT_efetC_peso_alt_2012t2 T) (line IQT_efetC0_peso_alt_2012t2 T), xtitle(" ") xlabel(1(2)`=Tmax', angle(vertical) valuelabel) name(IQT_C2012_peso_alt, replace)
