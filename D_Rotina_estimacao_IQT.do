@@ -7,7 +7,7 @@
 
 * PREPARAÇÃO ******************************************************************
 * Pacotes:
-*ssc install sg97_5
+* ssc install outreg2
 
 * Garantindo que não há variáveis prévias na memória:
 clear all
@@ -17,10 +17,17 @@ cls
 set maxvar 30000
 	
 * Configurando diretório: 
-global dirpath = "C:/Users/ana.ruhe/Documents/Capital_Humano"
-global dirdata = "C:/Users/ana.ruhe/Documents/Capital_Humano/Dados"
-*global dirpath = "C:\Users\janaina.feijo\Documents\capital_humano\result"   
-*global dirdata = "C:\Users\janaina.feijo\Documents\capital_humano\data" 
+** Servidor bif004 (Ana Paula):
+   global dirpath = "A:/Ana Paula Ruhe/Capital Humano" 
+   global dirdata = "A:/Ana Paula Ruhe/Capital Humano/Dados"
+   
+** Servidor RDPBI1VPR0002 (Ana Paula):   
+  *global dirpath = "B:/Ana Paula Ruhe/Capital Humano"
+  *global dirdata = "B:/Ana Paula Ruhe/Capital Humano/Dados"
+
+** Janaina:    
+  *global dirpath = "C:\Users\janaina.feijo\Documents\capital_humano\result"   
+  *global dirdata = "C:\Users\janaina.feijo\Documents\capital_humano\data" 
 
 
 * Salvando log:
@@ -1676,7 +1683,2126 @@ log using "D_Estimacao_IQT.log", replace
 	 
   save "$dirdata/F_IQT.dta", replace	 
  }  
+
+ 
+
+*******************************************************************************
+* G. ESTIMAÇÕES COM CONTROLES 
+*******************************************************************************   
+* G.0: PREPARAÇÃO *************************************************************   
+{   
+   use "$dirdata/C_PNADC_POamostra.dta", clear
   
+ * Eliminamos variáveis não mais necessárias da amostra:
+   drop UF Regiao V1027 Populacao Idade V3003 V3003A V3009 V3009A VD3004 VD3005 VD3006_pos Experiencia_pos VD4001 VD4002 VD4009 trabalhador VD4010 VD4016 VD4017 VD4019 VD4019_real VD4020 VD4020_real VD4032 Efetivo Habitual educ_pos1 educ_pos2 educ_pos3 educ_pos4 educ_pos5 educ_pos6 educ_pos7 educ_pos8 idade15 idade14 Experiencia_pos2 Experiencia_pos3 Experiencia_pos4 sh_hab_A sh_hab_B sh_hab_D sh_efet_A sh_efet_B sh_efet_D logW_hab_A logW_hab_B logW_hab_D logW_efet_A logW_efet_B logW_efet_D logW_efet0_A logW_efet0_B logW_efet0_D
+
+ * Gerando interação mulher x experiência:
+   gen ExperMulher = Experiencia*mulher
+   gen ExperMulher2 = Experiencia2*mulher
+   gen ExperMulher3 = Experiencia3*mulher
+   gen ExperMulher4 = Experiencia4*mulher
+   
+   egen Tmax = max(T)
+
+   
+ * Regressões com controle serão apenas para as estratégias C e C_alt:
+   * C: usamos as horas habituais para os indivíduos com horas efetivas nulas para o cálculo do salário-hora e para o cálculo do peso do IQT 
+   * C_alt: usamos as horas habituais no cálculo do salário-hora efetivo, mas usamos horas efetivas = 0 para o cálculo do peso do IQT
+
+ * Para as tabelas, vamos renomear alguns labels:
+   label var mulher "Mulher"
+   label var educ2 "Estudo 1 a 4 anos"
+   label var educ3 "Estudo 5 a 8 anos"
+   label var educ4 "Estudo 9 a 11 anos"
+   label var educ5 "Estudo 12 a 15 anos"
+   label var educ6 "Estudo 16+ anos"
+   label var Experiencia2 "Experiencia^2"
+   label var Experiencia3 "Experiencia^3"
+   label var Experiencia4 "Experiencia^4"
+   label var ExperMulher "Exper x Mulher"
+   label var ExperMulher2 "Exper^2 x Mulher"
+   label var ExperMulher3 "Exper^3 x Mulher"
+   label var ExperMulher4 "Exper^4 x Mulher"
+   label var publico "Setor publico"
+   label var informal "Informal"
+   
+   gen Cor1 = (Cor==1)
+   label var Cor1 "Branca"
+   gen Cor2 = (Cor==2)
+   label var Cor2 "Preta"
+   gen Cor3 = (Cor==3)
+   label var Cor3 "Amarela"
+   gen Cor4 = (Cor==4)
+   label var Cor4 "Parda"
+   gen Cor5 = (Cor==5)
+   label var Cor5 "Indigena"
+   order Cor1 Cor2 Cor3 Cor4 Cor5, after(Cor)
+   
+   save "$dirdata/G0_BaseEstimacao.dta", replace  
+}  
+ 
+*******************************************************************************
+* G.1: RETORNOS + SALÁRIO PREDITOS ********************************************
+{
+** G.1.1: Baseline 
+ {
+*** ESTIMAÇÃO
+  {
+   forvalues t = 1/`=Tmax' {     
+   * (i) Sem controles: 
+    * Efetivo:
+	 regress logW_efet_C mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 if T==`t'
+	 predict RegLogE_1i_`t' if(T>=(`t'-1) & T<=(`t'+1))	 
+	 estimates save "$dirdata/G_Tabelas/G1i_E_Estimacao", append
+	 outreg2 using "$dirdata/G_Tabelas/G1_Tabela_Efetivo_`t'", replace ctitle("Sem controles") word label
+	 outreg2 using "$dirdata/G_Tabelas/G1_Tabela_Efetivo_`t'", replace ctitle("Sem controles") tex(pretty) label
+	 
+   * Habitual:
+	 regress logW_hab_C mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 if T==`t'
+	 predict RegLogH_1i_`t' if(T>=(`t'-1) & T<=(`t'+1))	 
+	 estimates save "$dirdata/G_Tabelas/G1i_H_Estimacao", append
+	 outreg2 using "$dirdata/G_Tabelas/G1_Tabela_Habitual_`t'", append ctitle("Sem controles") word label
+	 outreg2 using "$dirdata/G_Tabelas/G1_Tabela_Habitual_`t'", append ctitle("Sem controles") tex(pretty) label
+	
+   * (ii) Cor: 
+    * Efetivo:
+	 regress logW_efet_C mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 Cor1 Cor2 Cor3 Cor4 Cor5 if T==`t'
+	 predict RegLogE_1ii_`t' if(T>=(`t'-1) & T<=(`t'+1))	 
+	 estimates save "$dirdata/G_Tabelas/G1ii_E_Estimacao", append
+	 outreg2 using "$dirdata/G_Tabelas/G1_Tabela_Efetivo_`t'", replace ctitle("Cor") word label
+	 outreg2 using "$dirdata/G_Tabelas/G1_Tabela_Efetivo_`t'", replace ctitle("Cor") tex(pretty) label
+	 
+   * Habitual:
+	 regress logW_hab_C mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 Cor1 Cor2 Cor3 Cor4 Cor5 if T==`t'
+	 predict RegLogH_1ii_`t' if(T>=(`t'-1) & T<=(`t'+1))	 
+	 estimates save "$dirdata/G_Tabelas/G1ii_H_Estimacao", append
+	 outreg2 using "$dirdata/G_Tabelas/G1_Tabela_Habitual_`t'", append ctitle("Cor") word label
+	 outreg2 using "$dirdata/G_Tabelas/G1_Tabela_Habitual_`t'", append ctitle("Cor") tex(pretty) label	
+
+	 
+   * (iii) Setor público: 
+    * Efetivo:
+	 regress logW_efet_C mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 Cor1 Cor2 Cor3 Cor4 Cor5 publico if T==`t'
+	 predict RegLogE_1iii_`t' if(T>=(`t'-1) & T<=(`t'+1))	 
+	 estimates save "$dirdata/G_Tabelas/G1iii_E_Estimacao", append
+	 outreg2 using "$dirdata/G_Tabelas/G1_Tabela_Efetivo_`t'", replace ctitle("Setor Público") word label
+	 outreg2 using "$dirdata/G_Tabelas/G1_Tabela_Efetivo_`t'", replace ctitle("Setor Público") tex(pretty) label
+	 
+   * Habitual:
+	 regress logW_hab_C mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 Cor1 Cor2 Cor3 Cor4 Cor5 publico if T==`t'
+	 predict RegLogH_1iii_`t' if(T>=(`t'-1) & T<=(`t'+1))	 
+	 estimates save "$dirdata/G_Tabelas/G1iii_H_Estimacao", append
+	 outreg2 using "$dirdata/G_Tabelas/G1_Tabela_Habitual_`t'", append ctitle("Setor Público") word label
+	 outreg2 using "$dirdata/G_Tabelas/G1_Tabela_Habitual_`t'", append ctitle("Setor Público") tex(pretty) label		 
+	  
+	  
+   * (iv) Setor informal: 
+    * Efetivo:
+	 regress logW_efet_C mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 Cor1 Cor2 Cor3 Cor4 Cor5 publico informal if T==`t'
+	 predict RegLogE_1iv_`t' if(T>=(`t'-1) & T<=(`t'+1))	 
+	 estimates save "$dirdata/G_Tabelas/G1iv_E_Estimacao", append
+	 outreg2 using "$dirdata/G_Tabelas/G1_Tabela_Efetivo_`t'", replace ctitle("Informal") word label
+	 outreg2 using "$dirdata/G_Tabelas/G1_Tabela_Efetivo_`t'", replace ctitle("Informal") tex(pretty) label
+	 
+   * Habitual:
+	 regress logW_hab_C mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 Cor1 Cor2 Cor3 Cor4 Cor5 publico informal if T==`t'
+	 predict RegLogH_1iv_`t' if(T>=(`t'-1) & T<=(`t'+1))	 
+	 estimates save "$dirdata/G_Tabelas/G1iv_H_Estimacao", append
+	 outreg2 using "$dirdata/G_Tabelas/G1_Tabela_Habitual_`t'", append ctitle("Informal") word label
+	 outreg2 using "$dirdata/G_Tabelas/G1_Tabela_Habitual_`t'", append ctitle("Informal") tex(pretty) label	
+  
+    estimates clear
+    }
+  } 
+
+*** SALÁRIOS PREDITOS   
+  { 
+  * Exponencial + descartamos log para economizar memória
+   forvalues t = 1/`=Tmax' {
+   * (i) Sem controles
+	  gen RegWE_1i_`t' = exp(RegLogE_1i_`t')	  
+	  gen RegWH_1i_`t' = exp(RegLogH_1i_`t')	  
+	  
+   * (ii) Cor 
+	  gen RegWE_1ii_`t' = exp(RegLogE_1ii_`t')	  
+	  gen RegWH_1ii_`t' = exp(RegLogH_1ii_`t')	  
+	  
+   * (iii) Setor público 
+	  gen RegWE_1iii_`t' = exp(RegLogE_1iii_`t')
+	  gen RegWH_1iii_`t' = exp(RegLogH_1iii_`t')
+	 
+   * (iv) Informal
+	  gen RegWE_1iv_`t' = exp(RegLogE_1iv_`t')	 
+	  gen RegWH_1iv_`t' = exp(RegLogH_1iv_`t')	
+	 
+	 drop RegLogE_1i_`t' RegLogE_1ii_`t' RegLogE_1iii_`t' RegLogE_1iv_`t' RegLogH_1i_`t' RegLogH_1ii_`t' RegLogH_1iii_`t' RegLogH_1iv_`t'
+   }
+
+ 
+ /* Vamos consolidar os salários preditos em 3 variáveis: 
+    - W_T     = salários em t preditos pelos coeficientes estimados de t
+	- W_Tante = salários em t preditos pelos coeficientes estimados de t-1
+	- W_Tprox = salários em t preditos pelos coeficientes estimados de t+1
+ */
+   
+* (i) Sem controles:  
+   gen WE_1i_T = .
+   gen WE_1i_Tante = .
+   gen WE_1i_Tprox = .
+   
+   gen WH_1i_T = .
+   gen WH_1i_Tante = .
+   gen WH_1i_Tprox = .
+   
+* (ii) Cor:
+   gen WE_1ii_T = .
+   gen WE_1ii_Tante = .
+   gen WE_1ii_Tprox = .
+   
+   gen WH_1ii_T = .
+   gen WH_1ii_Tante = .
+   gen WH_1ii_Tprox = .
+   
+* (iii) Setor publico: 
+   gen WE_1iii_T = .
+   gen WE_1iii_Tante = .
+   gen WE_1iii_Tprox = .
+   
+   gen WH_1iii_T = .
+   gen WH_1iii_Tante = .
+   gen WH_1iii_Tprox = .
+   
+* (iv) Informal
+   gen WE_1iv_T = .
+   gen WE_1iv_Tante = .
+   gen WE_1iv_Tprox = .
+   
+   gen WH_1iv_T = .
+   gen WH_1iv_Tante = .
+   gen WH_1iv_Tprox = .
+   
+   
+   forvalues t = 1/`=Tmax' {
+      replace WE_1i_T = RegWE_1i_`t' if T==`t'
+	  replace WH_1i_T = RegWH_1i_`t' if T==`t'
+	  
+	  replace WE_1ii_T = RegWE_1ii_`t' if T==`t'
+	  replace WH_1ii_T = RegWH_1ii_`t' if T==`t'
+	  
+	  replace WE_1iii_T = RegWE_1iii_`t' if T==`t'
+	  replace WH_1iii_T = RegWH_1iii_`t' if T==`t'
+	  
+      replace WE_1iv_T = RegWE_1iv_`t' if T==`t'
+	  replace WH_1iv_T = RegWH_1iv_`t' if T==`t'
+	  
+	  
+	  local i = `t'-1
+	  if `t' > 1 replace WE_1i_Tante = RegWE_1i_`i' if T==`t'
+	  if `t' > 1 replace WH_1i_Tante = RegWH_1i_`i' if T==`t'
+	  
+	  if `t' > 1 replace WE_1ii_Tante = RegWE_1ii_`i' if T==`t'
+	  if `t' > 1 replace WH_1ii_Tante = RegWH_1ii_`i' if T==`t'
+	  
+	  if `t' > 1 replace WE_1iii_Tante = RegWE_1iii_`i' if T==`t'
+	  if `t' > 1 replace WH_1iii_Tante = RegWH_1iii_`i' if T==`t'	  
+	  
+	  if `t' > 1 replace WE_1i_Tante = RegWE_1i_`i' if T==`t'
+	  if `t' > 1 replace WH_1i_Tante = RegWH_1i_`i' if T==`t'	 
+	 
+	 
+	  local j = `t'+1 
+	  if `t' < `=Tmax' replace WE_1i_Tprox = RegWE_1i__`j' if T==`t'
+	  if `t' < `=Tmax' replace WH_1i__Tprox = RegWH_1i__`j' if T==`t'
+	  
+	  if `t' < `=Tmax' replace WE_1ii_Tprox = RegWE_1ii__`j' if T==`t'
+	  if `t' < `=Tmax' replace WH_1ii__Tprox = RegWH_1ii__`j' if T==`t'
+	  
+	  if `t' < `=Tmax' replace WE_1iii_Tprox = RegWE_1iii__`j' if T==`t'
+	  if `t' < `=Tmax' replace WH_1iii__Tprox = RegWH_1iii__`j' if T==`t'	  
+	  
+	  if `t' < `=Tmax' replace WE_1iv_Tprox = RegWE_1iv__`j' if T==`t'
+	  if `t' < `=Tmax' replace WH_1iv__Tprox = RegWH_1iv__`j' if T==`t'
+   }
+ 
+
+ * Excluindo os salários separados por período, para economizar memória:
+   forvalues t = 1/`=Tmax' { 
+       drop RegWE_1i_`t' RegWH_1i_`t' RegWE_1ii_`t' RegWH_1ii_`t' RegWE_1iii_`t' RegWH_1iii_`t' RegWE_1iv_`t' RegWH_1iv_`t' 
+   }  
+ 
+   save "$dirdata/G0_BaseEstimacao.dta", replace
+   }
+ }
+    
+   
+** G.1.2: Estimação log=0 se W=0 
+ {
+*** ESTIMAÇÃO
+  {
+   forvalues t = 1/`=Tmax' {  
+   *OBS: estimações do retorno habitual são iguais ao caso G.1.1
+   
+   * (i) Sem controles: 
+    * Efetivo:
+	 regress logW_efet0_C mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 if T==`t'
+	 predict RegLogE_2i_`t' if(T>=(`t'-1) & T<=(`t'+1))	 
+	 estimates save "$dirdata/G_Tabelas/G2i_E_Estimacao", append
+	 outreg2 using "$dirdata/G_Tabelas/G2_Tabela_Efetivo_`t'", replace ctitle("Sem controles") word label
+	 outreg2 using "$dirdata/G_Tabelas/G2_Tabela_Efetivo_`t'", replace ctitle("Sem controles") tex(pretty) label
+	
+	
+   * (ii) Cor: 
+    * Efetivo:
+	 regress logW_efet0_C mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 Cor1 Cor2 Cor3 Cor4 Cor5 if T==`t'
+	 predict RegLogE_2ii_`t' if(T>=(`t'-1) & T<=(`t'+1))	 
+	 estimates save "$dirdata/G_Tabelas/G2ii_E_Estimacao", append
+	 outreg2 using "$dirdata/G_Tabelas/G2_Tabela_Efetivo_`t'", replace ctitle("Cor") word label
+	 outreg2 using "$dirdata/G_Tabelas/G2_Tabela_Efetivo_`t'", replace ctitle("Cor") tex(pretty) label
+
+	 
+   * (iii) Setor público: 
+    * Efetivo:
+	 regress logW_efet0_C mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 Cor1 Cor2 Cor3 Cor4 Cor5 publico if T==`t'
+	 predict RegLogE_2iii_`t' if(T>=(`t'-1) & T<=(`t'+1))	 
+	 estimates save "$dirdata/G_Tabelas/G2iii_E_Estimacao", append
+	 outreg2 using "$dirdata/G_Tabelas/G2_Tabela_Efetivo_`t'", replace ctitle("Setor Público") word label
+	 outreg2 using "$dirdata/G_Tabelas/G2_Tabela_Efetivo_`t'", replace ctitle("Setor Público") tex(pretty) label
+	 
+	 
+   * (iv) Setor informal: 
+    * Efetivo:
+	 regress logW_efet0_C mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 Cor1 Cor2 Cor3 Cor4 Cor5 publico informal if T==`t'
+	 predict RegLogE_2iv_`t' if(T>=(`t'-1) & T<=(`t'+1))	 
+	 estimates save "$dirdata/G_Tabelas/G2iv_E_Estimacao", append
+	 outreg2 using "$dirdata/G_Tabelas/G2_Tabela_Efetivo_`t'", replace ctitle("Informal") word label
+	 outreg2 using "$dirdata/G_Tabelas/G2_Tabela_Efetivo_`t'", replace ctitle("Informal") tex(pretty) label
+    
+	estimates clear
+    }
+  } 
+
+*** SALÁRIOS PREDITOS   
+  { 
+  * Exponencial + descartamos log para economizar memória
+   forvalues t = 1/`=Tmax' {
+   * (i) Sem controles
+	  gen RegWE_2i_`t' = exp(RegLogE_2i_`t')	    
+	  
+   * (ii) Cor 
+	  gen RegWE_2ii_`t' = exp(RegLogE_2ii_`t')	    
+	  
+   * (iii) Setor público 
+	  gen RegWE_2iii_`t' = exp(RegLogE_2iii_`t')
+	 
+   * (iv) Informal
+	  gen RegWE_2iv_`t' = exp(RegLogE_2iv_`t')	 
+	 
+	 drop RegLogE_2i_`t' RegLogE_2ii_`t' RegLogE_2iii_`t' RegLogE_2iv_`t' 
+   }
+
+ 
+ /* Vamos consolidar os salários preditos em 3 variáveis: 
+    - W_T     = salários em t preditos pelos coeficientes estimados de t
+	- W_Tante = salários em t preditos pelos coeficientes estimados de t-1
+	- W_Tprox = salários em t preditos pelos coeficientes estimados de t+1
+ */
+   
+* (i) Sem controles:  
+   gen WE_2i_T = .
+   gen WE_2i_Tante = .
+   gen WE_2i_Tprox = .
+   
+* (ii) Cor:
+   gen WE_2ii_T = .
+   gen WE_2ii_Tante = .
+   gen WE_2ii_Tprox = .
+   
+* (iii) Setor publico: 
+   gen WE_2iii_T = .
+   gen WE_2iii_Tante = .
+   gen WE_2iii_Tprox = .
+   
+* (iv) Informal
+   gen WE_2iv_T = .
+   gen WE_2iv_Tante = .
+   gen WE_2iv_Tprox = .
+   
+   
+   forvalues t = 1/`=Tmax' {
+      replace WE_2i_T = RegWE_2i_`t' if T==`t'
+	  replace WE_2ii_T = RegWE_2ii_`t' if T==`t'
+	  replace WE_2iii_T = RegWE_2iii_`t' if T==`t'
+      replace WE_2iv_T = RegWE_2iv_`t' if T==`t'
+	  	  
+	  local i = `t'-1
+	  if `t' > 1 replace WE_2i_Tante = RegWE_2i_`i' if T==`t'
+	  if `t' > 1 replace WE_2ii_Tante = RegWE_2ii_`i' if T==`t'
+	  if `t' > 1 replace WE_2iii_Tante = RegWE_2iii_`i' if T==`t'
+	  if `t' > 1 replace WE_2i_Tante = RegWE_2i_`i' if T==`t' 
+	 
+	  local j = `t'+1 
+	  if `t' < `=Tmax' replace WE_2i_Tprox = RegWE_2i__`j' if T==`t'	  
+	  if `t' < `=Tmax' replace WE_2ii_Tprox = RegWE_2ii__`j' if T==`t'
+	  if `t' < `=Tmax' replace WE_2iii_Tprox = RegWE_2iii__`j' if T==`t'  
+	  if `t' < `=Tmax' replace WE_2iv_Tprox = RegWE_2iv__`j' if T==`t'
+   }
+ 
+
+ * Excluindo os salários separados por período, para economizar memória:
+   forvalues t = 1/`=Tmax' { 
+       drop RegWE_2i_`t' RegWE_2ii_`t' RegWE_2iii_`t' RegWE_2iv_`t' 
+   }  
+ 
+   save "$dirdata/G0_BaseEstimacao.dta", replace
+   }
+ }
+ 
+ 
+** G.1.3: Estimação com pesos
+ {
+*** ESTIMAÇÃO
+  {
+   forvalues t = 1/`=Tmax' {     
+   * (i) Sem controles: 
+    * Efetivo:
+	 regress logW_efet_C mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 if T==`t' [iw = Peso]
+	 predict RegLogE_3i_`t' if(T>=(`t'-1) & T<=(`t'+1))	 
+	 estimates save "$dirdata/G_Tabelas/G3i_E_Estimacao", append
+	 outreg2 using "$dirdata/G_Tabelas/G3_Tabela_Efetivo_`t'", replace ctitle("Sem controles") word label
+	 outreg2 using "$dirdata/G_Tabelas/G3_Tabela_Efetivo_`t'", replace ctitle("Sem controles") tex(pretty) label
+	 
+   * Habitual:
+	 regress logW_hab_C mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 if T==`t' [iw = Peso]
+	 predict RegLogH_3i_`t' if(T>=(`t'-1) & T<=(`t'+1)) 	 
+	 estimates save "$dirdata/G_Tabelas/G3i_H_Estimacao", append
+	 outreg2 using "$dirdata/G_Tabelas/G3_Tabela_Habitual_`t'", append ctitle("Sem controles") word label
+	 outreg2 using "$dirdata/G_Tabelas/G3_Tabela_Habitual_`t'", append ctitle("Sem controles") tex(pretty) label
+	
+   * (ii) Cor: 
+    * Efetivo:
+	 regress logW_efet_C mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 Cor1 Cor2 Cor3 Cor4 Cor5 if T==`t' [iw = Peso]
+	 predict RegLogE_3ii_`t' if(T>=(`t'-1) & T<=(`t'+1))	 
+	 estimates save "$dirdata/G_Tabelas/G3ii_E_Estimacao", append
+	 outreg2 using "$dirdata/G_Tabelas/G3_Tabela_Efetivo_`t'", replace ctitle("Cor") word label
+	 outreg2 using "$dirdata/G_Tabelas/G3_Tabela_Efetivo_`t'", replace ctitle("Cor") tex(pretty) label
+	 
+   * Habitual:
+	 regress logW_hab_C mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 Cor1 Cor2 Cor3 Cor4 Cor5 if T==`t' [iw = Peso]
+	 predict RegLogH_3ii_`t' if(T>=(`t'-1) & T<=(`t'+1))	 
+	 estimates save "$dirdata/G_Tabelas/G3ii_H_Estimacao", append
+	 outreg2 using "$dirdata/G_Tabelas/G3_Tabela_Habitual_`t'", append ctitle("Cor") word label
+	 outreg2 using "$dirdata/G_Tabelas/G3_Tabela_Habitual_`t'", append ctitle("Cor") tex(pretty) label	
+
+	 
+   * (iii) Setor público: 
+    * Efetivo:
+	 regress logW_efet_C mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 Cor1 Cor2 Cor3 Cor4 Cor5 publico if T==`t' [iw = Peso]
+	 predict RegLogE_3iii_`t' if(T>=(`t'-1) & T<=(`t'+1))	 
+	 estimates save "$dirdata/G_Tabelas/G3iii_E_Estimacao", append
+	 outreg2 using "$dirdata/G_Tabelas/G3_Tabela_Efetivo_`t'", replace ctitle("Setor Público") word label
+	 outreg2 using "$dirdata/G_Tabelas/G3_Tabela_Efetivo_`t'", replace ctitle("Setor Público") tex(pretty) label
+	 
+   * Habitual:
+	 regress logW_hab_C mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 Cor1 Cor2 Cor3 Cor4 Cor5 publico if T==`t' [iw = Peso]
+	 predict RegLogH_3iii_`t' if(T>=(`t'-1) & T<=(`t'+1))	 
+	 estimates save "$dirdata/G_Tabelas/G3iii_H_Estimacao", append
+	 outreg2 using "$dirdata/G_Tabelas/G3_Tabela_Habitual_`t'", append ctitle("Setor Público") word label
+	 outreg2 using "$dirdata/G_Tabelas/G3_Tabela_Habitual_`t'", append ctitle("Setor Público") tex(pretty) label		 
+	  
+	  
+   * (iv) Setor informal: 
+    * Efetivo:
+	 regress logW_efet_C mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 Cor1 Cor2 Cor3 Cor4 Cor5 publico informal if T==`t' [iw = Peso]
+	 predict RegLogE_3iv_`t' if(T>=(`t'-1) & T<=(`t'+1))	 
+	 estimates save "$dirdata/G_Tabelas/G3iv_E_Estimacao", append
+	 outreg2 using "$dirdata/G_Tabelas/G3_Tabela_Efetivo_`t'", replace ctitle("Informal") word label
+	 outreg2 using "$dirdata/G_Tabelas/G3_Tabela_Efetivo_`t'", replace ctitle("Informal") tex(pretty) label
+	 
+   * Habitual:
+	 regress logW_hab_C mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 Cor1 Cor2 Cor3 Cor4 Cor5 publico informal if T==`t' [iw = Peso]
+	 predict RegLogH_3iv_`t' if(T>=(`t'-1) & T<=(`t'+1))	 
+	 estimates save "$dirdata/G_Tabelas/G3iv_H_Estimacao", append
+	 outreg2 using "$dirdata/G_Tabelas/G3_Tabela_Habitual_`t'", append ctitle("Informal") word label
+	 outreg2 using "$dirdata/G_Tabelas/G3_Tabela_Habitual_`t'", append ctitle("Informal") tex(pretty) label	
+	 
+	estimates clear 
+    }
+  } 
+
+*** SALÁRIOS PREDITOS   
+  { 
+  * Exponencial + descartamos log para economizar memória
+   forvalues t = 1/`=Tmax' {
+   * (i) Sem controles
+	  gen RegWE_3i_`t' = exp(RegLogE_3i_`t')	  
+	  gen RegWH_3i_`t' = exp(RegLogH_3i_`t')	  
+	  
+   * (ii) Cor 
+	  gen RegWE_3ii_`t' = exp(RegLogE_3ii_`t')	  
+	  gen RegWH_3ii_`t' = exp(RegLogH_3ii_`t')	  
+	  
+   * (iii) Setor público 
+	  gen RegWE_3iii_`t' = exp(RegLogE_3iii_`t')
+	  gen RegWH_3iii_`t' = exp(RegLogH_3iii_`t')
+	 
+   * (iv) Informal
+	  gen RegWE_3iv_`t' = exp(RegLogE_3iv_`t')	 
+	  gen RegWH_3iv_`t' = exp(RegLogH_3iv_`t')	
+	 
+	 drop RegLogE_3i_`t' RegLogE_3ii_`t' RegLogE_3iii_`t' RegLogE_3iv_`t' RegLogH_3i_`t' RegLogH_3ii_`t' RegLogH_3iii_`t' RegLogH_3iv_`t'
+   }
+
+ 
+ /* Vamos consolidar os salários preditos em 3 variáveis: 
+    - W_T     = salários em t preditos pelos coeficientes estimados de t
+	- W_Tante = salários em t preditos pelos coeficientes estimados de t-1
+	- W_Tprox = salários em t preditos pelos coeficientes estimados de t+1
+ */
+   
+* (i) Sem controles:  
+   gen WE_3i_T = .
+   gen WE_3i_Tante = .
+   gen WE_3i_Tprox = .
+   
+   gen WH_3i_T = .
+   gen WH_3i_Tante = .
+   gen WH_3i_Tprox = .
+   
+* (ii) Cor:
+   gen WE_3ii_T = .
+   gen WE_3ii_Tante = .
+   gen WE_3ii_Tprox = .
+   
+   gen WH_3ii_T = .
+   gen WH_3ii_Tante = .
+   gen WH_3ii_Tprox = .
+   
+* (iii) Setor publico: 
+   gen WE_3iii_T = .
+   gen WE_3iii_Tante = .
+   gen WE_3iii_Tprox = .
+   
+   gen WH_3iii_T = .
+   gen WH_3iii_Tante = .
+   gen WH_3iii_Tprox = .
+   
+* (iv) Informal
+   gen WE_3iv_T = .
+   gen WE_3iv_Tante = .
+   gen WE_3iv_Tprox = .
+   
+   gen WH_3iv_T = .
+   gen WH_3iv_Tante = .
+   gen WH_3iv_Tprox = .
+   
+   
+   forvalues t = 1/`=Tmax' {
+      replace WE_3i_T = RegWE_3i_`t' if T==`t'
+	  replace WH_3i_T = RegWH_3i_`t' if T==`t'
+	  
+	  replace WE_3ii_T = RegWE_3ii_`t' if T==`t'
+	  replace WH_3ii_T = RegWH_3ii_`t' if T==`t'
+	  
+	  replace WE_3iii_T = RegWE_3iii_`t' if T==`t'
+	  replace WH_3iii_T = RegWH_3iii_`t' if T==`t'
+	  
+      replace WE_3iv_T = RegWE_3iv_`t' if T==`t'
+	  replace WH_3iv_T = RegWH_3iv_`t' if T==`t'
+	  
+	  
+	  local i = `t'-1
+	  if `t' > 1 replace WE_3i_Tante = RegWE_3i_`i' if T==`t'
+	  if `t' > 1 replace WH_3i_Tante = RegWH_3i_`i' if T==`t'
+	  
+	  if `t' > 1 replace WE_3ii_Tante = RegWE_3ii_`i' if T==`t'
+	  if `t' > 1 replace WH_3ii_Tante = RegWH_3ii_`i' if T==`t'
+	  
+	  if `t' > 1 replace WE_3iii_Tante = RegWE_3iii_`i' if T==`t'
+	  if `t' > 1 replace WH_3iii_Tante = RegWH_3iii_`i' if T==`t'	  
+	  
+	  if `t' > 1 replace WE_3i_Tante = RegWE_3i_`i' if T==`t'
+	  if `t' > 1 replace WH_3i_Tante = RegWH_3i_`i' if T==`t'	 
+	 
+	 
+	  local j = `t'+1 
+	  if `t' < `=Tmax' replace WE_3i_Tprox = RegWE_3i__`j' if T==`t'
+	  if `t' < `=Tmax' replace WH_3i__Tprox = RegWH_3i__`j' if T==`t'
+	  
+	  if `t' < `=Tmax' replace WE_3ii_Tprox = RegWE_3ii__`j' if T==`t'
+	  if `t' < `=Tmax' replace WH_3ii__Tprox = RegWH_3ii__`j' if T==`t'
+	  
+	  if `t' < `=Tmax' replace WE_3iii_Tprox = RegWE_3iii__`j' if T==`t'
+	  if `t' < `=Tmax' replace WH_3iii__Tprox = RegWH_3iii__`j' if T==`t'	  
+	  
+	  if `t' < `=Tmax' replace WE_3iv_Tprox = RegWE_3iv__`j' if T==`t'
+	  if `t' < `=Tmax' replace WH_3iv__Tprox = RegWH_3iv__`j' if T==`t'
+   }
+ 
+
+ * Excluindo os salários separados por período, para economizar memória:
+   forvalues t = 1/`=Tmax' { 
+       drop RegWE_3i_`t' RegWH_3i_`t' RegWE_3ii_`t' RegWH_3ii_`t' RegWE_3iii_`t' RegWH_3iii_`t' RegWE_3iv_`t' RegWH_3iv_`t' 
+   }  
+ 
+   save "$dirdata/G0_BaseEstimacao.dta", replace
+   }
+ }
+ 
+   
+** G.1.4: Estimação com pesos e log=0 se W=0 
+{
+*** ESTIMAÇÃO
+  {
+   forvalues t = 1/`=Tmax' {  
+   *OBS: estimações do retorno habitual são iguais ao caso G.1.3
+   
+   * (i) Sem controles: 
+    * Efetivo:
+	 regress logW_efet0_C mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 if T==`t' [iw = Peso]
+	 predict RegLogE_4i_`t' if(T>=(`t'-1) & T<=(`t'+1))	 
+	 estimates save "$dirdata/G_Tabelas/G4i_E_Estimacao", append
+	 outreg2 using "$dirdata/G_Tabelas/G4_Tabela_Efetivo_`t'", replace ctitle("Sem controles") word label
+	 outreg2 using "$dirdata/G_Tabelas/G4_Tabela_Efetivo_`t'", replace ctitle("Sem controles") tex(pretty) label
+	
+	
+   * (ii) Cor: 
+    * Efetivo:
+	 regress logW_efet0_C mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 Cor1 Cor2 Cor3 Cor4 Cor5 if T==`t' [iw = Peso]
+	 predict RegLogE_4ii_`t' if(T>=(`t'-1) & T<=(`t'+1))	 
+	 estimates save "$dirdata/G_Tabelas/G4ii_E_Estimacao", append
+	 outreg2 using "$dirdata/G_Tabelas/G4_Tabela_Efetivo_`t'", replace ctitle("Cor") word label
+	 outreg2 using "$dirdata/G_Tabelas/G4_Tabela_Efetivo_`t'", replace ctitle("Cor") tex(pretty) label
+
+	 
+   * (iii) Setor público: 
+    * Efetivo:
+	 regress logW_efet0_C mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 Cor1 Cor2 Cor3 Cor4 Cor5 publico if T==`t' [iw = Peso]
+	 predict RegLogE_4iii_`t' if(T>=(`t'-1) & T<=(`t'+1))	 
+	 estimates save "$dirdata/G_Tabelas/G4iii_E_Estimacao", append
+	 outreg2 using "$dirdata/G_Tabelas/G4_Tabela_Efetivo_`t'", replace ctitle("Setor Público") word label
+	 outreg2 using "$dirdata/G_Tabelas/G4_Tabela_Efetivo_`t'", replace ctitle("Setor Público") tex(pretty) label
+	 
+	 
+   * (iv) Setor informal: 
+    * Efetivo:
+	 regress logW_efet0_C mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 Cor1 Cor2 Cor3 Cor4 Cor5 publico informal if T==`t' [iw = Peso]
+	 predict RegLogE_4iv_`t' if(T>=(`t'-1) & T<=(`t'+1))	 
+	 estimates save "$dirdata/G_Tabelas/G4iv_E_Estimacao", append
+	 outreg2 using "$dirdata/G_Tabelas/G4_Tabela_Efetivo_`t'", replace ctitle("Informal") word label
+	 outreg2 using "$dirdata/G_Tabelas/G4_Tabela_Efetivo_`t'", replace ctitle("Informal") tex(pretty) label
+    
+	estimates clear
+	}
+  } 
+
+*** SALÁRIOS PREDITOS   
+  { 
+  * Exponencial + descartamos log para economizar memória
+   forvalues t = 1/`=Tmax' {
+   * (i) Sem controles
+	  gen RegWE_4i_`t' = exp(RegLogE_4i_`t')	    
+	  
+   * (ii) Cor 
+	  gen RegWE_4ii_`t' = exp(RegLogE_4ii_`t')	    
+	  
+   * (iii) Setor público 
+	  gen RegWE_4iii_`t' = exp(RegLogE_4iii_`t')
+	 
+   * (iv) Informal
+	  gen RegWE_4iv_`t' = exp(RegLogE_4iv_`t')	 
+	 
+	 drop RegLogE_4i_`t' RegLogE_4ii_`t' RegLogE_4iii_`t' RegLogE_4iv_`t' 
+   }
+
+ 
+ /* Vamos consolidar os salários preditos em 3 variáveis: 
+    - W_T     = salários em t preditos pelos coeficientes estimados de t
+	- W_Tante = salários em t preditos pelos coeficientes estimados de t-1
+	- W_Tprox = salários em t preditos pelos coeficientes estimados de t+1
+ */
+   
+* (i) Sem controles:  
+   gen WE_4i_T = .
+   gen WE_4i_Tante = .
+   gen WE_4i_Tprox = .
+   
+* (ii) Cor:
+   gen WE_4ii_T = .
+   gen WE_4ii_Tante = .
+   gen WE_4ii_Tprox = .
+   
+* (iii) Setor publico: 
+   gen WE_4iii_T = .
+   gen WE_4iii_Tante = .
+   gen WE_4iii_Tprox = .
+   
+* (iv) Informal
+   gen WE_4iv_T = .
+   gen WE_4iv_Tante = .
+   gen WE_4iv_Tprox = .
+   
+   
+   forvalues t = 1/`=Tmax' {
+      replace WE_4i_T = RegWE_4i_`t' if T==`t'
+	  replace WE_4ii_T = RegWE_4ii_`t' if T==`t'
+	  replace WE_4iii_T = RegWE_4iii_`t' if T==`t'
+      replace WE_4iv_T = RegWE_4iv_`t' if T==`t'
+	  	  
+	  local i = `t'-1
+	  if `t' > 1 replace WE_4i_Tante = RegWE_4i_`i' if T==`t'
+	  if `t' > 1 replace WE_4ii_Tante = RegWE_4ii_`i' if T==`t'
+	  if `t' > 1 replace WE_4iii_Tante = RegWE_4iii_`i' if T==`t'
+	  if `t' > 1 replace WE_4i_Tante = RegWE_4i_`i' if T==`t' 
+	 
+	  local j = `t'+1 
+	  if `t' < `=Tmax' replace WE_4i_Tprox = RegWE_4i__`j' if T==`t'	  
+	  if `t' < `=Tmax' replace WE_4ii_Tprox = RegWE_4ii__`j' if T==`t'
+	  if `t' < `=Tmax' replace WE_4iii_Tprox = RegWE_4iii__`j' if T==`t'  
+	  if `t' < `=Tmax' replace WE_4iv_Tprox = RegWE_4iv__`j' if T==`t'
+   }
+ 
+
+ * Excluindo os salários separados por período, para economizar memória:
+   forvalues t = 1/`=Tmax' { 
+       drop RegWE_4i_`t' RegWE_4ii_`t' RegWE_4iii_`t' RegWE_4iv_`t' 
+   }  
+ 
+   save "$dirdata/G0_BaseEstimacao.dta", replace
+   }
+ }
+   
+} 
+ 
+ 
+*******************************************************************************
+* G.2 PESOS *******************************************************************
+{
+** ESTRATÉGIA C
+ {
+ * Efetivo:
+  * Calculando hora média por grupo (Educ e Experiencia) para cada t:     
+   bysort T VD3006 Experiencia: egen HE = mean(VD4035_imput)
+   label var HE "Horas efetivas médias por grupo de educação e experiência para cada trimestre (C)"
+
+  * Peso ajustado por hora:
+    gen PEi = Peso*HE
+    bysort T: egen PEt = sum(PEi)
+    gen PE = PEi/PEt
+    label var PE "Peso para cálculo do IQT de rendimento efetivo (C)"
+   
+   order PE, after(Peso) 
+   drop PEi PEt
+   
+ * Habitual:
+  * Calculando hora média por grupo (Educ e Experiencia) para cada t:     
+   bysort T VD3006 Experiencia: egen HH = mean(VD4031)
+   label var HH "Horas habituais médias por grupo de educação e experiência para cada trimestre"
+
+ * Peso ajustado por hora:
+   gen PHi = Peso*HH
+   bysort T: egen PHt = sum(PHi)
+   gen PH = PHi/PHt
+   label var PhabA "Peso para cálculo do IQT de rendimento habitual"
+   
+   order PH, after(PE) 
+   drop PHi PHt
+
+   save "$dirdata/G0_BaseEstimacao.dta", replace
+  } 
+   
+
+** ESTRATÉGIA C ALTERNATIVA
+ {
+ *OBS: usando horas efetivas para o IQT, deixando imputação apenas para a regressão; não muda para o habitual.
+    bysort T VD3006 Experiencia: egen HE_alt = mean(VD4035)
+    label var HE_alt "Horas efetivas médias por grupo de educação e experiência para cada trimestre (C_alt)"
+
+   * Peso ajustado por hora:
+     gen PE_ialt = Peso*HE_alt
+     bysort T: egen PE_talt = sum(PE_ialt)
+     gen PE_alt = PE_ialt/PE_talt
+     label var PE_alt "Peso para cálculo do IQT de rendimento efetivo (C_alt)"
+   
+     order PE_alt, after(PE) 
+     drop PE_ialt PE_talt
+ }
+ 
+ save "$dirdata/D0_BaseEstimacao.dta", replace
+} 
+ 
+ 
+*******************************************************************************
+* G.3 IQT *********************************************************************
+{
+** G.3.1: Baseline
+ {
+ * IQT0
+  * Efetivo C:
+   gen dIQT0_E1i = .        
+   gen dIQT0_E1ii = .        
+   gen dIQT0_E1iii = .        
+   gen dIQT0_E1iv = .        
+  
+  * Efetivo C_alt:   
+   gen dIQT0_E1i_alt = .        
+   gen dIQT0_E1ii_alt = .        
+   gen dIQT0_E1iii_alt = .        
+   gen dIQT0_E1iv_alt = .   
+   
+  * Habitual: 
+   gen dIQT0_H1i = .        
+   gen dIQT0_H1ii = .        
+   gen dIQT0_H1iii = .        
+   gen dIQT0_H1iv = .    
+
+  
+   forvalues t = 2/`=Tmax'{
+   * (i) Sem controles: 
+	  gen nEi = PE*WE_1i_Tante if T==`t'
+	  gen dEi = PE*WE_1i_T if T==(`t'-1)
+	  gen nEi_alt = PE_alt*WE_1i_Tante if T==`t'
+	  gen dEi_alt = PE_alt*WE_1i_T if T==(`t'-1)
+	  gen nHi = PH*WH_1i_Tante if T==`t'
+	  gen dHi = PH*WH_1i_T if T==(`t'-1)
+	  
+	  egen sum_nEi = sum(nEi)
+	  egen sum_dEi = sum(dEi)
+	  egen sum_nEi_alt = sum(nEi_alt)
+	  egen sum_dEi_alt = sum(dEi_alt)
+	  egen sum_nHi = sum(nHi)
+	  egen sum_dHi = sum(dHi)
+	  
+	  replace dIQT0_E1i = sum_nEi/sum_nEi if T==`t'
+	  replace dIQT0_E1i_alt = sum_nEi_alt/sum_nEi_alt if T==`t'
+	  replace dIQT0_H1i = sum_nHi/sum_nHi if T==`t'  
+
+	  drop nEi dEi nEi_alt dEi_alt nHi dHi sum_nEi sum_dEi sum_nEi_alt sum_dEi_alt sum_nHi sum_dHi
+	
+	
+   * (ii) Cor:
+	  gen nEii = PE*WE_1ii_Tante if T==`t'
+	  gen dEii = PE*WE_1ii_T if T==(`t'-1)
+	  gen nEii_alt = PE_alt*WE_1ii_Tante if T==`t'
+	  gen dEii_alt = PE_alt*WE_1ii_T if T==(`t'-1)
+	  gen nHii = PH*WH_1ii_Tante if T==`t'
+	  gen dHii = PH*WH_1ii_T if T==(`t'-1)
+	  
+	  egen sum_nEii = sum(nEii)
+	  egen sum_dEii = sum(dEii)
+	  egen sum_nEii_alt = sum(nEii_alt)
+	  egen sum_dEii_alt = sum(dEii_alt)
+	  egen sum_nHii = sum(nHii)
+	  egen sum_dHii = sum(dHii)
+	  
+	  replace dIQT0_E1ii = sum_nEii/sum_nEii if T==`t'
+	  replace dIQT0_E1ii_alt = sum_nEii_alt/sum_nEii_alt if T==`t'
+	  replace dIQT0_H1ii = sum_nHii/sum_nHii if T==`t'  
+
+	  drop nEii dEii nEii_alt dEii_alt nHii dHii sum_nEii sum_dEii sum_nEii_alt sum_dEii_alt sum_nHii sum_dHii
+	
+	
+   * (iii) Setor Público:
+	  gen nEiii = PE*WE_1iii_Tante if T==`t'
+	  gen dEiii = PE*WE_1iii_T if T==(`t'-1)
+	  gen nEiii_alt = PE_alt*WE_1iii_Tante if T==`t'
+	  gen dEiii_alt = PE_alt*WE_1iii_T if T==(`t'-1)
+	  gen nHiii = PH*WH_1iii_Tante if T==`t'
+	  gen dHiii = PH*WH_1iii_T if T==(`t'-1)
+	  
+	  egen sum_nEiii = sum(nEiii)
+	  egen sum_dEiii = sum(dEiii)
+	  egen sum_nEiii_alt = sum(nEiii_alt)
+	  egen sum_dEiii_alt = sum(dEiii_alt)
+	  egen sum_nHiii = sum(nHiii)
+	  egen sum_dHiii = sum(dHiii)
+	  
+	  replace dIQT0_E1iii = sum_nEiii/sum_nEiii if T==`t'
+	  replace dIQT0_E1iii_alt = sum_nEiii_alt/sum_nEiii_alt if T==`t'
+	  replace dIQT0_H1iii = sum_nHiii/sum_nHiii if T==`t'  
+
+	  drop nEiii dEiii nEiii_alt dEiii_alt nHiii dHiii sum_nEiii sum_dEiii sum_nEiii_alt sum_dEiii_alt sum_nHiii sum_dHiii
+	  
+	  
+   * (iv) Informal: 
+	  gen nEiv = PE*WE_1iv_Tante if T==`t'
+	  gen dEiv = PE*WE_1iv_T if T==(`t'-1)
+	  gen nEiv_alt = PE_alt*WE_1iv_Tante if T==`t'
+	  gen dEiv_alt = PE_alt*WE_1iv_T if T==(`t'-1)
+	  gen nHiv = PH*WH_1iv_Tante if T==`t'
+	  gen dHiv = PH*WH_1iv_T if T==(`t'-1)
+	  
+	  egen sum_nEiv = sum(nEiv)
+	  egen sum_dEiv = sum(dEiv)
+	  egen sum_nEiv_alt = sum(nEiv_alt)
+	  egen sum_dEiv_alt = sum(dEiv_alt)
+	  egen sum_nHiv = sum(nHiv)
+	  egen sum_dHiv = sum(dHiv)
+	  
+	  replace dIQT0_E1iv = sum_nEiv/sum_nEiv if T==`t'
+	  replace dIQT0_E1iv_alt = sum_nEiv_alt/sum_nEiv_alt if T==`t'
+	  replace dIQT0_H1iv = sum_nHiv/sum_nHiv if T==`t'  
+
+	  drop nEiv dEiv nEiv_alt dEiv_alt nHiv dHiv sum_nEiv sum_dEiv sum_nEiv_alt sum_dEiv_alt sum_nHiv sum_dHiv
+   }
+  
+  
+ * IQT1:
+  * Efetivo C:
+   gen dIQT1_E1i = .        
+   gen dIQT1_E1ii = .        
+   gen dIQT1_E1iii = .        
+   gen dIQT1_E1iv = .        
+  
+  * Efetivo C_alt:   
+   gen dIQT1_E1i_alt = .        
+   gen dIQT1_E1ii_alt = .        
+   gen dIQT1_E1iii_alt = .        
+   gen dIQT1_E1iv_alt = .   
+   
+  * Habitual: 
+   gen dIQT1_H1i = .        
+   gen dIQT1_H1ii = .        
+   gen dIQT1_H1iii = .        
+   gen dIQT1_H1iv = . 
+  
+   forvalues t = 2/`=Tmax'{
+	* (i) Sem controles: 
+	  gen nEi = PE*WE_1i_T if T==`t'
+	  gen dEi = PE*WE_1i_Tprox if T==(`t'-1)
+	  gen nEi_alt = PE_alt*WE_1i_T if T==`t'
+	  gen dEi_alt = PE_alt*WE_1i_Tprox if T==(`t'-1)
+	  gen nHi = PH*WH_1i_T if T==`t'
+	  gen dHi = PH*WH_1i_Tprox if T==(`t'-1)
+	  
+	  egen sum_nEi = sum(nEi)
+	  egen sum_dEi = sum(dEi)
+	  egen sum_nEi_alt = sum(nEi_alt)
+	  egen sum_dEi_alt = sum(dEi_alt)
+	  egen sum_nHi = sum(nHi)
+	  egen sum_dHi = sum(dHi)
+	  
+	  replace dIQT1_E1i = sum_nEi/sum_nEi if T==`t'
+	  replace dIQT1_E1i_alt = sum_nEi_alt/sum_nEi_alt if T==`t'
+	  replace dIQT1_H1i = sum_nHi/sum_nHi if T==`t'  
+
+	  drop nEi dEi nEi_alt dEi_alt nHi dHi sum_nEi sum_dEi sum_nEi_alt sum_dEi_alt sum_nHi sum_dHi
+	
+	
+   * (ii) Cor:
+	  gen nEii = PE*WE_1ii_T if T==`t'
+	  gen dEii = PE*WE_1ii_Tprox if T==(`t'-1)
+	  gen nEii_alt = PE_alt*WE_1ii_T if T==`t'
+	  gen dEii_alt = PE_alt*WE_1ii_Tprox if T==(`t'-1)
+	  gen nHii = PH*WH_1ii_T if T==`t'
+	  gen dHii = PH*WH_1ii_Tprox if T==(`t'-1)
+	  
+	  egen sum_nEii = sum(nEii)
+	  egen sum_dEii = sum(dEii)
+	  egen sum_nEii_alt = sum(nEii_alt)
+	  egen sum_dEii_alt = sum(dEii_alt)
+	  egen sum_nHii = sum(nHii)
+	  egen sum_dHii = sum(dHii)
+	  
+	  replace dIQT1_E1ii = sum_nEii/sum_nEii if T==`t'
+	  replace dIQT1_E1ii_alt = sum_nEii_alt/sum_nEii_alt if T==`t'
+	  replace dIQT1_H1ii = sum_nHii/sum_nHii if T==`t'  
+
+	  drop nEii dEii nEii_alt dEii_alt nHii dHii sum_nEii sum_dEii sum_nEii_alt sum_dEii_alt sum_nHii sum_dHii
+	
+	
+   * (iii) Setor Público:
+	  gen nEiii = PE*WE_1iii_T if T==`t'
+	  gen dEiii = PE*WE_1iii_Tprox if T==(`t'-1)
+	  gen nEiii_alt = PE_alt*WE_1iii_T if T==`t'
+	  gen dEiii_alt = PE_alt*WE_1iii_Tprox if T==(`t'-1)
+	  gen nHiii = PH*WH_1iii_T if T==`t'
+	  gen dHiii = PH*WH_1iii_Tprox if T==(`t'-1)
+	  
+	  egen sum_nEiii = sum(nEiii)
+	  egen sum_dEiii = sum(dEiii)
+	  egen sum_nEiii_alt = sum(nEiii_alt)
+	  egen sum_dEiii_alt = sum(dEiii_alt)
+	  egen sum_nHiii = sum(nHiii)
+	  egen sum_dHiii = sum(dHiii)
+	  
+	  replace dIQT1_E1iii = sum_nEiii/sum_nEiii if T==`t'
+	  replace dIQT1_E1iii_alt = sum_nEiii_alt/sum_nEiii_alt if T==`t'
+	  replace dIQT1_H1iii = sum_nHiii/sum_nHiii if T==`t'  
+
+	  drop nEiii dEiii nEiii_alt dEiii_alt nHiii dHiii sum_nEiii sum_dEiii sum_nEiii_alt sum_dEiii_alt sum_nHiii sum_dHiii
+	  
+	  
+   * (iv) Informal: 
+	  gen nEiv = PE*WE_1iv_T if T==`t'
+	  gen dEiv = PE*WE_1iv_Tprox if T==(`t'-1)
+	  gen nEiv_alt = PE_alt*WE_1iv_T if T==`t'
+	  gen dEiv_alt = PE_alt*WE_1iv_Tprox if T==(`t'-1)
+	  gen nHiv = PH*WH_1iv_T if T==`t'
+	  gen dHiv = PH*WH_1iv_Tprox if T==(`t'-1)
+	  
+	  egen sum_nEiv = sum(nEiv)
+	  egen sum_dEiv = sum(dEiv)
+	  egen sum_nEiv_alt = sum(nEiv_alt)
+	  egen sum_dEiv_alt = sum(dEiv_alt)
+	  egen sum_nHiv = sum(nHiv)
+	  egen sum_dHiv = sum(dHiv)
+	  
+	  replace dIQT1_E1iv = sum_nEiv/sum_nEiv if T==`t'
+	  replace dIQT1_E1iv_alt = sum_nEiv_alt/sum_nEiv_alt if T==`t'
+	  replace dIQT1_H1iv = sum_nHiv/sum_nHiv if T==`t'  
+
+	  drop nEiv dEiv nEiv_alt dEiv_alt nHiv dHiv sum_nEiv sum_dEiv sum_nEiv_alt sum_dEiv_alt sum_nHiv sum_dHiv  
+   }  
+   
+   
+ * dIQT: índice de Fisher    
+   gen dIQT_E1i = (dIQT0_E1i*dIQT1_E1i)^(1/2)
+   gen dIQT_E1i_alt = (dIQT0_E1i_alt*dIQT1_E1i_alt)^(1/2)
+   gen dIQT_H1i = (dIQT0_H1i*dIQT1_H1i)^(1/2)
+   
+   gen dIQT_E1ii = (dIQT0_E1ii*dIQT1_E1ii)^(1/2)
+   gen dIQT_E1ii_alt = (dIQT0_E1ii_alt*dIQT1_E1ii_alt)^(1/2)
+   gen dIQT_H1ii = (dIQT0_H1ii*dIQT1_H1ii)^(1/2)
+  
+   gen dIQT_E1iii = (dIQT0_E1iii*dIQT1_E1iii)^(1/2)
+   gen dIQT_E1iii_alt = (dIQT0_E1iii_alt*dIQT1_E1iii_alt)^(1/2)
+   gen dIQT_H1iii = (dIQT0_H1iii*dIQT1_H1iii)^(1/2)  
+  
+   gen dIQT_E1iv = (dIQT0_E1iv*dIQT1_E1iv)^(1/2)
+   gen dIQT_E1iv_alt = (dIQT0_E1iv_alt*dIQT1_E1iv_alt)^(1/2)
+   gen dIQT_H1iv = (dIQT0_H1iv*dIQT1_H1iv)^(1/2)
+   
+   
+ * IQT: Base separada 
+  {
+  preserve
+   keep T dIQT_E1i dIQT_E1ii dIQT_E1ii dIQT_E1iv dIQT_E1i_alt dIQT_E1ii_alt dIQT_E1iii_alt dIQT_E1iv_alt dIQT_H1i dIQT_H1ii dIQT_H1iii dIQT_H1iv
+   duplicates drop
+  
+   *OBS: calcularemos apenas os IQT com 2012.2 = 100
+   * (i) Sem controles
+     gen IQT_E1i = 100 if T==2
+     replace IQT_E1i = IQT_E1i[_n-1]*dIQT_E1i if _n > 2
+     label var IQT_E1i "IQT Efetivo (C) - Sem controles"
+   
+     gen IQT_E1i_alt = 100 if T==2
+     replace IQT_E1i_alt = IQT_E1i_alt[_n-1]*dIQT_E1i_alt if _n > 2
+     label var IQT_E1i_alt "IQT Efetivo (C_alt) - Sem controles"
+	 
+	 gen IQT_H1i = 100 if T==2
+     replace IQT_H1i = IQT_H1i[_n-1]*dIQT_H1i if _n > 2
+     label var IQT_H1i "IQT Habitual - Sem controles"
+	 
+	 
+   * (ii) Cor
+     gen IQT_E1ii = 100 if T==2
+     replace IQT_E1ii = IQT_E1ii[_n-1]*dIQT_E1ii if _n > 2
+     label var IQT_E1ii "IQT Efetivo (C) - Cor"
+   
+     gen IQT_E1ii_alt = 100 if T==2
+     replace IQT_E1ii_alt = IQT_E1ii_alt[_n-1]*dIQT_E1ii_alt if _n > 2
+     label var IQT_E1ii_alt "IQT Efetivo (C_alt) - Cor"
+	 
+	 gen IQT_H1ii = 100 if T==2
+     replace IQT_H1ii = IQT_H1ii[_n-1]*dIQT_H1ii if _n > 2
+     label var IQT_H1ii "IQT Habitual - Cor"
+   
+   
+   * (iii) Setor público
+     gen IQT_E1iii = 100 if T==2
+     replace IQT_E1iii = IQT_E1iii[_n-1]*dIQT_E1iii if _n > 2
+     label var IQT_E1iii "IQT Efetivo (C) - Setor público"
+   
+     gen IQT_E1iii_alt = 100 if T==2
+     replace IQT_E1iii_alt = IQT_E1iii_alt[_n-1]*dIQT_E1iii_alt if _n > 2
+     label var IQT_E1iii_alt "IQT Efetivo (C_alt) - Setor público"
+	 
+	 gen IQT_H1iii = 100 if T==2
+     replace IQT_H1iii = IQT_H1iii[_n-1]*dIQT_H1iii if _n > 2
+     label var IQT_H1iii "IQT Habitual - Setor público" 
+	 
+	 
+   * (iv) Informal
+     gen IQT_E1iv = 100 if T==2
+     replace IQT_E1iv = IQT_E1iv[_n-1]*dIQT_E1iv if _n > 2
+     label var IQT_E1iv "IQT Efetivo (C) - Informal"
+   
+     gen IQT_E1iv_alt = 100 if T==2
+     replace IQT_E1iv_alt = IQT_E1iv_alt[_n-1]*dIQT_E1iv_alt if _n > 2
+     label var IQT_E1iv_alt "IQT Efetivo (C_alt) - Informal"
+	 
+	 gen IQT_H1iv = 100 if T==2
+     replace IQT_H1iv = IQT_H1iv[_n-1]*dIQT_H1iv if _n > 2
+     label var IQT_H1iv "IQT Habitual - Informal" 
+   
+   save "$dirdata/G_IQT_Controles.dta", replace
+   restore
+   }  
+  
+   save "$dirdata/G0_BaseEstimacao.dta", replace 
+  } 
+ 
+
+** G.3.2: Estimação log=0 se W=0 
+ {
+ * IQT0
+  * Efetivo C:
+   gen dIQT0_E2i = .        
+   gen dIQT0_E2ii = .        
+   gen dIQT0_E2iii = .        
+   gen dIQT0_E2iv = .        
+  
+  * Efetivo C_alt:   
+   gen dIQT0_E2i_alt = .        
+   gen dIQT0_E2ii_alt = .        
+   gen dIQT0_E2iii_alt = .        
+   gen dIQT0_E2iv_alt = .   
+   
+  * Habitual: 
+   gen dIQT0_H2i = .        
+   gen dIQT0_H2ii = .        
+   gen dIQT0_H2iii = .        
+   gen dIQT0_H2iv = .    
+
+  
+   forvalues t = 2/`=Tmax'{
+   * (i) Sem controles: 
+	  gen nEi = PE*WE_2i_Tante if T==`t'
+	  gen dEi = PE*WE_2i_T if T==(`t'-1)
+	  gen nEi_alt = PE_alt*WE_2i_Tante if T==`t'
+	  gen dEi_alt = PE_alt*WE_2i_T if T==(`t'-1)
+	  gen nHi = PH*WH_2i_Tante if T==`t'
+	  gen dHi = PH*WH_2i_T if T==(`t'-1)
+	  
+	  egen sum_nEi = sum(nEi)
+	  egen sum_dEi = sum(dEi)
+	  egen sum_nEi_alt = sum(nEi_alt)
+	  egen sum_dEi_alt = sum(dEi_alt)
+	  egen sum_nHi = sum(nHi)
+	  egen sum_dHi = sum(dHi)
+	  
+	  replace dIQT0_E2i = sum_nEi/sum_nEi if T==`t'
+	  replace dIQT0_E2i_alt = sum_nEi_alt/sum_nEi_alt if T==`t'
+	  replace dIQT0_H2i = sum_nHi/sum_nHi if T==`t'  
+
+	  drop nEi dEi nEi_alt dEi_alt nHi dHi sum_nEi sum_dEi sum_nEi_alt sum_dEi_alt sum_nHi sum_dHi
+	
+	
+   * (ii) Cor:
+	  gen nEii = PE*WE_2ii_Tante if T==`t'
+	  gen dEii = PE*WE_2ii_T if T==(`t'-1)
+	  gen nEii_alt = PE_alt*WE_2ii_Tante if T==`t'
+	  gen dEii_alt = PE_alt*WE_2ii_T if T==(`t'-1)
+	  gen nHii = PH*WH_2ii_Tante if T==`t'
+	  gen dHii = PH*WH_2ii_T if T==(`t'-1)
+	  
+	  egen sum_nEii = sum(nEii)
+	  egen sum_dEii = sum(dEii)
+	  egen sum_nEii_alt = sum(nEii_alt)
+	  egen sum_dEii_alt = sum(dEii_alt)
+	  egen sum_nHii = sum(nHii)
+	  egen sum_dHii = sum(dHii)
+	  
+	  replace dIQT0_E2ii = sum_nEii/sum_nEii if T==`t'
+	  replace dIQT0_E2ii_alt = sum_nEii_alt/sum_nEii_alt if T==`t'
+	  replace dIQT0_H2ii = sum_nHii/sum_nHii if T==`t'  
+
+	  drop nEii dEii nEii_alt dEii_alt nHii dHii sum_nEii sum_dEii sum_nEii_alt sum_dEii_alt sum_nHii sum_dHii
+	
+	
+   * (iii) Setor Público:
+	  gen nEiii = PE*WE_2iii_Tante if T==`t'
+	  gen dEiii = PE*WE_2iii_T if T==(`t'-1)
+	  gen nEiii_alt = PE_alt*WE_2iii_Tante if T==`t'
+	  gen dEiii_alt = PE_alt*WE_2iii_T if T==(`t'-1)
+	  gen nHiii = PH*WH_2iii_Tante if T==`t'
+	  gen dHiii = PH*WH_2iii_T if T==(`t'-1)
+	  
+	  egen sum_nEiii = sum(nEiii)
+	  egen sum_dEiii = sum(dEiii)
+	  egen sum_nEiii_alt = sum(nEiii_alt)
+	  egen sum_dEiii_alt = sum(dEiii_alt)
+	  egen sum_nHiii = sum(nHiii)
+	  egen sum_dHiii = sum(dHiii)
+	  
+	  replace dIQT0_E2iii = sum_nEiii/sum_nEiii if T==`t'
+	  replace dIQT0_E2iii_alt = sum_nEiii_alt/sum_nEiii_alt if T==`t'
+	  replace dIQT0_H2iii = sum_nHiii/sum_nHiii if T==`t'  
+
+	  drop nEiii dEiii nEiii_alt dEiii_alt nHiii dHiii sum_nEiii sum_dEiii sum_nEiii_alt sum_dEiii_alt sum_nHiii sum_dHiii
+	  
+	  
+   * (iv) Informal: 
+	  gen nEiv = PE*WE_2iv_Tante if T==`t'
+	  gen dEiv = PE*WE_2iv_T if T==(`t'-1)
+	  gen nEiv_alt = PE_alt*WE_2iv_Tante if T==`t'
+	  gen dEiv_alt = PE_alt*WE_2iv_T if T==(`t'-1)
+	  gen nHiv = PH*WH_2iv_Tante if T==`t'
+	  gen dHiv = PH*WH_2iv_T if T==(`t'-1)
+	  
+	  egen sum_nEiv = sum(nEiv)
+	  egen sum_dEiv = sum(dEiv)
+	  egen sum_nEiv_alt = sum(nEiv_alt)
+	  egen sum_dEiv_alt = sum(dEiv_alt)
+	  egen sum_nHiv = sum(nHiv)
+	  egen sum_dHiv = sum(dHiv)
+	  
+	  replace dIQT0_E2iv = sum_nEiv/sum_nEiv if T==`t'
+	  replace dIQT0_E2iv_alt = sum_nEiv_alt/sum_nEiv_alt if T==`t'
+	  replace dIQT0_H2iv = sum_nHiv/sum_nHiv if T==`t'  
+
+	  drop nEiv dEiv nEiv_alt dEiv_alt nHiv dHiv sum_nEiv sum_dEiv sum_nEiv_alt sum_dEiv_alt sum_nHiv sum_dHiv
+   }
+  
+  
+ * IQT1:
+  * Efetivo C:
+   gen dIQT1_E2i = .        
+   gen dIQT1_E2ii = .        
+   gen dIQT1_E2iii = .        
+   gen dIQT1_E2iv = .        
+  
+  * Efetivo C_alt:   
+   gen dIQT1_E2i_alt = .        
+   gen dIQT1_E2ii_alt = .        
+   gen dIQT1_E2iii_alt = .        
+   gen dIQT1_E2iv_alt = .   
+   
+  * Habitual: 
+   gen dIQT1_H2i = .        
+   gen dIQT1_H2ii = .        
+   gen dIQT1_H2iii = .        
+   gen dIQT1_H2iv = . 
+  
+   forvalues t = 2/`=Tmax'{
+	* (i) Sem controles: 
+	  gen nEi = PE*WE_2i_T if T==`t'
+	  gen dEi = PE*WE_2i_Tprox if T==(`t'-1)
+	  gen nEi_alt = PE_alt*WE_2i_T if T==`t'
+	  gen dEi_alt = PE_alt*WE_2i_Tprox if T==(`t'-1)
+	  gen nHi = PH*WH_2i_T if T==`t'
+	  gen dHi = PH*WH_2i_Tprox if T==(`t'-1)
+	  
+	  egen sum_nEi = sum(nEi)
+	  egen sum_dEi = sum(dEi)
+	  egen sum_nEi_alt = sum(nEi_alt)
+	  egen sum_dEi_alt = sum(dEi_alt)
+	  egen sum_nHi = sum(nHi)
+	  egen sum_dHi = sum(dHi)
+	  
+	  replace dIQT1_E2i = sum_nEi/sum_nEi if T==`t'
+	  replace dIQT1_E2i_alt = sum_nEi_alt/sum_nEi_alt if T==`t'
+	  replace dIQT1_H2i = sum_nHi/sum_nHi if T==`t'  
+
+	  drop nEi dEi nEi_alt dEi_alt nHi dHi sum_nEi sum_dEi sum_nEi_alt sum_dEi_alt sum_nHi sum_dHi
+	
+	
+   * (ii) Cor:
+	  gen nEii = PE*WE_2ii_T if T==`t'
+	  gen dEii = PE*WE_2ii_Tprox if T==(`t'-1)
+	  gen nEii_alt = PE_alt*WE_2ii_T if T==`t'
+	  gen dEii_alt = PE_alt*WE_2ii_Tprox if T==(`t'-1)
+	  gen nHii = PH*WH_2ii_T if T==`t'
+	  gen dHii = PH*WH_2ii_Tprox if T==(`t'-1)
+	  
+	  egen sum_nEii = sum(nEii)
+	  egen sum_dEii = sum(dEii)
+	  egen sum_nEii_alt = sum(nEii_alt)
+	  egen sum_dEii_alt = sum(dEii_alt)
+	  egen sum_nHii = sum(nHii)
+	  egen sum_dHii = sum(dHii)
+	  
+	  replace dIQT1_E2ii = sum_nEii/sum_nEii if T==`t'
+	  replace dIQT1_E2ii_alt = sum_nEii_alt/sum_nEii_alt if T==`t'
+	  replace dIQT1_H2ii = sum_nHii/sum_nHii if T==`t'  
+
+	  drop nEii dEii nEii_alt dEii_alt nHii dHii sum_nEii sum_dEii sum_nEii_alt sum_dEii_alt sum_nHii sum_dHii
+	
+	
+   * (iii) Setor Público:
+	  gen nEiii = PE*WE_2iii_T if T==`t'
+	  gen dEiii = PE*WE_2iii_Tprox if T==(`t'-1)
+	  gen nEiii_alt = PE_alt*WE_2iii_T if T==`t'
+	  gen dEiii_alt = PE_alt*WE_2iii_Tprox if T==(`t'-1)
+	  gen nHiii = PH*WH_2iii_T if T==`t'
+	  gen dHiii = PH*WH_2iii_Tprox if T==(`t'-1)
+	  
+	  egen sum_nEiii = sum(nEiii)
+	  egen sum_dEiii = sum(dEiii)
+	  egen sum_nEiii_alt = sum(nEiii_alt)
+	  egen sum_dEiii_alt = sum(dEiii_alt)
+	  egen sum_nHiii = sum(nHiii)
+	  egen sum_dHiii = sum(dHiii)
+	  
+	  replace dIQT1_E2iii = sum_nEiii/sum_nEiii if T==`t'
+	  replace dIQT1_E2iii_alt = sum_nEiii_alt/sum_nEiii_alt if T==`t'
+	  replace dIQT1_H2iii = sum_nHiii/sum_nHiii if T==`t'  
+
+	  drop nEiii dEiii nEiii_alt dEiii_alt nHiii dHiii sum_nEiii sum_dEiii sum_nEiii_alt sum_dEiii_alt sum_nHiii sum_dHiii
+	  
+	  
+   * (iv) Informal: 
+	  gen nEiv = PE*WE_2iv_T if T==`t'
+	  gen dEiv = PE*WE_2iv_Tprox if T==(`t'-1)
+	  gen nEiv_alt = PE_alt*WE_2iv_T if T==`t'
+	  gen dEiv_alt = PE_alt*WE_2iv_Tprox if T==(`t'-1)
+	  gen nHiv = PH*WH_2iv_T if T==`t'
+	  gen dHiv = PH*WH_2iv_Tprox if T==(`t'-1)
+	  
+	  egen sum_nEiv = sum(nEiv)
+	  egen sum_dEiv = sum(dEiv)
+	  egen sum_nEiv_alt = sum(nEiv_alt)
+	  egen sum_dEiv_alt = sum(dEiv_alt)
+	  egen sum_nHiv = sum(nHiv)
+	  egen sum_dHiv = sum(dHiv)
+	  
+	  replace dIQT1_E2iv = sum_nEiv/sum_nEiv if T==`t'
+	  replace dIQT1_E2iv_alt = sum_nEiv_alt/sum_nEiv_alt if T==`t'
+	  replace dIQT1_H2iv = sum_nHiv/sum_nHiv if T==`t'  
+
+	  drop nEiv dEiv nEiv_alt dEiv_alt nHiv dHiv sum_nEiv sum_dEiv sum_nEiv_alt sum_dEiv_alt sum_nHiv sum_dHiv  
+   }  
+   
+   
+ * dIQT: índice de Fisher    
+   gen dIQT_E2i = (dIQT0_E2i*dIQT1_E2i)^(1/2)
+   gen dIQT_E2i_alt = (dIQT0_E2i_alt*dIQT1_E2i_alt)^(1/2)
+   gen dIQT_H2i = (dIQT0_H2i*dIQT1_H2i)^(1/2)
+   
+   gen dIQT_E2ii = (dIQT0_E2ii*dIQT1_E2ii)^(1/2)
+   gen dIQT_E2ii_alt = (dIQT0_E2ii_alt*dIQT1_E2ii_alt)^(1/2)
+   gen dIQT_H2ii = (dIQT0_H2ii*dIQT1_H2ii)^(1/2)
+  
+   gen dIQT_E2iii = (dIQT0_E2iii*dIQT1_E2iii)^(1/2)
+   gen dIQT_E2iii_alt = (dIQT0_E2iii_alt*dIQT1_E2iii_alt)^(1/2)
+   gen dIQT_H2iii = (dIQT0_H2iii*dIQT1_H2iii)^(1/2)  
+  
+   gen dIQT_E2iv = (dIQT0_E2iv*dIQT1_E2iv)^(1/2)
+   gen dIQT_E2iv_alt = (dIQT0_E2iv_alt*dIQT1_E2iv_alt)^(1/2)
+   gen dIQT_H2iv = (dIQT0_H2iv*dIQT1_H2iv)^(1/2)
+   
+   
+ * IQT: Base separada 
+  {
+  preserve
+   keep T dIQT_E2i dIQT_E2ii dIQT_E2ii dIQT_E2iv dIQT_E2i_alt dIQT_E2ii_alt dIQT_E2iii_alt dIQT_E2iv_alt dIQT_H2i dIQT_H2ii dIQT_H2iii dIQT_H2iv
+   duplicates drop
+  
+   *OBS: calcularemos apenas os IQT com 2012.2 = 100
+   * (i) Sem controles
+     gen IQT_E2i = 100 if T==2
+     replace IQT_E2i = IQT_E2i[_n-1]*dIQT_E2i if _n > 2
+     label var IQT_E2i "IQT Efetivo (C) - Sem controles"
+   
+     gen IQT_E2i_alt = 100 if T==2
+     replace IQT_E2i_alt = IQT_E2i_alt[_n-1]*dIQT_E2i_alt if _n > 2
+     label var IQT_E2i_alt "IQT Efetivo (C_alt) - Sem controles"
+	 
+	 gen IQT_H2i = 100 if T==2
+     replace IQT_H2i = IQT_H2i[_n-1]*dIQT_H2i if _n > 2
+     label var IQT_H2i "IQT Habitual - Sem controles"
+	 
+	 
+   * (ii) Cor
+     gen IQT_E2ii = 100 if T==2
+     replace IQT_E2ii = IQT_E2ii[_n-1]*dIQT_E2ii if _n > 2
+     label var IQT_E2ii "IQT Efetivo (C) - Cor"
+   
+     gen IQT_E2ii_alt = 100 if T==2
+     replace IQT_E2ii_alt = IQT_E2ii_alt[_n-1]*dIQT_E2ii_alt if _n > 2
+     label var IQT_E2ii_alt "IQT Efetivo (C_alt) - Cor"
+	 
+	 gen IQT_H2ii = 100 if T==2
+     replace IQT_H2ii = IQT_H2ii[_n-1]*dIQT_H2ii if _n > 2
+     label var IQT_H2ii "IQT Habitual - Cor"
+   
+   
+   * (iii) Setor público
+     gen IQT_E2iii = 100 if T==2
+     replace IQT_E2iii = IQT_E2iii[_n-1]*dIQT_E2iii if _n > 2
+     label var IQT_E2iii "IQT Efetivo (C) - Setor público"
+   
+     gen IQT_E2iii_alt = 100 if T==2
+     replace IQT_E2iii_alt = IQT_E2iii_alt[_n-1]*dIQT_E2iii_alt if _n > 2
+     label var IQT_E2iii_alt "IQT Efetivo (C_alt) - Setor público"
+	 
+	 gen IQT_H2iii = 100 if T==2
+     replace IQT_H2iii = IQT_H2iii[_n-1]*dIQT_H2iii if _n > 2
+     label var IQT_H2iii "IQT Habitual - Setor público" 
+	 
+	 
+   * (iv) Informal
+     gen IQT_E2iv = 100 if T==2
+     replace IQT_E2iv = IQT_E2iv[_n-1]*dIQT_E2iv if _n > 2
+     label var IQT_E2iv "IQT Efetivo (C) - Informal"
+   
+     gen IQT_E2iv_alt = 100 if T==2
+     replace IQT_E2iv_alt = IQT_E2iv_alt[_n-1]*dIQT_E2iv_alt if _n > 2
+     label var IQT_E2iv_alt "IQT Efetivo (C_alt) - Informal"
+	 
+	 gen IQT_H2iv = 100 if T==2
+     replace IQT_H2iv = IQT_H2iv[_n-1]*dIQT_H2iv if _n > 2
+     label var IQT_H2iv "IQT Habitual - Informal" 
+   
+   
+      
+   merge 1:1 T using "$dirdata/G_IQT_Controles.dta"
+   drop _merge
+   save "$dirdata/G_IQT_Controles.dta", replace
+   restore
+   }  
+  
+   save "$dirdata/G0_BaseEstimacao.dta", replace 
+  } 
+  
+
+** G.3.3: Estimação com pesos
+ {
+ * IQT0
+  * Efetivo C:
+   gen dIQT0_E3i = .        
+   gen dIQT0_E3ii = .        
+   gen dIQT0_E3iii = .        
+   gen dIQT0_E3iv = .        
+  
+  * Efetivo C_alt:   
+   gen dIQT0_E3i_alt = .        
+   gen dIQT0_E3ii_alt = .        
+   gen dIQT0_E3iii_alt = .        
+   gen dIQT0_E3iv_alt = .   
+   
+  * Habitual: 
+   gen dIQT0_H3i = .        
+   gen dIQT0_H3ii = .        
+   gen dIQT0_H3iii = .        
+   gen dIQT0_H3iv = .    
+
+  
+   forvalues t = 2/`=Tmax'{
+   * (i) Sem controles: 
+	  gen nEi = PE*WE_3i_Tante if T==`t'
+	  gen dEi = PE*WE_3i_T if T==(`t'-1)
+	  gen nEi_alt = PE_alt*WE_3i_Tante if T==`t'
+	  gen dEi_alt = PE_alt*WE_3i_T if T==(`t'-1)
+	  gen nHi = PH*WH_3i_Tante if T==`t'
+	  gen dHi = PH*WH_3i_T if T==(`t'-1)
+	  
+	  egen sum_nEi = sum(nEi)
+	  egen sum_dEi = sum(dEi)
+	  egen sum_nEi_alt = sum(nEi_alt)
+	  egen sum_dEi_alt = sum(dEi_alt)
+	  egen sum_nHi = sum(nHi)
+	  egen sum_dHi = sum(dHi)
+	  
+	  replace dIQT0_E3i = sum_nEi/sum_nEi if T==`t'
+	  replace dIQT0_E3i_alt = sum_nEi_alt/sum_nEi_alt if T==`t'
+	  replace dIQT0_H3i = sum_nHi/sum_nHi if T==`t'  
+
+	  drop nEi dEi nEi_alt dEi_alt nHi dHi sum_nEi sum_dEi sum_nEi_alt sum_dEi_alt sum_nHi sum_dHi
+	
+	
+   * (ii) Cor:
+	  gen nEii = PE*WE_3ii_Tante if T==`t'
+	  gen dEii = PE*WE_3ii_T if T==(`t'-1)
+	  gen nEii_alt = PE_alt*WE_3ii_Tante if T==`t'
+	  gen dEii_alt = PE_alt*WE_3ii_T if T==(`t'-1)
+	  gen nHii = PH*WH_3ii_Tante if T==`t'
+	  gen dHii = PH*WH_3ii_T if T==(`t'-1)
+	  
+	  egen sum_nEii = sum(nEii)
+	  egen sum_dEii = sum(dEii)
+	  egen sum_nEii_alt = sum(nEii_alt)
+	  egen sum_dEii_alt = sum(dEii_alt)
+	  egen sum_nHii = sum(nHii)
+	  egen sum_dHii = sum(dHii)
+	  
+	  replace dIQT0_E3ii = sum_nEii/sum_nEii if T==`t'
+	  replace dIQT0_E3ii_alt = sum_nEii_alt/sum_nEii_alt if T==`t'
+	  replace dIQT0_H3ii = sum_nHii/sum_nHii if T==`t'  
+
+	  drop nEii dEii nEii_alt dEii_alt nHii dHii sum_nEii sum_dEii sum_nEii_alt sum_dEii_alt sum_nHii sum_dHii
+	
+	
+   * (iii) Setor Público:
+	  gen nEiii = PE*WE_3iii_Tante if T==`t'
+	  gen dEiii = PE*WE_3iii_T if T==(`t'-1)
+	  gen nEiii_alt = PE_alt*WE_3iii_Tante if T==`t'
+	  gen dEiii_alt = PE_alt*WE_3iii_T if T==(`t'-1)
+	  gen nHiii = PH*WH_3iii_Tante if T==`t'
+	  gen dHiii = PH*WH_3iii_T if T==(`t'-1)
+	  
+	  egen sum_nEiii = sum(nEiii)
+	  egen sum_dEiii = sum(dEiii)
+	  egen sum_nEiii_alt = sum(nEiii_alt)
+	  egen sum_dEiii_alt = sum(dEiii_alt)
+	  egen sum_nHiii = sum(nHiii)
+	  egen sum_dHiii = sum(dHiii)
+	  
+	  replace dIQT0_E3iii = sum_nEiii/sum_nEiii if T==`t'
+	  replace dIQT0_E3iii_alt = sum_nEiii_alt/sum_nEiii_alt if T==`t'
+	  replace dIQT0_H3iii = sum_nHiii/sum_nHiii if T==`t'  
+
+	  drop nEiii dEiii nEiii_alt dEiii_alt nHiii dHiii sum_nEiii sum_dEiii sum_nEiii_alt sum_dEiii_alt sum_nHiii sum_dHiii
+	  
+	  
+   * (iv) Informal: 
+	  gen nEiv = PE*WE_3iv_Tante if T==`t'
+	  gen dEiv = PE*WE_3iv_T if T==(`t'-1)
+	  gen nEiv_alt = PE_alt*WE_3iv_Tante if T==`t'
+	  gen dEiv_alt = PE_alt*WE_3iv_T if T==(`t'-1)
+	  gen nHiv = PH*WH_3iv_Tante if T==`t'
+	  gen dHiv = PH*WH_3iv_T if T==(`t'-1)
+	  
+	  egen sum_nEiv = sum(nEiv)
+	  egen sum_dEiv = sum(dEiv)
+	  egen sum_nEiv_alt = sum(nEiv_alt)
+	  egen sum_dEiv_alt = sum(dEiv_alt)
+	  egen sum_nHiv = sum(nHiv)
+	  egen sum_dHiv = sum(dHiv)
+	  
+	  replace dIQT0_E3iv = sum_nEiv/sum_nEiv if T==`t'
+	  replace dIQT0_E3iv_alt = sum_nEiv_alt/sum_nEiv_alt if T==`t'
+	  replace dIQT0_H3iv = sum_nHiv/sum_nHiv if T==`t'  
+
+	  drop nEiv dEiv nEiv_alt dEiv_alt nHiv dHiv sum_nEiv sum_dEiv sum_nEiv_alt sum_dEiv_alt sum_nHiv sum_dHiv
+   }
+  
+  
+ * IQT1:
+  * Efetivo C:
+   gen dIQT1_E3i = .        
+   gen dIQT1_E3ii = .        
+   gen dIQT1_E3iii = .        
+   gen dIQT1_E3iv = .        
+  
+  * Efetivo C_alt:   
+   gen dIQT1_E3i_alt = .        
+   gen dIQT1_E3ii_alt = .        
+   gen dIQT1_E3iii_alt = .        
+   gen dIQT1_E3iv_alt = .   
+   
+  * Habitual: 
+   gen dIQT1_H3i = .        
+   gen dIQT1_H3ii = .        
+   gen dIQT1_H3iii = .        
+   gen dIQT1_H3iv = . 
+  
+   forvalues t = 2/`=Tmax'{
+	* (i) Sem controles: 
+	  gen nEi = PE*WE_3i_T if T==`t'
+	  gen dEi = PE*WE_3i_Tprox if T==(`t'-1)
+	  gen nEi_alt = PE_alt*WE_3i_T if T==`t'
+	  gen dEi_alt = PE_alt*WE_3i_Tprox if T==(`t'-1)
+	  gen nHi = PH*WH_3i_T if T==`t'
+	  gen dHi = PH*WH_3i_Tprox if T==(`t'-1)
+	  
+	  egen sum_nEi = sum(nEi)
+	  egen sum_dEi = sum(dEi)
+	  egen sum_nEi_alt = sum(nEi_alt)
+	  egen sum_dEi_alt = sum(dEi_alt)
+	  egen sum_nHi = sum(nHi)
+	  egen sum_dHi = sum(dHi)
+	  
+	  replace dIQT1_E3i = sum_nEi/sum_nEi if T==`t'
+	  replace dIQT1_E3i_alt = sum_nEi_alt/sum_nEi_alt if T==`t'
+	  replace dIQT1_H3i = sum_nHi/sum_nHi if T==`t'  
+
+	  drop nEi dEi nEi_alt dEi_alt nHi dHi sum_nEi sum_dEi sum_nEi_alt sum_dEi_alt sum_nHi sum_dHi
+	
+	
+   * (ii) Cor:
+	  gen nEii = PE*WE_3ii_T if T==`t'
+	  gen dEii = PE*WE_3ii_Tprox if T==(`t'-1)
+	  gen nEii_alt = PE_alt*WE_3ii_T if T==`t'
+	  gen dEii_alt = PE_alt*WE_3ii_Tprox if T==(`t'-1)
+	  gen nHii = PH*WH_3ii_T if T==`t'
+	  gen dHii = PH*WH_3ii_Tprox if T==(`t'-1)
+	  
+	  egen sum_nEii = sum(nEii)
+	  egen sum_dEii = sum(dEii)
+	  egen sum_nEii_alt = sum(nEii_alt)
+	  egen sum_dEii_alt = sum(dEii_alt)
+	  egen sum_nHii = sum(nHii)
+	  egen sum_dHii = sum(dHii)
+	  
+	  replace dIQT1_E3ii = sum_nEii/sum_nEii if T==`t'
+	  replace dIQT1_E3ii_alt = sum_nEii_alt/sum_nEii_alt if T==`t'
+	  replace dIQT1_H3ii = sum_nHii/sum_nHii if T==`t'  
+
+	  drop nEii dEii nEii_alt dEii_alt nHii dHii sum_nEii sum_dEii sum_nEii_alt sum_dEii_alt sum_nHii sum_dHii
+	
+	
+   * (iii) Setor Público:
+	  gen nEiii = PE*WE_3iii_T if T==`t'
+	  gen dEiii = PE*WE_3iii_Tprox if T==(`t'-1)
+	  gen nEiii_alt = PE_alt*WE_3iii_T if T==`t'
+	  gen dEiii_alt = PE_alt*WE_3iii_Tprox if T==(`t'-1)
+	  gen nHiii = PH*WH_3iii_T if T==`t'
+	  gen dHiii = PH*WH_3iii_Tprox if T==(`t'-1)
+	  
+	  egen sum_nEiii = sum(nEiii)
+	  egen sum_dEiii = sum(dEiii)
+	  egen sum_nEiii_alt = sum(nEiii_alt)
+	  egen sum_dEiii_alt = sum(dEiii_alt)
+	  egen sum_nHiii = sum(nHiii)
+	  egen sum_dHiii = sum(dHiii)
+	  
+	  replace dIQT1_E3iii = sum_nEiii/sum_nEiii if T==`t'
+	  replace dIQT1_E3iii_alt = sum_nEiii_alt/sum_nEiii_alt if T==`t'
+	  replace dIQT1_H3iii = sum_nHiii/sum_nHiii if T==`t'  
+
+	  drop nEiii dEiii nEiii_alt dEiii_alt nHiii dHiii sum_nEiii sum_dEiii sum_nEiii_alt sum_dEiii_alt sum_nHiii sum_dHiii
+	  
+	  
+   * (iv) Informal: 
+	  gen nEiv = PE*WE_3iv_T if T==`t'
+	  gen dEiv = PE*WE_3iv_Tprox if T==(`t'-1)
+	  gen nEiv_alt = PE_alt*WE_3iv_T if T==`t'
+	  gen dEiv_alt = PE_alt*WE_3iv_Tprox if T==(`t'-1)
+	  gen nHiv = PH*WH_3iv_T if T==`t'
+	  gen dHiv = PH*WH_3iv_Tprox if T==(`t'-1)
+	  
+	  egen sum_nEiv = sum(nEiv)
+	  egen sum_dEiv = sum(dEiv)
+	  egen sum_nEiv_alt = sum(nEiv_alt)
+	  egen sum_dEiv_alt = sum(dEiv_alt)
+	  egen sum_nHiv = sum(nHiv)
+	  egen sum_dHiv = sum(dHiv)
+	  
+	  replace dIQT1_E3iv = sum_nEiv/sum_nEiv if T==`t'
+	  replace dIQT1_E3iv_alt = sum_nEiv_alt/sum_nEiv_alt if T==`t'
+	  replace dIQT1_H3iv = sum_nHiv/sum_nHiv if T==`t'  
+
+	  drop nEiv dEiv nEiv_alt dEiv_alt nHiv dHiv sum_nEiv sum_dEiv sum_nEiv_alt sum_dEiv_alt sum_nHiv sum_dHiv  
+   }  
+   
+   
+ * dIQT: índice de Fisher    
+   gen dIQT_E3i = (dIQT0_E3i*dIQT1_E3i)^(1/2)
+   gen dIQT_E3i_alt = (dIQT0_E3i_alt*dIQT1_E3i_alt)^(1/2)
+   gen dIQT_H3i = (dIQT0_H3i*dIQT1_H3i)^(1/2)
+   
+   gen dIQT_E3ii = (dIQT0_E3ii*dIQT1_E3ii)^(1/2)
+   gen dIQT_E3ii_alt = (dIQT0_E3ii_alt*dIQT1_E3ii_alt)^(1/2)
+   gen dIQT_H3ii = (dIQT0_H3ii*dIQT1_H3ii)^(1/2)
+  
+   gen dIQT_E3iii = (dIQT0_E3iii*dIQT1_E3iii)^(1/2)
+   gen dIQT_E3iii_alt = (dIQT0_E3iii_alt*dIQT1_E3iii_alt)^(1/2)
+   gen dIQT_H3iii = (dIQT0_H3iii*dIQT1_H3iii)^(1/2)  
+  
+   gen dIQT_E3iv = (dIQT0_E3iv*dIQT1_E3iv)^(1/2)
+   gen dIQT_E3iv_alt = (dIQT0_E3iv_alt*dIQT1_E3iv_alt)^(1/2)
+   gen dIQT_H3iv = (dIQT0_H3iv*dIQT1_H3iv)^(1/2)
+   
+   
+ * IQT: Base separada 
+  {
+  preserve
+   keep T dIQT_E3i dIQT_E3ii dIQT_E3ii dIQT_E3iv dIQT_E3i_alt dIQT_E3ii_alt dIQT_E3iii_alt dIQT_E3iv_alt dIQT_H3i dIQT_H3ii dIQT_H3iii dIQT_H3iv
+   duplicates drop
+  
+   *OBS: calcularemos apenas os IQT com 2012.2 = 100
+   * (i) Sem controles
+     gen IQT_E3i = 100 if T==2
+     replace IQT_E3i = IQT_E3i[_n-1]*dIQT_E3i if _n > 2
+     label var IQT_E3i "IQT Efetivo (C) - Sem controles"
+   
+     gen IQT_E3i_alt = 100 if T==2
+     replace IQT_E3i_alt = IQT_E3i_alt[_n-1]*dIQT_E3i_alt if _n > 2
+     label var IQT_E3i_alt "IQT Efetivo (C_alt) - Sem controles"
+	 
+	 gen IQT_H3i = 100 if T==2
+     replace IQT_H3i = IQT_H3i[_n-1]*dIQT_H3i if _n > 2
+     label var IQT_H3i "IQT Habitual - Sem controles"
+	 
+	 
+   * (ii) Cor
+     gen IQT_E3ii = 100 if T==2
+     replace IQT_E3ii = IQT_E3ii[_n-1]*dIQT_E3ii if _n > 2
+     label var IQT_E3ii "IQT Efetivo (C) - Cor"
+   
+     gen IQT_E3ii_alt = 100 if T==2
+     replace IQT_E3ii_alt = IQT_E3ii_alt[_n-1]*dIQT_E3ii_alt if _n > 2
+     label var IQT_E3ii_alt "IQT Efetivo (C_alt) - Cor"
+	 
+	 gen IQT_H3ii = 100 if T==2
+     replace IQT_H3ii = IQT_H3ii[_n-1]*dIQT_H3ii if _n > 2
+     label var IQT_H3ii "IQT Habitual - Cor"
+   
+   
+   * (iii) Setor público
+     gen IQT_E3iii = 100 if T==2
+     replace IQT_E3iii = IQT_E3iii[_n-1]*dIQT_E3iii if _n > 2
+     label var IQT_E3iii "IQT Efetivo (C) - Setor público"
+   
+     gen IQT_E3iii_alt = 100 if T==2
+     replace IQT_E3iii_alt = IQT_E3iii_alt[_n-1]*dIQT_E3iii_alt if _n > 2
+     label var IQT_E3iii_alt "IQT Efetivo (C_alt) - Setor público"
+	 
+	 gen IQT_H3iii = 100 if T==2
+     replace IQT_H3iii = IQT_H3iii[_n-1]*dIQT_H3iii if _n > 2
+     label var IQT_H3iii "IQT Habitual - Setor público" 
+	 
+	 
+   * (iv) Informal
+     gen IQT_E3iv = 100 if T==2
+     replace IQT_E3iv = IQT_E3iv[_n-1]*dIQT_E3iv if _n > 2
+     label var IQT_E3iv "IQT Efetivo (C) - Informal"
+   
+     gen IQT_E3iv_alt = 100 if T==2
+     replace IQT_E3iv_alt = IQT_E3iv_alt[_n-1]*dIQT_E3iv_alt if _n > 2
+     label var IQT_E3iv_alt "IQT Efetivo (C_alt) - Informal"
+	 
+	 gen IQT_H3iv = 100 if T==2
+     replace IQT_H3iv = IQT_H3iv[_n-1]*dIQT_H3iv if _n > 2
+     label var IQT_H3iv "IQT Habitual - Informal" 
+      
+   merge 1:1 T using "$dirdata/G_IQT_Controles.dta"
+   drop _merge
+   save "$dirdata/G_IQT_Controles.dta", replace
+   restore
+   }  
+  
+   save "$dirdata/G0_BaseEstimacao.dta", replace 
+  } 
+    
+
+** G.3.4: Estimação com pesos + log=0 se W=0 
+ {
+ * IQT0
+  * Efetivo C:
+   gen dIQT0_E4i = .        
+   gen dIQT0_E4ii = .        
+   gen dIQT0_E4iii = .        
+   gen dIQT0_E4iv = .        
+  
+  * Efetivo C_alt:   
+   gen dIQT0_E4i_alt = .        
+   gen dIQT0_E4ii_alt = .        
+   gen dIQT0_E4iii_alt = .        
+   gen dIQT0_E4iv_alt = .   
+   
+  * Habitual: 
+   gen dIQT0_H4i = .        
+   gen dIQT0_H4ii = .        
+   gen dIQT0_H4iii = .        
+   gen dIQT0_H4iv = .    
+
+  
+   forvalues t = 2/`=Tmax'{
+   * (i) Sem controles: 
+	  gen nEi = PE*WE_4i_Tante if T==`t'
+	  gen dEi = PE*WE_4i_T if T==(`t'-1)
+	  gen nEi_alt = PE_alt*WE_4i_Tante if T==`t'
+	  gen dEi_alt = PE_alt*WE_4i_T if T==(`t'-1)
+	  gen nHi = PH*WH_4i_Tante if T==`t'
+	  gen dHi = PH*WH_4i_T if T==(`t'-1)
+	  
+	  egen sum_nEi = sum(nEi)
+	  egen sum_dEi = sum(dEi)
+	  egen sum_nEi_alt = sum(nEi_alt)
+	  egen sum_dEi_alt = sum(dEi_alt)
+	  egen sum_nHi = sum(nHi)
+	  egen sum_dHi = sum(dHi)
+	  
+	  replace dIQT0_E4i = sum_nEi/sum_nEi if T==`t'
+	  replace dIQT0_E4i_alt = sum_nEi_alt/sum_nEi_alt if T==`t'
+	  replace dIQT0_H4i = sum_nHi/sum_nHi if T==`t'  
+
+	  drop nEi dEi nEi_alt dEi_alt nHi dHi sum_nEi sum_dEi sum_nEi_alt sum_dEi_alt sum_nHi sum_dHi
+	
+	
+   * (ii) Cor:
+	  gen nEii = PE*WE_4ii_Tante if T==`t'
+	  gen dEii = PE*WE_4ii_T if T==(`t'-1)
+	  gen nEii_alt = PE_alt*WE_4ii_Tante if T==`t'
+	  gen dEii_alt = PE_alt*WE_4ii_T if T==(`t'-1)
+	  gen nHii = PH*WH_4ii_Tante if T==`t'
+	  gen dHii = PH*WH_4ii_T if T==(`t'-1)
+	  
+	  egen sum_nEii = sum(nEii)
+	  egen sum_dEii = sum(dEii)
+	  egen sum_nEii_alt = sum(nEii_alt)
+	  egen sum_dEii_alt = sum(dEii_alt)
+	  egen sum_nHii = sum(nHii)
+	  egen sum_dHii = sum(dHii)
+	  
+	  replace dIQT0_E4ii = sum_nEii/sum_nEii if T==`t'
+	  replace dIQT0_E4ii_alt = sum_nEii_alt/sum_nEii_alt if T==`t'
+	  replace dIQT0_H4ii = sum_nHii/sum_nHii if T==`t'  
+
+	  drop nEii dEii nEii_alt dEii_alt nHii dHii sum_nEii sum_dEii sum_nEii_alt sum_dEii_alt sum_nHii sum_dHii
+	
+	
+   * (iii) Setor Público:
+	  gen nEiii = PE*WE_4iii_Tante if T==`t'
+	  gen dEiii = PE*WE_4iii_T if T==(`t'-1)
+	  gen nEiii_alt = PE_alt*WE_4iii_Tante if T==`t'
+	  gen dEiii_alt = PE_alt*WE_4iii_T if T==(`t'-1)
+	  gen nHiii = PH*WH_4iii_Tante if T==`t'
+	  gen dHiii = PH*WH_4iii_T if T==(`t'-1)
+	  
+	  egen sum_nEiii = sum(nEiii)
+	  egen sum_dEiii = sum(dEiii)
+	  egen sum_nEiii_alt = sum(nEiii_alt)
+	  egen sum_dEiii_alt = sum(dEiii_alt)
+	  egen sum_nHiii = sum(nHiii)
+	  egen sum_dHiii = sum(dHiii)
+	  
+	  replace dIQT0_E4iii = sum_nEiii/sum_nEiii if T==`t'
+	  replace dIQT0_E4iii_alt = sum_nEiii_alt/sum_nEiii_alt if T==`t'
+	  replace dIQT0_H4iii = sum_nHiii/sum_nHiii if T==`t'  
+
+	  drop nEiii dEiii nEiii_alt dEiii_alt nHiii dHiii sum_nEiii sum_dEiii sum_nEiii_alt sum_dEiii_alt sum_nHiii sum_dHiii
+	  
+	  
+   * (iv) Informal: 
+	  gen nEiv = PE*WE_4iv_Tante if T==`t'
+	  gen dEiv = PE*WE_4iv_T if T==(`t'-1)
+	  gen nEiv_alt = PE_alt*WE_4iv_Tante if T==`t'
+	  gen dEiv_alt = PE_alt*WE_4iv_T if T==(`t'-1)
+	  gen nHiv = PH*WH_4iv_Tante if T==`t'
+	  gen dHiv = PH*WH_4iv_T if T==(`t'-1)
+	  
+	  egen sum_nEiv = sum(nEiv)
+	  egen sum_dEiv = sum(dEiv)
+	  egen sum_nEiv_alt = sum(nEiv_alt)
+	  egen sum_dEiv_alt = sum(dEiv_alt)
+	  egen sum_nHiv = sum(nHiv)
+	  egen sum_dHiv = sum(dHiv)
+	  
+	  replace dIQT0_E4iv = sum_nEiv/sum_nEiv if T==`t'
+	  replace dIQT0_E4iv_alt = sum_nEiv_alt/sum_nEiv_alt if T==`t'
+	  replace dIQT0_H4iv = sum_nHiv/sum_nHiv if T==`t'  
+
+	  drop nEiv dEiv nEiv_alt dEiv_alt nHiv dHiv sum_nEiv sum_dEiv sum_nEiv_alt sum_dEiv_alt sum_nHiv sum_dHiv
+   }
+  
+  
+ * IQT1:
+  * Efetivo C:
+   gen dIQT1_E4i = .        
+   gen dIQT1_E4ii = .        
+   gen dIQT1_E4iii = .        
+   gen dIQT1_E4iv = .        
+  
+  * Efetivo C_alt:   
+   gen dIQT1_E4i_alt = .        
+   gen dIQT1_E4ii_alt = .        
+   gen dIQT1_E4iii_alt = .        
+   gen dIQT1_E4iv_alt = .   
+   
+  * Habitual: 
+   gen dIQT1_H4i = .        
+   gen dIQT1_H4ii = .        
+   gen dIQT1_H4iii = .        
+   gen dIQT1_H4iv = . 
+  
+   forvalues t = 2/`=Tmax'{
+	* (i) Sem controles: 
+	  gen nEi = PE*WE_4i_T if T==`t'
+	  gen dEi = PE*WE_4i_Tprox if T==(`t'-1)
+	  gen nEi_alt = PE_alt*WE_4i_T if T==`t'
+	  gen dEi_alt = PE_alt*WE_4i_Tprox if T==(`t'-1)
+	  gen nHi = PH*WH_4i_T if T==`t'
+	  gen dHi = PH*WH_4i_Tprox if T==(`t'-1)
+	  
+	  egen sum_nEi = sum(nEi)
+	  egen sum_dEi = sum(dEi)
+	  egen sum_nEi_alt = sum(nEi_alt)
+	  egen sum_dEi_alt = sum(dEi_alt)
+	  egen sum_nHi = sum(nHi)
+	  egen sum_dHi = sum(dHi)
+	  
+	  replace dIQT1_E4i = sum_nEi/sum_nEi if T==`t'
+	  replace dIQT1_E4i_alt = sum_nEi_alt/sum_nEi_alt if T==`t'
+	  replace dIQT1_H4i = sum_nHi/sum_nHi if T==`t'  
+
+	  drop nEi dEi nEi_alt dEi_alt nHi dHi sum_nEi sum_dEi sum_nEi_alt sum_dEi_alt sum_nHi sum_dHi
+	
+	
+   * (ii) Cor:
+	  gen nEii = PE*WE_4ii_T if T==`t'
+	  gen dEii = PE*WE_4ii_Tprox if T==(`t'-1)
+	  gen nEii_alt = PE_alt*WE_4ii_T if T==`t'
+	  gen dEii_alt = PE_alt*WE_4ii_Tprox if T==(`t'-1)
+	  gen nHii = PH*WH_4ii_T if T==`t'
+	  gen dHii = PH*WH_4ii_Tprox if T==(`t'-1)
+	  
+	  egen sum_nEii = sum(nEii)
+	  egen sum_dEii = sum(dEii)
+	  egen sum_nEii_alt = sum(nEii_alt)
+	  egen sum_dEii_alt = sum(dEii_alt)
+	  egen sum_nHii = sum(nHii)
+	  egen sum_dHii = sum(dHii)
+	  
+	  replace dIQT1_E4ii = sum_nEii/sum_nEii if T==`t'
+	  replace dIQT1_E4ii_alt = sum_nEii_alt/sum_nEii_alt if T==`t'
+	  replace dIQT1_H4ii = sum_nHii/sum_nHii if T==`t'  
+
+	  drop nEii dEii nEii_alt dEii_alt nHii dHii sum_nEii sum_dEii sum_nEii_alt sum_dEii_alt sum_nHii sum_dHii
+	
+	
+   * (iii) Setor Público:
+	  gen nEiii = PE*WE_4iii_T if T==`t'
+	  gen dEiii = PE*WE_4iii_Tprox if T==(`t'-1)
+	  gen nEiii_alt = PE_alt*WE_4iii_T if T==`t'
+	  gen dEiii_alt = PE_alt*WE_4iii_Tprox if T==(`t'-1)
+	  gen nHiii = PH*WH_4iii_T if T==`t'
+	  gen dHiii = PH*WH_4iii_Tprox if T==(`t'-1)
+	  
+	  egen sum_nEiii = sum(nEiii)
+	  egen sum_dEiii = sum(dEiii)
+	  egen sum_nEiii_alt = sum(nEiii_alt)
+	  egen sum_dEiii_alt = sum(dEiii_alt)
+	  egen sum_nHiii = sum(nHiii)
+	  egen sum_dHiii = sum(dHiii)
+	  
+	  replace dIQT1_E4iii = sum_nEiii/sum_nEiii if T==`t'
+	  replace dIQT1_E4iii_alt = sum_nEiii_alt/sum_nEiii_alt if T==`t'
+	  replace dIQT1_H4iii = sum_nHiii/sum_nHiii if T==`t'  
+
+	  drop nEiii dEiii nEiii_alt dEiii_alt nHiii dHiii sum_nEiii sum_dEiii sum_nEiii_alt sum_dEiii_alt sum_nHiii sum_dHiii
+	  
+	  
+   * (iv) Informal: 
+	  gen nEiv = PE*WE_4iv_T if T==`t'
+	  gen dEiv = PE*WE_4iv_Tprox if T==(`t'-1)
+	  gen nEiv_alt = PE_alt*WE_4iv_T if T==`t'
+	  gen dEiv_alt = PE_alt*WE_4iv_Tprox if T==(`t'-1)
+	  gen nHiv = PH*WH_4iv_T if T==`t'
+	  gen dHiv = PH*WH_4iv_Tprox if T==(`t'-1)
+	  
+	  egen sum_nEiv = sum(nEiv)
+	  egen sum_dEiv = sum(dEiv)
+	  egen sum_nEiv_alt = sum(nEiv_alt)
+	  egen sum_dEiv_alt = sum(dEiv_alt)
+	  egen sum_nHiv = sum(nHiv)
+	  egen sum_dHiv = sum(dHiv)
+	  
+	  replace dIQT1_E4iv = sum_nEiv/sum_nEiv if T==`t'
+	  replace dIQT1_E4iv_alt = sum_nEiv_alt/sum_nEiv_alt if T==`t'
+	  replace dIQT1_H4iv = sum_nHiv/sum_nHiv if T==`t'  
+
+	  drop nEiv dEiv nEiv_alt dEiv_alt nHiv dHiv sum_nEiv sum_dEiv sum_nEiv_alt sum_dEiv_alt sum_nHiv sum_dHiv  
+   }  
+   
+   
+ * dIQT: índice de Fisher    
+   gen dIQT_E4i = (dIQT0_E4i*dIQT1_E4i)^(1/2)
+   gen dIQT_E4i_alt = (dIQT0_E4i_alt*dIQT1_E4i_alt)^(1/2)
+   gen dIQT_H4i = (dIQT0_H4i*dIQT1_H4i)^(1/2)
+   
+   gen dIQT_E4ii = (dIQT0_E4ii*dIQT1_E4ii)^(1/2)
+   gen dIQT_E4ii_alt = (dIQT0_E4ii_alt*dIQT1_E4ii_alt)^(1/2)
+   gen dIQT_H4ii = (dIQT0_H4ii*dIQT1_H4ii)^(1/2)
+  
+   gen dIQT_E4iii = (dIQT0_E4iii*dIQT1_E4iii)^(1/2)
+   gen dIQT_E4iii_alt = (dIQT0_E4iii_alt*dIQT1_E4iii_alt)^(1/2)
+   gen dIQT_H4iii = (dIQT0_H4iii*dIQT1_H4iii)^(1/2)  
+  
+   gen dIQT_E4iv = (dIQT0_E4iv*dIQT1_E4iv)^(1/2)
+   gen dIQT_E4iv_alt = (dIQT0_E4iv_alt*dIQT1_E4iv_alt)^(1/2)
+   gen dIQT_H4iv = (dIQT0_H4iv*dIQT1_H4iv)^(1/2)
+   
+   
+ * IQT: Base separada 
+  {
+  preserve
+   keep T dIQT_E4i dIQT_E4ii dIQT_E4ii dIQT_E4iv dIQT_E4i_alt dIQT_E4ii_alt dIQT_E4iii_alt dIQT_E4iv_alt dIQT_H4i dIQT_H4ii dIQT_H4iii dIQT_H4iv
+   duplicates drop
+  
+   *OBS: calcularemos apenas os IQT com 2012.2 = 100
+   * (i) Sem controles
+     gen IQT_E4i = 100 if T==2
+     replace IQT_E4i = IQT_E4i[_n-1]*dIQT_E4i if _n > 2
+     label var IQT_E4i "IQT Efetivo (C) - Sem controles"
+   
+     gen IQT_E4i_alt = 100 if T==2
+     replace IQT_E4i_alt = IQT_E4i_alt[_n-1]*dIQT_E4i_alt if _n > 2
+     label var IQT_E4i_alt "IQT Efetivo (C_alt) - Sem controles"
+	 
+	 gen IQT_H4i = 100 if T==2
+     replace IQT_H4i = IQT_H4i[_n-1]*dIQT_H4i if _n > 2
+     label var IQT_H4i "IQT Habitual - Sem controles"
+	 
+	 
+   * (ii) Cor
+     gen IQT_E4ii = 100 if T==2
+     replace IQT_E4ii = IQT_E4ii[_n-1]*dIQT_E4ii if _n > 2
+     label var IQT_E4ii "IQT Efetivo (C) - Cor"
+   
+     gen IQT_E4ii_alt = 100 if T==2
+     replace IQT_E4ii_alt = IQT_E4ii_alt[_n-1]*dIQT_E4ii_alt if _n > 2
+     label var IQT_E4ii_alt "IQT Efetivo (C_alt) - Cor"
+	 
+	 gen IQT_H4ii = 100 if T==2
+     replace IQT_H4ii = IQT_H4ii[_n-1]*dIQT_H4ii if _n > 2
+     label var IQT_H4ii "IQT Habitual - Cor"
+   
+   
+   * (iii) Setor público
+     gen IQT_E4iii = 100 if T==2
+     replace IQT_E4iii = IQT_E4iii[_n-1]*dIQT_E4iii if _n > 2
+     label var IQT_E4iii "IQT Efetivo (C) - Setor público"
+   
+     gen IQT_E4iii_alt = 100 if T==2
+     replace IQT_E4iii_alt = IQT_E4iii_alt[_n-1]*dIQT_E4iii_alt if _n > 2
+     label var IQT_E4iii_alt "IQT Efetivo (C_alt) - Setor público"
+	 
+	 gen IQT_H4iii = 100 if T==2
+     replace IQT_H4iii = IQT_H4iii[_n-1]*dIQT_H4iii if _n > 2
+     label var IQT_H4iii "IQT Habitual - Setor público" 
+	 
+	 
+   * (iv) Informal
+     gen IQT_E4iv = 100 if T==2
+     replace IQT_E4iv = IQT_E4iv[_n-1]*dIQT_E4iv if _n > 2
+     label var IQT_E4iv "IQT Efetivo (C) - Informal"
+   
+     gen IQT_E4iv_alt = 100 if T==2
+     replace IQT_E4iv_alt = IQT_E4iv_alt[_n-1]*dIQT_E4iv_alt if _n > 2
+     label var IQT_E4iv_alt "IQT Efetivo (C_alt) - Informal"
+	 
+	 gen IQT_H4iv = 100 if T==2
+     replace IQT_H4iv = IQT_H4iv[_n-1]*dIQT_H4iv if _n > 2
+     label var IQT_H4iv "IQT Habitual - Informal" 
+      
+   merge 1:1 T using "$dirdata/G_IQT_Controles.dta"
+   drop _merge
+   save "$dirdata/G_IQT_Controles.dta", replace
+   restore
+   }  
+  
+   save "$dirdata/G0_BaseEstimacao.dta", replace 
+  } 	
+}
+
+
+*******************************************************************************
+* G.4 GRÁFICOS ****************************************************************
+{
+ use "$dirdata/G_IQT_Controles.dta", clear
+
+ egen Tmax = max(T)
+ 
+** G.4.1 Baseline:
+ {
+*** POR CATEGORIA:
+  * Efetivo C:
+    twoway (line IQT_E1i T) (line IQT_E1ii T) (line IQT_E1iii T) (line IQT_E1iv T), xtitle(" ") xlabel(1(2)`=Tmax', angle(vertical) valuelabel) title("Baseline") name(IQT_1E, replace)
+	
+  * Efetivo C_alt
+    twoway (line IQT_E1i_alt T) (line IQT_E1ii_alt T) (line IQT_E1iii_alt T) (line IQT_E1iv_alt T), xtitle(" ") xlabel(1(2)`=Tmax', angle(vertical) valuelabel) title("Baseline") name(IQT_1E_alt, replace)
+   
+  * Habitual:
+    twoway (line IQT_H1i T) (line IQT_H1ii T) (line IQT_H1iii T) (line IQT_H1iv T), xtitle(" ") xlabel(1(2)`=Tmax', angle(vertical) valuelabel) title("Baseline") name(IQT_1H, replace)
+	
+	
+***	POR CONTROLE:
+  * (i) Sem controles:
+    twoway (line IQT_E1i T) (line IQT_E1i_alt T) (line IQT_H1i T), xtitle(" ") xlabel(1(2)`=Tmax', angle(vertical) valuelabel) title("Baseline") name(IQT_1i, replace)
+  
+  * (ii) Cor:
+    twoway (line IQT_E1ii T) (line IQT_E1ii_alt T) (line IQT_H1ii T), xtitle(" ") xlabel(1(2)`=Tmax', angle(vertical) valuelabel) title("Baseline") name(IQT_1ii, replace)
+  
+  * (iii) Setor público:
+    twoway (line IQT_E1iii T) (line IQT_E1iii_alt T) (line IQT_H1iii T), xtitle(" ") xlabel(1(2)`=Tmax', angle(vertical) valuelabel) title("Baseline") name(IQT_1iii, replace)
+  
+  * (iv) Informal:
+    twoway (line IQT_E1iv T) (line IQT_E1iv_alt T) (line IQT_H1iv T), xtitle(" ") xlabel(1(2)`=Tmax', angle(vertical) valuelabel) title("Baseline") name(IQT_1iv, replace)
+ }    
+   
+
+** G.4.2 Estimação log=0 se W=0:
+ {
+*** POR CATEGORIA:
+  * Efetivo C:
+    twoway (line IQT_E2i T) (line IQT_E2ii T) (line IQT_E2iii T) (line IQT_E2iv T), xtitle(" ") xlabel(1(2)`=Tmax', angle(vertical) valuelabel) title("log = 0 se W = 0") name(IQT_2E, replace)
+	
+  * Efetivo C_alt
+    twoway (line IQT_E2i_alt T) (line IQT_E2ii_alt T) (line IQT_E2iii_alt T) (line IQT_E2iv_alt T), xtitle(" ") xlabel(1(2)`=Tmax', angle(vertical) valuelabel) title("log = 0 se W = 0") name(IQT_2E_alt, replace)
+   
+  * Habitual:
+    twoway (line IQT_H2i T) (line IQT_H2ii T) (line IQT_H2iii T) (line IQT_H2iv T), xtitle(" ") xlabel(1(2)`=Tmax', angle(vertical) valuelabel) title("log = 0 se W = 0") name(IQT_2H, replace)
+	
+	
+***	POR CONTROLE:
+  * (i) Sem controles:
+    twoway (line IQT_E2i T) (line IQT_E2i_alt T) (line IQT_H2i T), xtitle(" ") xlabel(1(2)`=Tmax', angle(vertical) valuelabel) title("log = 0 se W = 0") name(IQT_2i, replace)
+  
+  * (ii) Cor:
+    twoway (line IQT_E2ii T) (line IQT_E2ii_alt T) (line IQT_H2ii T), xtitle(" ") xlabel(1(2)`=Tmax', angle(vertical) valuelabel) title("log = 0 se W = 0") name(IQT_2ii, replace)
+  
+  * (iii) Setor público:
+    twoway (line IQT_E2iii T) (line IQT_E2iii_alt T) (line IQT_H2iii T), xtitle(" ") xlabel(1(2)`=Tmax', angle(vertical) valuelabel) title("log = 0 se W = 0") name(IQT_2iii, replace)
+  
+  * (iv) Informal:
+    twoway (line IQT_E2iv T) (line IQT_E2iv_alt T) (line IQT_H2iv T), xtitle(" ") xlabel(1(2)`=Tmax', angle(vertical) valuelabel) title("log = 0 se W = 0") name(IQT_2iv, replace)
+ }    
+      
+
+** G.4.3 Estimação com pesos:
+ {
+*** POR CATEGORIA:
+  * Efetivo C:
+    twoway (line IQT_E3i T) (line IQT_E3ii T) (line IQT_E3iii T) (line IQT_E3iv T), xtitle(" ") xlabel(1(2)`=Tmax', angle(vertical) valuelabel) title("Com peso") name(IQT_3E, replace)
+	
+  * Efetivo C_alt
+    twoway (line IQT_E3i_alt T) (line IQT_E3ii_alt T) (line IQT_E3iii_alt T) (line IQT_E3iv_alt T), xtitle(" ") xlabel(1(2)`=Tmax', angle(vertical) valuelabel) title("Com peso") name(IQT_3E_alt, replace)
+   
+  * Habitual:
+    twoway (line IQT_H3i T) (line IQT_H3ii T) (line IQT_H3iii T) (line IQT_H3iv T), xtitle(" ") xlabel(1(2)`=Tmax', angle(vertical) valuelabel) title("Com peso") name(IQT_3H, replace)
+	
+	
+***	POR CONTROLE:
+  * (i) Sem controles:
+    twoway (line IQT_E3i T) (line IQT_E3i_alt T) (line IQT_H3i T), xtitle(" ") xlabel(1(2)`=Tmax', angle(vertical) valuelabel) title("Com peso") name(IQT_3i, replace)
+  
+  * (ii) Cor:
+    twoway (line IQT_E3ii T) (line IQT_E3ii_alt T) (line IQT_H3ii T), xtitle(" ") xlabel(1(2)`=Tmax', angle(vertical) valuelabel) title("Com peso") name(IQT_3ii, replace)
+  
+  * (iii) Setor público:
+    twoway (line IQT_E3iii T) (line IQT_E3iii_alt T) (line IQT_H3iii T), xtitle(" ") xlabel(1(2)`=Tmax', angle(vertical) valuelabel) title("Com peso") name(IQT_3iii, replace)
+  
+  * (iv) Informal:
+    twoway (line IQT_E3iv T) (line IQT_E3iv_alt T) (line IQT_H3iv T), xtitle(" ") xlabel(1(2)`=Tmax', angle(vertical) valuelabel) title("Com peso") name(IQT_3iv, replace)
+ }  	  
+   
+
+** G.4.4 Estimação com pesos + log=0 se W=0:
+ {
+*** POR CATEGORIA:
+  * Efetivo C:
+    twoway (line IQT_E4i T) (line IQT_E4ii T) (line IQT_E4iii T) (line IQT_E4iv T), xtitle(" ") xlabel(1(2)`=Tmax', angle(vertical) valuelabel) title("Com peso + log = 0") name(IQT_4E, replace)
+	
+  * Efetivo C_alt
+    twoway (line IQT_E4i_alt T) (line IQT_E4ii_alt T) (line IQT_E4iii_alt T) (line IQT_E4iv_alt T), xtitle(" ") xlabel(1(2)`=Tmax', angle(vertical) valuelabel) title("Com peso + log = 0") name(IQT_4E_alt, replace)
+   
+  * Habitual:
+    twoway (line IQT_H4i T) (line IQT_H4ii T) (line IQT_H4iii T) (line IQT_H4iv T), xtitle(" ") xlabel(1(2)`=Tmax', angle(vertical) valuelabel) title("Com peso + log = 0") name(IQT_4H, replace)
+	
+	
+***	POR CONTROLE:
+  * (i) Sem controles:
+    twoway (line IQT_E4i T) (line IQT_E4i_alt T) (line IQT_H4i T), xtitle(" ") xlabel(1(2)`=Tmax', angle(vertical) valuelabel) title("Com peso + log = 0") name(IQT_4i, replace)
+  
+  * (ii) Cor:
+    twoway (line IQT_E4ii T) (line IQT_E4ii_alt T) (line IQT_H4ii T), xtitle(" ") xlabel(1(2)`=Tmax', angle(vertical) valuelabel) title("Com peso + log = 0") name(IQT_4ii, replace)
+  
+  * (iii) Setor público:
+    twoway (line IQT_E4iii T) (line IQT_E4iii_alt T) (line IQT_H4iii T), xtitle(" ") xlabel(1(2)`=Tmax', angle(vertical) valuelabel) title("Com peso + log = 0") name(IQT_4iii, replace)
+  
+  * (iv) Informal:
+    twoway (line IQT_E4iv T) (line IQT_E4iv_alt T) (line IQT_H4iv T), xtitle(" ") xlabel(1(2)`=Tmax', angle(vertical) valuelabel) title("Com peso + log = 0") name(IQT_4iv, replace)
+ }  	  
+     
+ save "$dirdata/G_IQT_Controles.dta", replace
+}  
+
+   
+   
+ 
 log close
    
    
@@ -1699,7 +3825,8 @@ ok 10. IQT
    ok - Rendimento efetivo nulo
    ok - Rendimento e horas habituais
    ok - Com peso
-	  - Com controles
+   ok - Com controles
+	  - Estimação com pesos - rend. habitual, estratégia C
 	  - Por região
 	  - Por área de atividade
 */   
