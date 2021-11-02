@@ -1750,36 +1750,37 @@ log using "G_Controles.log", replace
  {
 *** ESTIMAÇÃO
   {
-   forvalues t = 1/`=Tmax' {     
+  * Dividiremos o loop nos trimestres (t) em grupos de 10, pois fazer muitas regressões em sequência acumula muita informação na memória, tornando o processo bastante lento.
+ 
+********************* 
+  * LOOP 1: t = 1:10
+   forvalues t = 1/10 {     
    * (i) Sem controles: 
     * Efetivo:
 	 regress logW_efet_C mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 if T==`t'
 	 predict RegLogE_1i_`t' if(T>=(`t'-1) & T<=(`t'+1))	 
 	 estimates save "$dirdata/G_Tabelas/G1i_E_Estimacao", append
-	 outreg2 using "$dirdata/G_Tabelas/G1_Tabela_Efetivo_`t'", replace ctitle("Sem controles") word label
-	 outreg2 using "$dirdata/G_Tabelas/G1_Tabela_Efetivo_`t'", replace ctitle("Sem controles") tex(pretty) label
+	 outreg2 using "$dirdata/G_Tabelas/G1_Tabela_Efetivo_`t'", replace ctitle("Sem controles") word tex(pretty) label
 	 
    * Habitual:
 	 regress logW_hab_C mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 if T==`t'
 	 predict RegLogH_1i_`t' if(T>=(`t'-1) & T<=(`t'+1))	 
 	 estimates save "$dirdata/G_Tabelas/G1i_H_Estimacao", append
-	 outreg2 using "$dirdata/G_Tabelas/G1_Tabela_Habitual_`t'", replace ctitle("Sem controles") word label
-	 outreg2 using "$dirdata/G_Tabelas/G1_Tabela_Habitual_`t'", replace ctitle("Sem controles") tex(pretty) label
+	 outreg2 using "$dirdata/G_Tabelas/G1_Tabela_Habitual_`t'", replace ctitle("Sem controles") word tex(pretty) label
+	
 	
    * (ii) Cor: 
     * Efetivo:
 	 regress logW_efet_C mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 Cor1 Cor2 Cor3 Cor4 Cor5 if T==`t'
 	 predict RegLogE_1ii_`t' if(T>=(`t'-1) & T<=(`t'+1))	 
 	 estimates save "$dirdata/G_Tabelas/G1ii_E_Estimacao", append
-	 outreg2 using "$dirdata/G_Tabelas/G1_Tabela_Efetivo_`t'", append ctitle("Cor") word label
-	 outreg2 using "$dirdata/G_Tabelas/G1_Tabela_Efetivo_`t'", append ctitle("Cor") tex(pretty) label
+	 outreg2 using "$dirdata/G_Tabelas/G1_Tabela_Efetivo_`t'", append ctitle("Cor") word  tex(pretty) label
 	 
    * Habitual:
 	 regress logW_hab_C mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 Cor1 Cor2 Cor3 Cor4 Cor5 if T==`t'
 	 predict RegLogH_1ii_`t' if(T>=(`t'-1) & T<=(`t'+1))	 
 	 estimates save "$dirdata/G_Tabelas/G1ii_H_Estimacao", append
-	 outreg2 using "$dirdata/G_Tabelas/G1_Tabela_Habitual_`t'", append ctitle("Cor") word label
-	 outreg2 using "$dirdata/G_Tabelas/G1_Tabela_Habitual_`t'", append ctitle("Cor") tex(pretty) label	
+	 outreg2 using "$dirdata/G_Tabelas/G1_Tabela_Habitual_`t'", append ctitle("Cor") word tex(pretty) label
 
 	 
    * (iii) Setor público: 
@@ -1787,15 +1788,13 @@ log using "G_Controles.log", replace
 	 regress logW_efet_C mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 Cor1 Cor2 Cor3 Cor4 Cor5 publico if T==`t'
 	 predict RegLogE_1iii_`t' if(T>=(`t'-1) & T<=(`t'+1))	 
 	 estimates save "$dirdata/G_Tabelas/G1iii_E_Estimacao", append
-	 outreg2 using "$dirdata/G_Tabelas/G1_Tabela_Efetivo_`t'", append ctitle("Setor Público") word label
-	 outreg2 using "$dirdata/G_Tabelas/G1_Tabela_Efetivo_`t'", append ctitle("Setor Público") tex(pretty) label
+	 outreg2 using "$dirdata/G_Tabelas/G1_Tabela_Efetivo_`t'", append ctitle("Setor Público") word tex(pretty) label
 	 
    * Habitual:
 	 regress logW_hab_C mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 Cor1 Cor2 Cor3 Cor4 Cor5 publico if T==`t'
 	 predict RegLogH_1iii_`t' if(T>=(`t'-1) & T<=(`t'+1))	 
 	 estimates save "$dirdata/G_Tabelas/G1iii_H_Estimacao", append
-	 outreg2 using "$dirdata/G_Tabelas/G1_Tabela_Habitual_`t'", append ctitle("Setor Público") word label
-	 outreg2 using "$dirdata/G_Tabelas/G1_Tabela_Habitual_`t'", append ctitle("Setor Público") tex(pretty) label		 
+	 outreg2 using "$dirdata/G_Tabelas/G1_Tabela_Habitual_`t'", append ctitle("Setor Público") word tex(pretty) label		 
 	  
 	  
    * (iv) Setor informal: 
@@ -1803,20 +1802,207 @@ log using "G_Controles.log", replace
 	 regress logW_efet_C mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 Cor1 Cor2 Cor3 Cor4 Cor5 publico informal if T==`t'
 	 predict RegLogE_1iv_`t' if(T>=(`t'-1) & T<=(`t'+1))	 
 	 estimates save "$dirdata/G_Tabelas/G1iv_E_Estimacao", append
-	 outreg2 using "$dirdata/G_Tabelas/G1_Tabela_Efetivo_`t'", append ctitle("Informal") word label
-	 outreg2 using "$dirdata/G_Tabelas/G1_Tabela_Efetivo_`t'", append ctitle("Informal") tex(pretty) label
+	 outreg2 using "$dirdata/G_Tabelas/G1_Tabela_Efetivo_`t'", append ctitle("Informal") word tex(pretty) label
 	 
    * Habitual:
 	 regress logW_hab_C mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 Cor1 Cor2 Cor3 Cor4 Cor5 publico informal if T==`t'
 	 predict RegLogH_1iv_`t' if(T>=(`t'-1) & T<=(`t'+1))	 
 	 estimates save "$dirdata/G_Tabelas/G1iv_H_Estimacao", append
-	 outreg2 using "$dirdata/G_Tabelas/G1_Tabela_Habitual_`t'", append ctitle("Informal") word label
-	 outreg2 using "$dirdata/G_Tabelas/G1_Tabela_Habitual_`t'", append ctitle("Informal") tex(pretty) label	
+	 outreg2 using "$dirdata/G_Tabelas/G1_Tabela_Habitual_`t'", append ctitle("Informal") word tex(pretty) label
   
     estimates clear
-    }
+   }
+   estimates clear	
+	
+*********************	
+  * LOOP 2: t = 11:20
+   forvalues t = 11/20 {     
+   * (i) Sem controles: 
+    * Efetivo:
+	 regress logW_efet_C mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 if T==`t'
+	 predict RegLogE_1i_`t' if(T>=(`t'-1) & T<=(`t'+1))	 
+	 estimates save "$dirdata/G_Tabelas/G1i_E_Estimacao", append
+	 outreg2 using "$dirdata/G_Tabelas/G1_Tabela_Efetivo_`t'", replace ctitle("Sem controles") word tex(pretty) label
+	 
+   * Habitual:
+	 regress logW_hab_C mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 if T==`t'
+	 predict RegLogH_1i_`t' if(T>=(`t'-1) & T<=(`t'+1))	 
+	 estimates save "$dirdata/G_Tabelas/G1i_H_Estimacao", append
+	 outreg2 using "$dirdata/G_Tabelas/G1_Tabela_Habitual_`t'", replace ctitle("Sem controles") word tex(pretty) label
+	
+	
+   * (ii) Cor: 
+    * Efetivo:
+	 regress logW_efet_C mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 Cor1 Cor2 Cor3 Cor4 Cor5 if T==`t'
+	 predict RegLogE_1ii_`t' if(T>=(`t'-1) & T<=(`t'+1))	 
+	 estimates save "$dirdata/G_Tabelas/G1ii_E_Estimacao", append
+	 outreg2 using "$dirdata/G_Tabelas/G1_Tabela_Efetivo_`t'", append ctitle("Cor") word  tex(pretty) label
+	 
+   * Habitual:
+	 regress logW_hab_C mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 Cor1 Cor2 Cor3 Cor4 Cor5 if T==`t'
+	 predict RegLogH_1ii_`t' if(T>=(`t'-1) & T<=(`t'+1))	 
+	 estimates save "$dirdata/G_Tabelas/G1ii_H_Estimacao", append
+	 outreg2 using "$dirdata/G_Tabelas/G1_Tabela_Habitual_`t'", append ctitle("Cor") word tex(pretty) label
+
+	 
+   * (iii) Setor público: 
+    * Efetivo:
+	 regress logW_efet_C mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 Cor1 Cor2 Cor3 Cor4 Cor5 publico if T==`t'
+	 predict RegLogE_1iii_`t' if(T>=(`t'-1) & T<=(`t'+1))	 
+	 estimates save "$dirdata/G_Tabelas/G1iii_E_Estimacao", append
+	 outreg2 using "$dirdata/G_Tabelas/G1_Tabela_Efetivo_`t'", append ctitle("Setor Público") word tex(pretty) label
+	 
+   * Habitual:
+	 regress logW_hab_C mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 Cor1 Cor2 Cor3 Cor4 Cor5 publico if T==`t'
+	 predict RegLogH_1iii_`t' if(T>=(`t'-1) & T<=(`t'+1))	 
+	 estimates save "$dirdata/G_Tabelas/G1iii_H_Estimacao", append
+	 outreg2 using "$dirdata/G_Tabelas/G1_Tabela_Habitual_`t'", append ctitle("Setor Público") word tex(pretty) label		 
+	  
+	  
+   * (iv) Setor informal: 
+    * Efetivo:
+	 regress logW_efet_C mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 Cor1 Cor2 Cor3 Cor4 Cor5 publico informal if T==`t'
+	 predict RegLogE_1iv_`t' if(T>=(`t'-1) & T<=(`t'+1))	 
+	 estimates save "$dirdata/G_Tabelas/G1iv_E_Estimacao", append
+	 outreg2 using "$dirdata/G_Tabelas/G1_Tabela_Efetivo_`t'", append ctitle("Informal") word tex(pretty) label
+	 
+   * Habitual:
+	 regress logW_hab_C mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 Cor1 Cor2 Cor3 Cor4 Cor5 publico informal if T==`t'
+	 predict RegLogH_1iv_`t' if(T>=(`t'-1) & T<=(`t'+1))	 
+	 estimates save "$dirdata/G_Tabelas/G1iv_H_Estimacao", append
+	 outreg2 using "$dirdata/G_Tabelas/G1_Tabela_Habitual_`t'", append ctitle("Informal") word tex(pretty) label
+  
+    estimates clear
+   }
+   estimates clear	
+	
+*********************	
+  * LOOP 3: t = 21:30
+   forvalues t = 21/30 {     
+   * (i) Sem controles: 
+    * Efetivo:
+	 regress logW_efet_C mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 if T==`t'
+	 predict RegLogE_1i_`t' if(T>=(`t'-1) & T<=(`t'+1))	 
+	 estimates save "$dirdata/G_Tabelas/G1i_E_Estimacao", append
+	 outreg2 using "$dirdata/G_Tabelas/G1_Tabela_Efetivo_`t'", replace ctitle("Sem controles") word tex(pretty) label
+	 
+   * Habitual:
+	 regress logW_hab_C mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 if T==`t'
+	 predict RegLogH_1i_`t' if(T>=(`t'-1) & T<=(`t'+1))	 
+	 estimates save "$dirdata/G_Tabelas/G1i_H_Estimacao", append
+	 outreg2 using "$dirdata/G_Tabelas/G1_Tabela_Habitual_`t'", replace ctitle("Sem controles") word tex(pretty) label
+	
+	
+   * (ii) Cor: 
+    * Efetivo:
+	 regress logW_efet_C mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 Cor1 Cor2 Cor3 Cor4 Cor5 if T==`t'
+	 predict RegLogE_1ii_`t' if(T>=(`t'-1) & T<=(`t'+1))	 
+	 estimates save "$dirdata/G_Tabelas/G1ii_E_Estimacao", append
+	 outreg2 using "$dirdata/G_Tabelas/G1_Tabela_Efetivo_`t'", append ctitle("Cor") word  tex(pretty) label
+	 
+   * Habitual:
+	 regress logW_hab_C mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 Cor1 Cor2 Cor3 Cor4 Cor5 if T==`t'
+	 predict RegLogH_1ii_`t' if(T>=(`t'-1) & T<=(`t'+1))	 
+	 estimates save "$dirdata/G_Tabelas/G1ii_H_Estimacao", append
+	 outreg2 using "$dirdata/G_Tabelas/G1_Tabela_Habitual_`t'", append ctitle("Cor") word tex(pretty) label
+
+	 
+   * (iii) Setor público: 
+    * Efetivo:
+	 regress logW_efet_C mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 Cor1 Cor2 Cor3 Cor4 Cor5 publico if T==`t'
+	 predict RegLogE_1iii_`t' if(T>=(`t'-1) & T<=(`t'+1))	 
+	 estimates save "$dirdata/G_Tabelas/G1iii_E_Estimacao", append
+	 outreg2 using "$dirdata/G_Tabelas/G1_Tabela_Efetivo_`t'", append ctitle("Setor Público") word tex(pretty) label
+	 
+   * Habitual:
+	 regress logW_hab_C mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 Cor1 Cor2 Cor3 Cor4 Cor5 publico if T==`t'
+	 predict RegLogH_1iii_`t' if(T>=(`t'-1) & T<=(`t'+1))	 
+	 estimates save "$dirdata/G_Tabelas/G1iii_H_Estimacao", append
+	 outreg2 using "$dirdata/G_Tabelas/G1_Tabela_Habitual_`t'", append ctitle("Setor Público") word tex(pretty) label		 
+	  
+	  
+   * (iv) Setor informal: 
+    * Efetivo:
+	 regress logW_efet_C mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 Cor1 Cor2 Cor3 Cor4 Cor5 publico informal if T==`t'
+	 predict RegLogE_1iv_`t' if(T>=(`t'-1) & T<=(`t'+1))	 
+	 estimates save "$dirdata/G_Tabelas/G1iv_E_Estimacao", append
+	 outreg2 using "$dirdata/G_Tabelas/G1_Tabela_Efetivo_`t'", append ctitle("Informal") word tex(pretty) label
+	 
+   * Habitual:
+	 regress logW_hab_C mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 Cor1 Cor2 Cor3 Cor4 Cor5 publico informal if T==`t'
+	 predict RegLogH_1iv_`t' if(T>=(`t'-1) & T<=(`t'+1))	 
+	 estimates save "$dirdata/G_Tabelas/G1iv_H_Estimacao", append
+	 outreg2 using "$dirdata/G_Tabelas/G1_Tabela_Habitual_`t'", append ctitle("Informal") word tex(pretty) label
+  
+    estimates clear
+   }
+   estimates clear	
+	
+*********************	
+  * LOOP 4: t = 31:Tmax
+   forvalues t = 31/`=Tmax' {     
+   * (i) Sem controles: 
+    * Efetivo:
+	 regress logW_efet_C mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 if T==`t'
+	 predict RegLogE_1i_`t' if(T>=(`t'-1) & T<=(`t'+1))	 
+	 estimates save "$dirdata/G_Tabelas/G1i_E_Estimacao", append
+	 outreg2 using "$dirdata/G_Tabelas/G1_Tabela_Efetivo_`t'", replace ctitle("Sem controles") word tex(pretty) label
+	 
+   * Habitual:
+	 regress logW_hab_C mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 if T==`t'
+	 predict RegLogH_1i_`t' if(T>=(`t'-1) & T<=(`t'+1))	 
+	 estimates save "$dirdata/G_Tabelas/G1i_H_Estimacao", append
+	 outreg2 using "$dirdata/G_Tabelas/G1_Tabela_Habitual_`t'", replace ctitle("Sem controles") word tex(pretty) label
+	
+	
+   * (ii) Cor: 
+    * Efetivo:
+	 regress logW_efet_C mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 Cor1 Cor2 Cor3 Cor4 Cor5 if T==`t'
+	 predict RegLogE_1ii_`t' if(T>=(`t'-1) & T<=(`t'+1))	 
+	 estimates save "$dirdata/G_Tabelas/G1ii_E_Estimacao", append
+	 outreg2 using "$dirdata/G_Tabelas/G1_Tabela_Efetivo_`t'", append ctitle("Cor") word  tex(pretty) label
+	 
+   * Habitual:
+	 regress logW_hab_C mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 Cor1 Cor2 Cor3 Cor4 Cor5 if T==`t'
+	 predict RegLogH_1ii_`t' if(T>=(`t'-1) & T<=(`t'+1))	 
+	 estimates save "$dirdata/G_Tabelas/G1ii_H_Estimacao", append
+	 outreg2 using "$dirdata/G_Tabelas/G1_Tabela_Habitual_`t'", append ctitle("Cor") word tex(pretty) label
+
+	 
+   * (iii) Setor público: 
+    * Efetivo:
+	 regress logW_efet_C mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 Cor1 Cor2 Cor3 Cor4 Cor5 publico if T==`t'
+	 predict RegLogE_1iii_`t' if(T>=(`t'-1) & T<=(`t'+1))	 
+	 estimates save "$dirdata/G_Tabelas/G1iii_E_Estimacao", append
+	 outreg2 using "$dirdata/G_Tabelas/G1_Tabela_Efetivo_`t'", append ctitle("Setor Público") word tex(pretty) label
+	 
+   * Habitual:
+	 regress logW_hab_C mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 Cor1 Cor2 Cor3 Cor4 Cor5 publico if T==`t'
+	 predict RegLogH_1iii_`t' if(T>=(`t'-1) & T<=(`t'+1))	 
+	 estimates save "$dirdata/G_Tabelas/G1iii_H_Estimacao", append
+	 outreg2 using "$dirdata/G_Tabelas/G1_Tabela_Habitual_`t'", append ctitle("Setor Público") word tex(pretty) label		 
+	  
+	  
+   * (iv) Setor informal: 
+    * Efetivo:
+	 regress logW_efet_C mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 Cor1 Cor2 Cor3 Cor4 Cor5 publico informal if T==`t'
+	 predict RegLogE_1iv_`t' if(T>=(`t'-1) & T<=(`t'+1))	 
+	 estimates save "$dirdata/G_Tabelas/G1iv_E_Estimacao", append
+	 outreg2 using "$dirdata/G_Tabelas/G1_Tabela_Efetivo_`t'", append ctitle("Informal") word tex(pretty) label
+	 
+   * Habitual:
+	 regress logW_hab_C mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 Cor1 Cor2 Cor3 Cor4 Cor5 publico informal if T==`t'
+	 predict RegLogH_1iv_`t' if(T>=(`t'-1) & T<=(`t'+1))	 
+	 estimates save "$dirdata/G_Tabelas/G1iv_H_Estimacao", append
+	 outreg2 using "$dirdata/G_Tabelas/G1_Tabela_Habitual_`t'", append ctitle("Informal") word tex(pretty) label
+  
+    estimates clear
+   }
+   estimates clear
+ 			
   } 
 
+  
 *** SALÁRIOS PREDITOS   
   { 
   * Exponencial + descartamos log para economizar memória
@@ -1941,7 +2127,11 @@ log using "G_Controles.log", replace
  {
 *** ESTIMAÇÃO
   {
-   forvalues t = 1/`=Tmax' {  
+  * Dividiremos o loop nos trimestres (t) em grupos de 10, pois fazer muitas regressões em sequência acumula muita informação na memória, tornando o processo bastante lento.
+ 
+********************* 
+  * LOOP 1: t = 1:10
+   forvalues t = 1/10 {  
    *OBS: estimações do retorno habitual são iguais ao caso G.1.1
    
    * (i) Sem controles: 
@@ -1949,8 +2139,7 @@ log using "G_Controles.log", replace
 	 regress logW_efet0_C mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 if T==`t'
 	 predict RegLogE_2i_`t' if(T>=(`t'-1) & T<=(`t'+1))	 
 	 estimates save "$dirdata/G_Tabelas/G2i_E_Estimacao", append
-	 outreg2 using "$dirdata/G_Tabelas/G2_Tabela_Efetivo_`t'", replace ctitle("Sem controles") word label
-	 outreg2 using "$dirdata/G_Tabelas/G2_Tabela_Efetivo_`t'", replace ctitle("Sem controles") tex(pretty) label
+	 outreg2 using "$dirdata/G_Tabelas/G2_Tabela_Efetivo_`t'", replace ctitle("Sem controles") word tex(pretty) label
 	
 	
    * (ii) Cor: 
@@ -1958,8 +2147,7 @@ log using "G_Controles.log", replace
 	 regress logW_efet0_C mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 Cor1 Cor2 Cor3 Cor4 Cor5 if T==`t'
 	 predict RegLogE_2ii_`t' if(T>=(`t'-1) & T<=(`t'+1))	 
 	 estimates save "$dirdata/G_Tabelas/G2ii_E_Estimacao", append
-	 outreg2 using "$dirdata/G_Tabelas/G2_Tabela_Efetivo_`t'", append ctitle("Cor") word label
-	 outreg2 using "$dirdata/G_Tabelas/G2_Tabela_Efetivo_`t'", append ctitle("Cor") tex(pretty) label
+	 outreg2 using "$dirdata/G_Tabelas/G2_Tabela_Efetivo_`t'", append ctitle("Cor") word tex(pretty) label
 
 	 
    * (iii) Setor público: 
@@ -1967,8 +2155,7 @@ log using "G_Controles.log", replace
 	 regress logW_efet0_C mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 Cor1 Cor2 Cor3 Cor4 Cor5 publico if T==`t'
 	 predict RegLogE_2iii_`t' if(T>=(`t'-1) & T<=(`t'+1))	 
 	 estimates save "$dirdata/G_Tabelas/G2iii_E_Estimacao", append
-	 outreg2 using "$dirdata/G_Tabelas/G2_Tabela_Efetivo_`t'", append ctitle("Setor Público") word label
-	 outreg2 using "$dirdata/G_Tabelas/G2_Tabela_Efetivo_`t'", append ctitle("Setor Público") tex(pretty) label
+	 outreg2 using "$dirdata/G_Tabelas/G2_Tabela_Efetivo_`t'", append ctitle("Setor Público") word tex(pretty) label
 	 
 	 
    * (iv) Setor informal: 
@@ -1976,11 +2163,134 @@ log using "G_Controles.log", replace
 	 regress logW_efet0_C mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 Cor1 Cor2 Cor3 Cor4 Cor5 publico informal if T==`t'
 	 predict RegLogE_2iv_`t' if(T>=(`t'-1) & T<=(`t'+1))	 
 	 estimates save "$dirdata/G_Tabelas/G2iv_E_Estimacao", append
-	 outreg2 using "$dirdata/G_Tabelas/G2_Tabela_Efetivo_`t'", append ctitle("Informal") word label
-	 outreg2 using "$dirdata/G_Tabelas/G2_Tabela_Efetivo_`t'", append ctitle("Informal") tex(pretty) label
+	 outreg2 using "$dirdata/G_Tabelas/G2_Tabela_Efetivo_`t'", append ctitle("Informal") word tex(pretty) label
     
 	estimates clear
-    }
+   }
+   estimates clear
+   
+ 
+********************* 
+  * LOOP 2: t = 11:20
+   forvalues t = 11/20 {  
+   *OBS: estimações do retorno habitual são iguais ao caso G.1.1
+   
+   * (i) Sem controles: 
+    * Efetivo:
+	 regress logW_efet0_C mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 if T==`t'
+	 predict RegLogE_2i_`t' if(T>=(`t'-1) & T<=(`t'+1))	 
+	 estimates save "$dirdata/G_Tabelas/G2i_E_Estimacao", append
+	 outreg2 using "$dirdata/G_Tabelas/G2_Tabela_Efetivo_`t'", replace ctitle("Sem controles") word tex(pretty) label
+	
+	
+   * (ii) Cor: 
+    * Efetivo:
+	 regress logW_efet0_C mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 Cor1 Cor2 Cor3 Cor4 Cor5 if T==`t'
+	 predict RegLogE_2ii_`t' if(T>=(`t'-1) & T<=(`t'+1))	 
+	 estimates save "$dirdata/G_Tabelas/G2ii_E_Estimacao", append
+	 outreg2 using "$dirdata/G_Tabelas/G2_Tabela_Efetivo_`t'", append ctitle("Cor") word tex(pretty) label
+
+	 
+   * (iii) Setor público: 
+    * Efetivo:
+	 regress logW_efet0_C mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 Cor1 Cor2 Cor3 Cor4 Cor5 publico if T==`t'
+	 predict RegLogE_2iii_`t' if(T>=(`t'-1) & T<=(`t'+1))	 
+	 estimates save "$dirdata/G_Tabelas/G2iii_E_Estimacao", append
+	 outreg2 using "$dirdata/G_Tabelas/G2_Tabela_Efetivo_`t'", append ctitle("Setor Público") word tex(pretty) label
+	 
+	 
+   * (iv) Setor informal: 
+    * Efetivo:
+	 regress logW_efet0_C mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 Cor1 Cor2 Cor3 Cor4 Cor5 publico informal if T==`t'
+	 predict RegLogE_2iv_`t' if(T>=(`t'-1) & T<=(`t'+1))	 
+	 estimates save "$dirdata/G_Tabelas/G2iv_E_Estimacao", append
+	 outreg2 using "$dirdata/G_Tabelas/G2_Tabela_Efetivo_`t'", append ctitle("Informal") word tex(pretty) label
+    
+	estimates clear
+   }
+   estimates clear
+
+   
+********************* 
+  * LOOP 3: t = 21:30
+   forvalues t = 21/30 {  
+   *OBS: estimações do retorno habitual são iguais ao caso G.1.1
+   
+   * (i) Sem controles: 
+    * Efetivo:
+	 regress logW_efet0_C mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 if T==`t'
+	 predict RegLogE_2i_`t' if(T>=(`t'-1) & T<=(`t'+1))	 
+	 estimates save "$dirdata/G_Tabelas/G2i_E_Estimacao", append
+	 outreg2 using "$dirdata/G_Tabelas/G2_Tabela_Efetivo_`t'", replace ctitle("Sem controles") word tex(pretty) label
+	
+	
+   * (ii) Cor: 
+    * Efetivo:
+	 regress logW_efet0_C mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 Cor1 Cor2 Cor3 Cor4 Cor5 if T==`t'
+	 predict RegLogE_2ii_`t' if(T>=(`t'-1) & T<=(`t'+1))	 
+	 estimates save "$dirdata/G_Tabelas/G2ii_E_Estimacao", append
+	 outreg2 using "$dirdata/G_Tabelas/G2_Tabela_Efetivo_`t'", append ctitle("Cor") word tex(pretty) label
+
+	 
+   * (iii) Setor público: 
+    * Efetivo:
+	 regress logW_efet0_C mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 Cor1 Cor2 Cor3 Cor4 Cor5 publico if T==`t'
+	 predict RegLogE_2iii_`t' if(T>=(`t'-1) & T<=(`t'+1))	 
+	 estimates save "$dirdata/G_Tabelas/G2iii_E_Estimacao", append
+	 outreg2 using "$dirdata/G_Tabelas/G2_Tabela_Efetivo_`t'", append ctitle("Setor Público") word tex(pretty) label
+	 
+	 
+   * (iv) Setor informal: 
+    * Efetivo:
+	 regress logW_efet0_C mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 Cor1 Cor2 Cor3 Cor4 Cor5 publico informal if T==`t'
+	 predict RegLogE_2iv_`t' if(T>=(`t'-1) & T<=(`t'+1))	 
+	 estimates save "$dirdata/G_Tabelas/G2iv_E_Estimacao", append
+	 outreg2 using "$dirdata/G_Tabelas/G2_Tabela_Efetivo_`t'", append ctitle("Informal") word tex(pretty) label
+    
+	estimates clear
+   }
+   estimates clear
+   
+
+********************* 
+  * LOOP 4: t = 31:Tmax
+   forvalues t = 31/`=Tmax' {  
+   *OBS: estimações do retorno habitual são iguais ao caso G.1.1
+   
+   * (i) Sem controles: 
+    * Efetivo:
+	 regress logW_efet0_C mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 if T==`t'
+	 predict RegLogE_2i_`t' if(T>=(`t'-1) & T<=(`t'+1))	 
+	 estimates save "$dirdata/G_Tabelas/G2i_E_Estimacao", append
+	 outreg2 using "$dirdata/G_Tabelas/G2_Tabela_Efetivo_`t'", replace ctitle("Sem controles") word tex(pretty) label
+	
+	
+   * (ii) Cor: 
+    * Efetivo:
+	 regress logW_efet0_C mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 Cor1 Cor2 Cor3 Cor4 Cor5 if T==`t'
+	 predict RegLogE_2ii_`t' if(T>=(`t'-1) & T<=(`t'+1))	 
+	 estimates save "$dirdata/G_Tabelas/G2ii_E_Estimacao", append
+	 outreg2 using "$dirdata/G_Tabelas/G2_Tabela_Efetivo_`t'", append ctitle("Cor") word tex(pretty) label
+
+	 
+   * (iii) Setor público: 
+    * Efetivo:
+	 regress logW_efet0_C mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 Cor1 Cor2 Cor3 Cor4 Cor5 publico if T==`t'
+	 predict RegLogE_2iii_`t' if(T>=(`t'-1) & T<=(`t'+1))	 
+	 estimates save "$dirdata/G_Tabelas/G2iii_E_Estimacao", append
+	 outreg2 using "$dirdata/G_Tabelas/G2_Tabela_Efetivo_`t'", append ctitle("Setor Público") word tex(pretty) label
+	 
+	 
+   * (iv) Setor informal: 
+    * Efetivo:
+	 regress logW_efet0_C mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 Cor1 Cor2 Cor3 Cor4 Cor5 publico informal if T==`t'
+	 predict RegLogE_2iv_`t' if(T>=(`t'-1) & T<=(`t'+1))	 
+	 estimates save "$dirdata/G_Tabelas/G2iv_E_Estimacao", append
+	 outreg2 using "$dirdata/G_Tabelas/G2_Tabela_Efetivo_`t'", append ctitle("Informal") word tex(pretty) label
+    
+	estimates clear
+   }
+   estimates clear
   } 
 
 *** SALÁRIOS PREDITOS   
@@ -2064,36 +2374,37 @@ log using "G_Controles.log", replace
  {
 *** ESTIMAÇÃO
   {
-   forvalues t = 1/`=Tmax' {     
+  * Dividiremos o loop nos trimestres (t) em grupos de 10, pois fazer muitas regressões em sequência acumula muita informação na memória, tornando o processo bastante lento.
+ 
+********************* 
+  * LOOP 1: t = 1:10
+   forvalues t = 1/10 {     
    * (i) Sem controles: 
     * Efetivo:
 	 regress logW_efet_C mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 if T==`t' [iw = Peso]
 	 predict RegLogE_3i_`t' if(T>=(`t'-1) & T<=(`t'+1))	 
 	 estimates save "$dirdata/G_Tabelas/G3i_E_Estimacao", append
-	 outreg2 using "$dirdata/G_Tabelas/G3_Tabela_Efetivo_`t'", replace ctitle("Sem controles") word label
-	 outreg2 using "$dirdata/G_Tabelas/G3_Tabela_Efetivo_`t'", replace ctitle("Sem controles") tex(pretty) label
+	 outreg2 using "$dirdata/G_Tabelas/G3_Tabela_Efetivo_`t'", replace ctitle("Sem controles") word tex(pretty) label
 	 
    * Habitual:
 	 regress logW_hab_C mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 if T==`t' [iw = Peso]
 	 predict RegLogH_3i_`t' if(T>=(`t'-1) & T<=(`t'+1)) 	 
 	 estimates save "$dirdata/G_Tabelas/G3i_H_Estimacao", append
-	 outreg2 using "$dirdata/G_Tabelas/G3_Tabela_Habitual_`t'", replace ctitle("Sem controles") word label
-	 outreg2 using "$dirdata/G_Tabelas/G3_Tabela_Habitual_`t'", replace ctitle("Sem controles") tex(pretty) label
+	 outreg2 using "$dirdata/G_Tabelas/G3_Tabela_Habitual_`t'", replace ctitle("Sem controles") word tex(pretty) label
+	
 	
    * (ii) Cor: 
     * Efetivo:
 	 regress logW_efet_C mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 Cor1 Cor2 Cor3 Cor4 Cor5 if T==`t' [iw = Peso]
 	 predict RegLogE_3ii_`t' if(T>=(`t'-1) & T<=(`t'+1))	 
 	 estimates save "$dirdata/G_Tabelas/G3ii_E_Estimacao", append
-	 outreg2 using "$dirdata/G_Tabelas/G3_Tabela_Efetivo_`t'", append ctitle("Cor") word label
-	 outreg2 using "$dirdata/G_Tabelas/G3_Tabela_Efetivo_`t'", append ctitle("Cor") tex(pretty) label
+	 outreg2 using "$dirdata/G_Tabelas/G3_Tabela_Efetivo_`t'", append ctitle("Cor") word tex(pretty) label
 	 
    * Habitual:
 	 regress logW_hab_C mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 Cor1 Cor2 Cor3 Cor4 Cor5 if T==`t' [iw = Peso]
 	 predict RegLogH_3ii_`t' if(T>=(`t'-1) & T<=(`t'+1))	 
 	 estimates save "$dirdata/G_Tabelas/G3ii_H_Estimacao", append
-	 outreg2 using "$dirdata/G_Tabelas/G3_Tabela_Habitual_`t'", append ctitle("Cor") word label
-	 outreg2 using "$dirdata/G_Tabelas/G3_Tabela_Habitual_`t'", append ctitle("Cor") tex(pretty) label	
+	 outreg2 using "$dirdata/G_Tabelas/G3_Tabela_Habitual_`t'", append ctitle("Cor") word tex(pretty) label	
 
 	 
    * (iii) Setor público: 
@@ -2101,34 +2412,217 @@ log using "G_Controles.log", replace
 	 regress logW_efet_C mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 Cor1 Cor2 Cor3 Cor4 Cor5 publico if T==`t' [iw = Peso]
 	 predict RegLogE_3iii_`t' if(T>=(`t'-1) & T<=(`t'+1))	 
 	 estimates save "$dirdata/G_Tabelas/G3iii_E_Estimacao", append
-	 outreg2 using "$dirdata/G_Tabelas/G3_Tabela_Efetivo_`t'", append ctitle("Setor Público") word label
-	 outreg2 using "$dirdata/G_Tabelas/G3_Tabela_Efetivo_`t'", append ctitle("Setor Público") tex(pretty) label
+	 outreg2 using "$dirdata/G_Tabelas/G3_Tabela_Efetivo_`t'", append ctitle("Setor Público") word tex(pretty) label
 	 
    * Habitual:
 	 regress logW_hab_C mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 Cor1 Cor2 Cor3 Cor4 Cor5 publico if T==`t' [iw = Peso]
 	 predict RegLogH_3iii_`t' if(T>=(`t'-1) & T<=(`t'+1))	 
 	 estimates save "$dirdata/G_Tabelas/G3iii_H_Estimacao", append
-	 outreg2 using "$dirdata/G_Tabelas/G3_Tabela_Habitual_`t'", append ctitle("Setor Público") word label
-	 outreg2 using "$dirdata/G_Tabelas/G3_Tabela_Habitual_`t'", append ctitle("Setor Público") tex(pretty) label		 
-	  
-	  
+	 outreg2 using "$dirdata/G_Tabelas/G3_Tabela_Habitual_`t'", append ctitle("Setor Público") word tex(pretty) label
+		 
+	  	  
    * (iv) Setor informal: 
     * Efetivo:
 	 regress logW_efet_C mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 Cor1 Cor2 Cor3 Cor4 Cor5 publico informal if T==`t' [iw = Peso]
 	 predict RegLogE_3iv_`t' if(T>=(`t'-1) & T<=(`t'+1))	 
 	 estimates save "$dirdata/G_Tabelas/G3iv_E_Estimacao", append
-	 outreg2 using "$dirdata/G_Tabelas/G3_Tabela_Efetivo_`t'", append ctitle("Informal") word label
-	 outreg2 using "$dirdata/G_Tabelas/G3_Tabela_Efetivo_`t'", append ctitle("Informal") tex(pretty) label
+	 outreg2 using "$dirdata/G_Tabelas/G3_Tabela_Efetivo_`t'", append ctitle("Informal") word tex(pretty) label
 	 
    * Habitual:
 	 regress logW_hab_C mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 Cor1 Cor2 Cor3 Cor4 Cor5 publico informal if T==`t' [iw = Peso]
 	 predict RegLogH_3iv_`t' if(T>=(`t'-1) & T<=(`t'+1))	 
 	 estimates save "$dirdata/G_Tabelas/G3iv_H_Estimacao", append
-	 outreg2 using "$dirdata/G_Tabelas/G3_Tabela_Habitual_`t'", append ctitle("Informal") word label
-	 outreg2 using "$dirdata/G_Tabelas/G3_Tabela_Habitual_`t'", append ctitle("Informal") tex(pretty) label	
+	 outreg2 using "$dirdata/G_Tabelas/G3_Tabela_Habitual_`t'", append ctitle("Informal") word tex(pretty) label
 	 
 	estimates clear 
-    }
+   }
+   estimates clear
+   
+********************* 
+  * LOOP 2: t = 11:20
+   forvalues t = 11/20 {     
+   * (i) Sem controles: 
+    * Efetivo:
+	 regress logW_efet_C mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 if T==`t' [iw = Peso]
+	 predict RegLogE_3i_`t' if(T>=(`t'-1) & T<=(`t'+1))	 
+	 estimates save "$dirdata/G_Tabelas/G3i_E_Estimacao", append
+	 outreg2 using "$dirdata/G_Tabelas/G3_Tabela_Efetivo_`t'", replace ctitle("Sem controles") word tex(pretty) label
+	 
+   * Habitual:
+	 regress logW_hab_C mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 if T==`t' [iw = Peso]
+	 predict RegLogH_3i_`t' if(T>=(`t'-1) & T<=(`t'+1)) 	 
+	 estimates save "$dirdata/G_Tabelas/G3i_H_Estimacao", append
+	 outreg2 using "$dirdata/G_Tabelas/G3_Tabela_Habitual_`t'", replace ctitle("Sem controles") word tex(pretty) label
+	
+	
+   * (ii) Cor: 
+    * Efetivo:
+	 regress logW_efet_C mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 Cor1 Cor2 Cor3 Cor4 Cor5 if T==`t' [iw = Peso]
+	 predict RegLogE_3ii_`t' if(T>=(`t'-1) & T<=(`t'+1))	 
+	 estimates save "$dirdata/G_Tabelas/G3ii_E_Estimacao", append
+	 outreg2 using "$dirdata/G_Tabelas/G3_Tabela_Efetivo_`t'", append ctitle("Cor") word tex(pretty) label
+	 
+   * Habitual:
+	 regress logW_hab_C mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 Cor1 Cor2 Cor3 Cor4 Cor5 if T==`t' [iw = Peso]
+	 predict RegLogH_3ii_`t' if(T>=(`t'-1) & T<=(`t'+1))	 
+	 estimates save "$dirdata/G_Tabelas/G3ii_H_Estimacao", append
+	 outreg2 using "$dirdata/G_Tabelas/G3_Tabela_Habitual_`t'", append ctitle("Cor") word tex(pretty) label	
+
+	 
+   * (iii) Setor público: 
+    * Efetivo:
+	 regress logW_efet_C mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 Cor1 Cor2 Cor3 Cor4 Cor5 publico if T==`t' [iw = Peso]
+	 predict RegLogE_3iii_`t' if(T>=(`t'-1) & T<=(`t'+1))	 
+	 estimates save "$dirdata/G_Tabelas/G3iii_E_Estimacao", append
+	 outreg2 using "$dirdata/G_Tabelas/G3_Tabela_Efetivo_`t'", append ctitle("Setor Público") word tex(pretty) label
+	 
+   * Habitual:
+	 regress logW_hab_C mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 Cor1 Cor2 Cor3 Cor4 Cor5 publico if T==`t' [iw = Peso]
+	 predict RegLogH_3iii_`t' if(T>=(`t'-1) & T<=(`t'+1))	 
+	 estimates save "$dirdata/G_Tabelas/G3iii_H_Estimacao", append
+	 outreg2 using "$dirdata/G_Tabelas/G3_Tabela_Habitual_`t'", append ctitle("Setor Público") word tex(pretty) label
+		 
+	  	  
+   * (iv) Setor informal: 
+    * Efetivo:
+	 regress logW_efet_C mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 Cor1 Cor2 Cor3 Cor4 Cor5 publico informal if T==`t' [iw = Peso]
+	 predict RegLogE_3iv_`t' if(T>=(`t'-1) & T<=(`t'+1))	 
+	 estimates save "$dirdata/G_Tabelas/G3iv_E_Estimacao", append
+	 outreg2 using "$dirdata/G_Tabelas/G3_Tabela_Efetivo_`t'", append ctitle("Informal") word tex(pretty) label
+	 
+   * Habitual:
+	 regress logW_hab_C mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 Cor1 Cor2 Cor3 Cor4 Cor5 publico informal if T==`t' [iw = Peso]
+	 predict RegLogH_3iv_`t' if(T>=(`t'-1) & T<=(`t'+1))	 
+	 estimates save "$dirdata/G_Tabelas/G3iv_H_Estimacao", append
+	 outreg2 using "$dirdata/G_Tabelas/G3_Tabela_Habitual_`t'", append ctitle("Informal") word tex(pretty) label
+	 
+	estimates clear 
+   }
+   estimates clear
+   
+********************* 
+  * LOOP 3: t = 21:30
+   forvalues t = 21/30 {     
+   * (i) Sem controles: 
+    * Efetivo:
+	 regress logW_efet_C mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 if T==`t' [iw = Peso]
+	 predict RegLogE_3i_`t' if(T>=(`t'-1) & T<=(`t'+1))	 
+	 estimates save "$dirdata/G_Tabelas/G3i_E_Estimacao", append
+	 outreg2 using "$dirdata/G_Tabelas/G3_Tabela_Efetivo_`t'", replace ctitle("Sem controles") word tex(pretty) label
+	 
+   * Habitual:
+	 regress logW_hab_C mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 if T==`t' [iw = Peso]
+	 predict RegLogH_3i_`t' if(T>=(`t'-1) & T<=(`t'+1)) 	 
+	 estimates save "$dirdata/G_Tabelas/G3i_H_Estimacao", append
+	 outreg2 using "$dirdata/G_Tabelas/G3_Tabela_Habitual_`t'", replace ctitle("Sem controles") word tex(pretty) label
+	
+	
+   * (ii) Cor: 
+    * Efetivo:
+	 regress logW_efet_C mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 Cor1 Cor2 Cor3 Cor4 Cor5 if T==`t' [iw = Peso]
+	 predict RegLogE_3ii_`t' if(T>=(`t'-1) & T<=(`t'+1))	 
+	 estimates save "$dirdata/G_Tabelas/G3ii_E_Estimacao", append
+	 outreg2 using "$dirdata/G_Tabelas/G3_Tabela_Efetivo_`t'", append ctitle("Cor") word tex(pretty) label
+	 
+   * Habitual:
+	 regress logW_hab_C mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 Cor1 Cor2 Cor3 Cor4 Cor5 if T==`t' [iw = Peso]
+	 predict RegLogH_3ii_`t' if(T>=(`t'-1) & T<=(`t'+1))	 
+	 estimates save "$dirdata/G_Tabelas/G3ii_H_Estimacao", append
+	 outreg2 using "$dirdata/G_Tabelas/G3_Tabela_Habitual_`t'", append ctitle("Cor") word tex(pretty) label	
+
+	 
+   * (iii) Setor público: 
+    * Efetivo:
+	 regress logW_efet_C mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 Cor1 Cor2 Cor3 Cor4 Cor5 publico if T==`t' [iw = Peso]
+	 predict RegLogE_3iii_`t' if(T>=(`t'-1) & T<=(`t'+1))	 
+	 estimates save "$dirdata/G_Tabelas/G3iii_E_Estimacao", append
+	 outreg2 using "$dirdata/G_Tabelas/G3_Tabela_Efetivo_`t'", append ctitle("Setor Público") word tex(pretty) label
+	 
+   * Habitual:
+	 regress logW_hab_C mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 Cor1 Cor2 Cor3 Cor4 Cor5 publico if T==`t' [iw = Peso]
+	 predict RegLogH_3iii_`t' if(T>=(`t'-1) & T<=(`t'+1))	 
+	 estimates save "$dirdata/G_Tabelas/G3iii_H_Estimacao", append
+	 outreg2 using "$dirdata/G_Tabelas/G3_Tabela_Habitual_`t'", append ctitle("Setor Público") word tex(pretty) label
+		 
+	  	  
+   * (iv) Setor informal: 
+    * Efetivo:
+	 regress logW_efet_C mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 Cor1 Cor2 Cor3 Cor4 Cor5 publico informal if T==`t' [iw = Peso]
+	 predict RegLogE_3iv_`t' if(T>=(`t'-1) & T<=(`t'+1))	 
+	 estimates save "$dirdata/G_Tabelas/G3iv_E_Estimacao", append
+	 outreg2 using "$dirdata/G_Tabelas/G3_Tabela_Efetivo_`t'", append ctitle("Informal") word tex(pretty) label
+	 
+   * Habitual:
+	 regress logW_hab_C mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 Cor1 Cor2 Cor3 Cor4 Cor5 publico informal if T==`t' [iw = Peso]
+	 predict RegLogH_3iv_`t' if(T>=(`t'-1) & T<=(`t'+1))	 
+	 estimates save "$dirdata/G_Tabelas/G3iv_H_Estimacao", append
+	 outreg2 using "$dirdata/G_Tabelas/G3_Tabela_Habitual_`t'", append ctitle("Informal") word tex(pretty) label
+	 
+	estimates clear 
+   }
+   estimates clear
+    	
+********************* 
+  * LOOP 4: t = 31:Tmax
+   forvalues t = 31/`=Tmax' {     
+   * (i) Sem controles: 
+    * Efetivo:
+	 regress logW_efet_C mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 if T==`t' [iw = Peso]
+	 predict RegLogE_3i_`t' if(T>=(`t'-1) & T<=(`t'+1))	 
+	 estimates save "$dirdata/G_Tabelas/G3i_E_Estimacao", append
+	 outreg2 using "$dirdata/G_Tabelas/G3_Tabela_Efetivo_`t'", replace ctitle("Sem controles") word tex(pretty) label
+	 
+   * Habitual:
+	 regress logW_hab_C mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 if T==`t' [iw = Peso]
+	 predict RegLogH_3i_`t' if(T>=(`t'-1) & T<=(`t'+1)) 	 
+	 estimates save "$dirdata/G_Tabelas/G3i_H_Estimacao", append
+	 outreg2 using "$dirdata/G_Tabelas/G3_Tabela_Habitual_`t'", replace ctitle("Sem controles") word tex(pretty) label
+	
+	
+   * (ii) Cor: 
+    * Efetivo:
+	 regress logW_efet_C mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 Cor1 Cor2 Cor3 Cor4 Cor5 if T==`t' [iw = Peso]
+	 predict RegLogE_3ii_`t' if(T>=(`t'-1) & T<=(`t'+1))	 
+	 estimates save "$dirdata/G_Tabelas/G3ii_E_Estimacao", append
+	 outreg2 using "$dirdata/G_Tabelas/G3_Tabela_Efetivo_`t'", append ctitle("Cor") word tex(pretty) label
+	 
+   * Habitual:
+	 regress logW_hab_C mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 Cor1 Cor2 Cor3 Cor4 Cor5 if T==`t' [iw = Peso]
+	 predict RegLogH_3ii_`t' if(T>=(`t'-1) & T<=(`t'+1))	 
+	 estimates save "$dirdata/G_Tabelas/G3ii_H_Estimacao", append
+	 outreg2 using "$dirdata/G_Tabelas/G3_Tabela_Habitual_`t'", append ctitle("Cor") word tex(pretty) label	
+
+	 
+   * (iii) Setor público: 
+    * Efetivo:
+	 regress logW_efet_C mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 Cor1 Cor2 Cor3 Cor4 Cor5 publico if T==`t' [iw = Peso]
+	 predict RegLogE_3iii_`t' if(T>=(`t'-1) & T<=(`t'+1))	 
+	 estimates save "$dirdata/G_Tabelas/G3iii_E_Estimacao", append
+	 outreg2 using "$dirdata/G_Tabelas/G3_Tabela_Efetivo_`t'", append ctitle("Setor Público") word tex(pretty) label
+	 
+   * Habitual:
+	 regress logW_hab_C mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 Cor1 Cor2 Cor3 Cor4 Cor5 publico if T==`t' [iw = Peso]
+	 predict RegLogH_3iii_`t' if(T>=(`t'-1) & T<=(`t'+1))	 
+	 estimates save "$dirdata/G_Tabelas/G3iii_H_Estimacao", append
+	 outreg2 using "$dirdata/G_Tabelas/G3_Tabela_Habitual_`t'", append ctitle("Setor Público") word tex(pretty) label
+		 
+	  	  
+   * (iv) Setor informal: 
+    * Efetivo:
+	 regress logW_efet_C mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 Cor1 Cor2 Cor3 Cor4 Cor5 publico informal if T==`t' [iw = Peso]
+	 predict RegLogE_3iv_`t' if(T>=(`t'-1) & T<=(`t'+1))	 
+	 estimates save "$dirdata/G_Tabelas/G3iv_E_Estimacao", append
+	 outreg2 using "$dirdata/G_Tabelas/G3_Tabela_Efetivo_`t'", append ctitle("Informal") word tex(pretty) label
+	 
+   * Habitual:
+	 regress logW_hab_C mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 Cor1 Cor2 Cor3 Cor4 Cor5 publico informal if T==`t' [iw = Peso]
+	 predict RegLogH_3iv_`t' if(T>=(`t'-1) & T<=(`t'+1))	 
+	 estimates save "$dirdata/G_Tabelas/G3iv_H_Estimacao", append
+	 outreg2 using "$dirdata/G_Tabelas/G3_Tabela_Habitual_`t'", append ctitle("Informal") word tex(pretty) label
+	 
+	estimates clear 
+   }
+   estimates clear
   } 
 
 *** SALÁRIOS PREDITOS   
@@ -2255,7 +2749,11 @@ log using "G_Controles.log", replace
 {
 *** ESTIMAÇÃO
   {
-   forvalues t = 1/`=Tmax' {  
+  * Dividiremos o loop nos trimestres (t) em grupos de 10, pois fazer muitas regressões em sequência acumula muita informação na memória, tornando o processo bastante lento.
+ 
+********************* 
+  * LOOP 1: t = 1:10  
+   forvalues t = 1/10 {  
    *OBS: estimações do retorno habitual são iguais ao caso G.1.3
    
    * (i) Sem controles: 
@@ -2263,8 +2761,7 @@ log using "G_Controles.log", replace
 	 regress logW_efet0_C mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 if T==`t' [iw = Peso]
 	 predict RegLogE_4i_`t' if(T>=(`t'-1) & T<=(`t'+1))	 
 	 estimates save "$dirdata/G_Tabelas/G4i_E_Estimacao", append
-	 outreg2 using "$dirdata/G_Tabelas/G4_Tabela_Efetivo_`t'", replace ctitle("Sem controles") word label
-	 outreg2 using "$dirdata/G_Tabelas/G4_Tabela_Efetivo_`t'", replace ctitle("Sem controles") tex(pretty) label
+	 outreg2 using "$dirdata/G_Tabelas/G4_Tabela_Efetivo_`t'", replace ctitle("Sem controles") word tex(pretty) label
 	
 	
    * (ii) Cor: 
@@ -2272,8 +2769,7 @@ log using "G_Controles.log", replace
 	 regress logW_efet0_C mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 Cor1 Cor2 Cor3 Cor4 Cor5 if T==`t' [iw = Peso]
 	 predict RegLogE_4ii_`t' if(T>=(`t'-1) & T<=(`t'+1))	 
 	 estimates save "$dirdata/G_Tabelas/G4ii_E_Estimacao", append
-	 outreg2 using "$dirdata/G_Tabelas/G4_Tabela_Efetivo_`t'", append ctitle("Cor") word label
-	 outreg2 using "$dirdata/G_Tabelas/G4_Tabela_Efetivo_`t'", append ctitle("Cor") tex(pretty) label
+	 outreg2 using "$dirdata/G_Tabelas/G4_Tabela_Efetivo_`t'", append ctitle("Cor") word tex(pretty) label
 
 	 
    * (iii) Setor público: 
@@ -2281,8 +2777,7 @@ log using "G_Controles.log", replace
 	 regress logW_efet0_C mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 Cor1 Cor2 Cor3 Cor4 Cor5 publico if T==`t' [iw = Peso]
 	 predict RegLogE_4iii_`t' if(T>=(`t'-1) & T<=(`t'+1))	 
 	 estimates save "$dirdata/G_Tabelas/G4iii_E_Estimacao", append
-	 outreg2 using "$dirdata/G_Tabelas/G4_Tabela_Efetivo_`t'", append ctitle("Setor Público") word label
-	 outreg2 using "$dirdata/G_Tabelas/G4_Tabela_Efetivo_`t'", append ctitle("Setor Público") tex(pretty) label
+	 outreg2 using "$dirdata/G_Tabelas/G4_Tabela_Efetivo_`t'", append ctitle("Setor Público") word tex(pretty) label
 	 
 	 
    * (iv) Setor informal: 
@@ -2290,11 +2785,132 @@ log using "G_Controles.log", replace
 	 regress logW_efet0_C mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 Cor1 Cor2 Cor3 Cor4 Cor5 publico informal if T==`t' [iw = Peso]
 	 predict RegLogE_4iv_`t' if(T>=(`t'-1) & T<=(`t'+1))	 
 	 estimates save "$dirdata/G_Tabelas/G4iv_E_Estimacao", append
-	 outreg2 using "$dirdata/G_Tabelas/G4_Tabela_Efetivo_`t'", append ctitle("Informal") word label
-	 outreg2 using "$dirdata/G_Tabelas/G4_Tabela_Efetivo_`t'", append ctitle("Informal") tex(pretty) label
+	 outreg2 using "$dirdata/G_Tabelas/G4_Tabela_Efetivo_`t'", append ctitle("Informal") word tex(pretty) label
     
 	estimates clear
-	}
+   }
+   estimates clear
+   
+********************* 
+  * LOOP 2: t = 11:20  
+   forvalues t = 11/20 {  
+   *OBS: estimações do retorno habitual são iguais ao caso G.1.3
+   
+   * (i) Sem controles: 
+    * Efetivo:
+	 regress logW_efet0_C mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 if T==`t' [iw = Peso]
+	 predict RegLogE_4i_`t' if(T>=(`t'-1) & T<=(`t'+1))	 
+	 estimates save "$dirdata/G_Tabelas/G4i_E_Estimacao", append
+	 outreg2 using "$dirdata/G_Tabelas/G4_Tabela_Efetivo_`t'", replace ctitle("Sem controles") word tex(pretty) label
+	
+	
+   * (ii) Cor: 
+    * Efetivo:
+	 regress logW_efet0_C mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 Cor1 Cor2 Cor3 Cor4 Cor5 if T==`t' [iw = Peso]
+	 predict RegLogE_4ii_`t' if(T>=(`t'-1) & T<=(`t'+1))	 
+	 estimates save "$dirdata/G_Tabelas/G4ii_E_Estimacao", append
+	 outreg2 using "$dirdata/G_Tabelas/G4_Tabela_Efetivo_`t'", append ctitle("Cor") word tex(pretty) label
+
+	 
+   * (iii) Setor público: 
+    * Efetivo:
+	 regress logW_efet0_C mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 Cor1 Cor2 Cor3 Cor4 Cor5 publico if T==`t' [iw = Peso]
+	 predict RegLogE_4iii_`t' if(T>=(`t'-1) & T<=(`t'+1))	 
+	 estimates save "$dirdata/G_Tabelas/G4iii_E_Estimacao", append
+	 outreg2 using "$dirdata/G_Tabelas/G4_Tabela_Efetivo_`t'", append ctitle("Setor Público") word tex(pretty) label
+	 
+	 
+   * (iv) Setor informal: 
+    * Efetivo:
+	 regress logW_efet0_C mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 Cor1 Cor2 Cor3 Cor4 Cor5 publico informal if T==`t' [iw = Peso]
+	 predict RegLogE_4iv_`t' if(T>=(`t'-1) & T<=(`t'+1))	 
+	 estimates save "$dirdata/G_Tabelas/G4iv_E_Estimacao", append
+	 outreg2 using "$dirdata/G_Tabelas/G4_Tabela_Efetivo_`t'", append ctitle("Informal") word tex(pretty) label
+    
+	estimates clear
+   }
+   estimates clear
+   
+********************* 
+  * LOOP 3: t = 21:30  
+   forvalues t = 21/30 {  
+   *OBS: estimações do retorno habitual são iguais ao caso G.1.3
+   
+   * (i) Sem controles: 
+    * Efetivo:
+	 regress logW_efet0_C mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 if T==`t' [iw = Peso]
+	 predict RegLogE_4i_`t' if(T>=(`t'-1) & T<=(`t'+1))	 
+	 estimates save "$dirdata/G_Tabelas/G4i_E_Estimacao", append
+	 outreg2 using "$dirdata/G_Tabelas/G4_Tabela_Efetivo_`t'", replace ctitle("Sem controles") word tex(pretty) label
+	
+	
+   * (ii) Cor: 
+    * Efetivo:
+	 regress logW_efet0_C mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 Cor1 Cor2 Cor3 Cor4 Cor5 if T==`t' [iw = Peso]
+	 predict RegLogE_4ii_`t' if(T>=(`t'-1) & T<=(`t'+1))	 
+	 estimates save "$dirdata/G_Tabelas/G4ii_E_Estimacao", append
+	 outreg2 using "$dirdata/G_Tabelas/G4_Tabela_Efetivo_`t'", append ctitle("Cor") word tex(pretty) label
+
+	 
+   * (iii) Setor público: 
+    * Efetivo:
+	 regress logW_efet0_C mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 Cor1 Cor2 Cor3 Cor4 Cor5 publico if T==`t' [iw = Peso]
+	 predict RegLogE_4iii_`t' if(T>=(`t'-1) & T<=(`t'+1))	 
+	 estimates save "$dirdata/G_Tabelas/G4iii_E_Estimacao", append
+	 outreg2 using "$dirdata/G_Tabelas/G4_Tabela_Efetivo_`t'", append ctitle("Setor Público") word tex(pretty) label
+	 
+	 
+   * (iv) Setor informal: 
+    * Efetivo:
+	 regress logW_efet0_C mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 Cor1 Cor2 Cor3 Cor4 Cor5 publico informal if T==`t' [iw = Peso]
+	 predict RegLogE_4iv_`t' if(T>=(`t'-1) & T<=(`t'+1))	 
+	 estimates save "$dirdata/G_Tabelas/G4iv_E_Estimacao", append
+	 outreg2 using "$dirdata/G_Tabelas/G4_Tabela_Efetivo_`t'", append ctitle("Informal") word tex(pretty) label
+    
+	estimates clear
+   }
+   estimates clear
+   
+********************* 
+  * LOOP 4: t = 31:Tmax  
+   forvalues t = 31/`=Tmax' {  
+   *OBS: estimações do retorno habitual são iguais ao caso G.1.3
+   
+   * (i) Sem controles: 
+    * Efetivo:
+	 regress logW_efet0_C mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 if T==`t' [iw = Peso]
+	 predict RegLogE_4i_`t' if(T>=(`t'-1) & T<=(`t'+1))	 
+	 estimates save "$dirdata/G_Tabelas/G4i_E_Estimacao", append
+	 outreg2 using "$dirdata/G_Tabelas/G4_Tabela_Efetivo_`t'", replace ctitle("Sem controles") word tex(pretty) label
+	
+	
+   * (ii) Cor: 
+    * Efetivo:
+	 regress logW_efet0_C mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 Cor1 Cor2 Cor3 Cor4 Cor5 if T==`t' [iw = Peso]
+	 predict RegLogE_4ii_`t' if(T>=(`t'-1) & T<=(`t'+1))	 
+	 estimates save "$dirdata/G_Tabelas/G4ii_E_Estimacao", append
+	 outreg2 using "$dirdata/G_Tabelas/G4_Tabela_Efetivo_`t'", append ctitle("Cor") word tex(pretty) label
+
+	 
+   * (iii) Setor público: 
+    * Efetivo:
+	 regress logW_efet0_C mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 Cor1 Cor2 Cor3 Cor4 Cor5 publico if T==`t' [iw = Peso]
+	 predict RegLogE_4iii_`t' if(T>=(`t'-1) & T<=(`t'+1))	 
+	 estimates save "$dirdata/G_Tabelas/G4iii_E_Estimacao", append
+	 outreg2 using "$dirdata/G_Tabelas/G4_Tabela_Efetivo_`t'", append ctitle("Setor Público") word tex(pretty) label
+	 
+	 
+   * (iv) Setor informal: 
+    * Efetivo:
+	 regress logW_efet0_C mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 Cor1 Cor2 Cor3 Cor4 Cor5 publico informal if T==`t' [iw = Peso]
+	 predict RegLogE_4iv_`t' if(T>=(`t'-1) & T<=(`t'+1))	 
+	 estimates save "$dirdata/G_Tabelas/G4iv_E_Estimacao", append
+	 outreg2 using "$dirdata/G_Tabelas/G4_Tabela_Efetivo_`t'", append ctitle("Informal") word tex(pretty) label
+    
+	estimates clear
+   }
+   estimates clear
+   
   } 
 
 *** SALÁRIOS PREDITOS   
