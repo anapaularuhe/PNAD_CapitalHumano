@@ -7,7 +7,7 @@ Arquivos referentes ao uso da PNAD Contínua no projeto sobre Capital Humano e P
 > Outubro de 2021
 > ---------------------------------------------------------
 
-> A. IMPORTANDO DADOS E CONTRUINDO BASE COM DEFLATORES
+> A. IMPORTANDO DADOS E CONSTRUINDO BASE COM DEFLATORES
   * Rotina: A_Limpeza_amostra.do
   * Inputs:
    - A0_PNADC2012_2021_bruta.dta                 | Base bruta da PNAD, em .dta
