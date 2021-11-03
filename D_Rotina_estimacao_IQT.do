@@ -2634,7 +2634,9 @@ log using "G_Controles.log", replace
    gen dIQT_E1iv_alt = (dIQT0_E1iv_alt*dIQT1_E1iv_alt)^(1/2)
    gen dIQT_H1iv = (dIQT0_H1iv*dIQT1_H1iv)^(1/2)
    
-   
+ 
+ save "$dirdata/G_BaseW.dta", replace  
+ 
  * IQT: Base separada 
   {
   preserve
@@ -2701,7 +2703,6 @@ log using "G_Controles.log", replace
    restore
    }  
   
-   save "$dirdata/G_BaseW.dta", replace 
   } 
  
 
@@ -2720,11 +2721,7 @@ log using "G_Controles.log", replace
    gen dIQT0_E2iii_alt = .        
    gen dIQT0_E2iv_alt = .   
    
-  * Habitual: igual ao caso 1
-   gen dIQT0_H2i = .        
-   gen dIQT0_H2ii = .        
-   gen dIQT0_H2iii = .        
-   gen dIQT0_H2iv = .    
+  * Habitual: igual ao caso 1 - vamos salvar apenas na parte final, usando os valores calculados para o Baseline (1)   
 
   
    forvalues t = 2/`=Tmax'{
@@ -2733,21 +2730,16 @@ log using "G_Controles.log", replace
 	  gen dEi = PE*WE_2i_T if T==(`t'-1)
 	  gen nEi_alt = PE_alt*WE_2i_Tante if T==`t'
 	  gen dEi_alt = PE_alt*WE_2i_T if T==(`t'-1)
-	  gen nHi = PH*WH_2i_Tante if T==`t'
-	  gen dHi = PH*WH_2i_T if T==(`t'-1)
 	  
 	  egen sum_nEi = sum(nEi)
 	  egen sum_dEi = sum(dEi)
 	  egen sum_nEi_alt = sum(nEi_alt)
 	  egen sum_dEi_alt = sum(dEi_alt)
-	  egen sum_nHi = sum(nHi)
-	  egen sum_dHi = sum(dHi)
 	  
 	  replace dIQT0_E2i = sum_nEi/sum_nEi if T==`t'
-	  replace dIQT0_E2i_alt = sum_nEi_alt/sum_nEi_alt if T==`t'
-	  replace dIQT0_H2i = sum_nHi/sum_nHi if T==`t'  
+	  replace dIQT0_E2i_alt = sum_nEi_alt/sum_nEi_alt if T==`t'  
 
-	  drop nEi dEi nEi_alt dEi_alt nHi dHi sum_nEi sum_dEi sum_nEi_alt sum_dEi_alt sum_nHi sum_dHi
+	  drop nEi dEi nEi_alt dEi_alt sum_nEi sum_dEi sum_nEi_alt sum_dEi_alt
 	
 	
    * (ii) Cor:
@@ -2755,21 +2747,16 @@ log using "G_Controles.log", replace
 	  gen dEii = PE*WE_2ii_T if T==(`t'-1)
 	  gen nEii_alt = PE_alt*WE_2ii_Tante if T==`t'
 	  gen dEii_alt = PE_alt*WE_2ii_T if T==(`t'-1)
-	  gen nHii = PH*WH_2ii_Tante if T==`t'
-	  gen dHii = PH*WH_2ii_T if T==(`t'-1)
 	  
 	  egen sum_nEii = sum(nEii)
 	  egen sum_dEii = sum(dEii)
 	  egen sum_nEii_alt = sum(nEii_alt)
 	  egen sum_dEii_alt = sum(dEii_alt)
-	  egen sum_nHii = sum(nHii)
-	  egen sum_dHii = sum(dHii)
 	  
 	  replace dIQT0_E2ii = sum_nEii/sum_nEii if T==`t'
 	  replace dIQT0_E2ii_alt = sum_nEii_alt/sum_nEii_alt if T==`t'
-	  replace dIQT0_H2ii = sum_nHii/sum_nHii if T==`t'  
 
-	  drop nEii dEii nEii_alt dEii_alt nHii dHii sum_nEii sum_dEii sum_nEii_alt sum_dEii_alt sum_nHii sum_dHii
+	  drop nEii dEii nEii_alt dEii_alt sum_nEii sum_dEii sum_nEii_alt sum_dEii_alt
 	
 	
    * (iii) Setor Público:
@@ -2777,21 +2764,16 @@ log using "G_Controles.log", replace
 	  gen dEiii = PE*WE_2iii_T if T==(`t'-1)
 	  gen nEiii_alt = PE_alt*WE_2iii_Tante if T==`t'
 	  gen dEiii_alt = PE_alt*WE_2iii_T if T==(`t'-1)
-	  gen nHiii = PH*WH_2iii_Tante if T==`t'
-	  gen dHiii = PH*WH_2iii_T if T==(`t'-1)
 	  
 	  egen sum_nEiii = sum(nEiii)
 	  egen sum_dEiii = sum(dEiii)
 	  egen sum_nEiii_alt = sum(nEiii_alt)
 	  egen sum_dEiii_alt = sum(dEiii_alt)
-	  egen sum_nHiii = sum(nHiii)
-	  egen sum_dHiii = sum(dHiii)
 	  
 	  replace dIQT0_E2iii = sum_nEiii/sum_nEiii if T==`t'
 	  replace dIQT0_E2iii_alt = sum_nEiii_alt/sum_nEiii_alt if T==`t'
-	  replace dIQT0_H2iii = sum_nHiii/sum_nHiii if T==`t'  
 
-	  drop nEiii dEiii nEiii_alt dEiii_alt nHiii dHiii sum_nEiii sum_dEiii sum_nEiii_alt sum_dEiii_alt sum_nHiii sum_dHiii
+	  drop nEiii dEiii nEiii_alt dEiii_alt sum_nEiii sum_dEiii sum_nEiii_alt sum_dEiii_al
 	  
 	  
    * (iv) Informal: 
@@ -2799,21 +2781,16 @@ log using "G_Controles.log", replace
 	  gen dEiv = PE*WE_2iv_T if T==(`t'-1)
 	  gen nEiv_alt = PE_alt*WE_2iv_Tante if T==`t'
 	  gen dEiv_alt = PE_alt*WE_2iv_T if T==(`t'-1)
-	  gen nHiv = PH*WH_2iv_Tante if T==`t'
-	  gen dHiv = PH*WH_2iv_T if T==(`t'-1)
 	  
 	  egen sum_nEiv = sum(nEiv)
 	  egen sum_dEiv = sum(dEiv)
 	  egen sum_nEiv_alt = sum(nEiv_alt)
 	  egen sum_dEiv_alt = sum(dEiv_alt)
-	  egen sum_nHiv = sum(nHiv)
-	  egen sum_dHiv = sum(dHiv)
 	  
 	  replace dIQT0_E2iv = sum_nEiv/sum_nEiv if T==`t'
 	  replace dIQT0_E2iv_alt = sum_nEiv_alt/sum_nEiv_alt if T==`t'
-	  replace dIQT0_H2iv = sum_nHiv/sum_nHiv if T==`t'  
 
-	  drop nEiv dEiv nEiv_alt dEiv_alt nHiv dHiv sum_nEiv sum_dEiv sum_nEiv_alt sum_dEiv_alt sum_nHiv sum_dHiv
+	  drop nEiv dEiv nEiv_alt dEiv_alt sum_nEiv sum_dEiv sum_nEiv_alt sum_dEiv_alt 
    }
   
   
@@ -2829,12 +2806,7 @@ log using "G_Controles.log", replace
    gen dIQT1_E2ii_alt = .        
    gen dIQT1_E2iii_alt = .        
    gen dIQT1_E2iv_alt = .   
-   
-  * Habitual: 
-   gen dIQT1_H2i = .        
-   gen dIQT1_H2ii = .        
-   gen dIQT1_H2iii = .        
-   gen dIQT1_H2iv = . 
+ 
   
    forvalues t = 2/`=Tmax'{
 	* (i) Sem controles: 
@@ -2842,21 +2814,16 @@ log using "G_Controles.log", replace
 	  gen dEi = PE*WE_2i_Tprox if T==(`t'-1)
 	  gen nEi_alt = PE_alt*WE_2i_T if T==`t'
 	  gen dEi_alt = PE_alt*WE_2i_Tprox if T==(`t'-1)
-	  gen nHi = PH*WH_2i_T if T==`t'
-	  gen dHi = PH*WH_2i_Tprox if T==(`t'-1)
 	  
 	  egen sum_nEi = sum(nEi)
 	  egen sum_dEi = sum(dEi)
 	  egen sum_nEi_alt = sum(nEi_alt)
 	  egen sum_dEi_alt = sum(dEi_alt)
-	  egen sum_nHi = sum(nHi)
-	  egen sum_dHi = sum(dHi)
 	  
 	  replace dIQT1_E2i = sum_nEi/sum_nEi if T==`t'
-	  replace dIQT1_E2i_alt = sum_nEi_alt/sum_nEi_alt if T==`t'
-	  replace dIQT1_H2i = sum_nHi/sum_nHi if T==`t'  
+	  replace dIQT1_E2i_alt = sum_nEi_alt/sum_nEi_alt if T==`t'  
 
-	  drop nEi dEi nEi_alt dEi_alt nHi dHi sum_nEi sum_dEi sum_nEi_alt sum_dEi_alt sum_nHi sum_dHi
+	  drop nEi dEi nEi_alt dEi_alt sum_nEi sum_dEi sum_nEi_alt sum_dEi_alt
 	
 	
    * (ii) Cor:
@@ -2864,21 +2831,16 @@ log using "G_Controles.log", replace
 	  gen dEii = PE*WE_2ii_Tprox if T==(`t'-1)
 	  gen nEii_alt = PE_alt*WE_2ii_T if T==`t'
 	  gen dEii_alt = PE_alt*WE_2ii_Tprox if T==(`t'-1)
-	  gen nHii = PH*WH_2ii_T if T==`t'
-	  gen dHii = PH*WH_2ii_Tprox if T==(`t'-1)
 	  
 	  egen sum_nEii = sum(nEii)
 	  egen sum_dEii = sum(dEii)
 	  egen sum_nEii_alt = sum(nEii_alt)
 	  egen sum_dEii_alt = sum(dEii_alt)
-	  egen sum_nHii = sum(nHii)
-	  egen sum_dHii = sum(dHii)
 	  
 	  replace dIQT1_E2ii = sum_nEii/sum_nEii if T==`t'
-	  replace dIQT1_E2ii_alt = sum_nEii_alt/sum_nEii_alt if T==`t'
-	  replace dIQT1_H2ii = sum_nHii/sum_nHii if T==`t'  
+	  replace dIQT1_E2ii_alt = sum_nEii_alt/sum_nEii_alt if T==`t' 
 
-	  drop nEii dEii nEii_alt dEii_alt nHii dHii sum_nEii sum_dEii sum_nEii_alt sum_dEii_alt sum_nHii sum_dHii
+	  drop nEii dEii nEii_alt dEii_alt sum_nEii sum_dEii sum_nEii_alt sum_dEii_alt
 	
 	
    * (iii) Setor Público:
@@ -2886,21 +2848,16 @@ log using "G_Controles.log", replace
 	  gen dEiii = PE*WE_2iii_Tprox if T==(`t'-1)
 	  gen nEiii_alt = PE_alt*WE_2iii_T if T==`t'
 	  gen dEiii_alt = PE_alt*WE_2iii_Tprox if T==(`t'-1)
-	  gen nHiii = PH*WH_2iii_T if T==`t'
-	  gen dHiii = PH*WH_2iii_Tprox if T==(`t'-1)
 	  
 	  egen sum_nEiii = sum(nEiii)
 	  egen sum_dEiii = sum(dEiii)
 	  egen sum_nEiii_alt = sum(nEiii_alt)
 	  egen sum_dEiii_alt = sum(dEiii_alt)
-	  egen sum_nHiii = sum(nHiii)
-	  egen sum_dHiii = sum(dHiii)
 	  
 	  replace dIQT1_E2iii = sum_nEiii/sum_nEiii if T==`t'
-	  replace dIQT1_E2iii_alt = sum_nEiii_alt/sum_nEiii_alt if T==`t'
-	  replace dIQT1_H2iii = sum_nHiii/sum_nHiii if T==`t'  
+	  replace dIQT1_E2iii_alt = sum_nEiii_alt/sum_nEiii_alt if T==`t'  
 
-	  drop nEiii dEiii nEiii_alt dEiii_alt nHiii dHiii sum_nEiii sum_dEiii sum_nEiii_alt sum_dEiii_alt sum_nHiii sum_dHiii
+	  drop nEiii dEiii nEiii_alt dEiii_alt sum_nEiii sum_dEiii sum_nEiii_alt sum_dEiii_alt 
 	  
 	  
    * (iv) Informal: 
@@ -2908,21 +2865,16 @@ log using "G_Controles.log", replace
 	  gen dEiv = PE*WE_2iv_Tprox if T==(`t'-1)
 	  gen nEiv_alt = PE_alt*WE_2iv_T if T==`t'
 	  gen dEiv_alt = PE_alt*WE_2iv_Tprox if T==(`t'-1)
-	  gen nHiv = PH*WH_2iv_T if T==`t'
-	  gen dHiv = PH*WH_2iv_Tprox if T==(`t'-1)
 	  
 	  egen sum_nEiv = sum(nEiv)
 	  egen sum_dEiv = sum(dEiv)
 	  egen sum_nEiv_alt = sum(nEiv_alt)
 	  egen sum_dEiv_alt = sum(dEiv_alt)
-	  egen sum_nHiv = sum(nHiv)
-	  egen sum_dHiv = sum(dHiv)
 	  
 	  replace dIQT1_E2iv = sum_nEiv/sum_nEiv if T==`t'
 	  replace dIQT1_E2iv_alt = sum_nEiv_alt/sum_nEiv_alt if T==`t'
-	  replace dIQT1_H2iv = sum_nHiv/sum_nHiv if T==`t'  
 
-	  drop nEiv dEiv nEiv_alt dEiv_alt nHiv dHiv sum_nEiv sum_dEiv sum_nEiv_alt sum_dEiv_alt sum_nHiv sum_dHiv  
+	  drop nEiv dEiv nEiv_alt dEiv_alt sum_nEiv sum_dEiv sum_nEiv_alt sum_dEiv_alt   
    }  
    
    
@@ -2943,7 +2895,9 @@ log using "G_Controles.log", replace
    gen dIQT_E2iv_alt = (dIQT0_E2iv_alt*dIQT1_E2iv_alt)^(1/2)
    gen dIQT_H2iv = (dIQT0_H1iv*dIQT1_H1iv)^(1/2)
    
-   
+
+ save "$dirdata/G_BaseW.dta", replace   
+  
  * IQT: Base separada 
   {
   preserve
@@ -3014,7 +2968,6 @@ log using "G_Controles.log", replace
    restore
    }  
   
-   save "$dirdata/G_BaseW.dta", replace
   } 
   
 
@@ -3256,7 +3209,9 @@ log using "G_Controles.log", replace
    gen dIQT_E3iv_alt = (dIQT0_E3iv_alt*dIQT1_E3iv_alt)^(1/2)
    gen dIQT_H3iv = (dIQT0_H3iv*dIQT1_H3iv)^(1/2)
    
-   
+ 
+ save "$dirdata/G_BaseW.dta", replace  
+  
  * IQT: Base separada 
   {
   preserve
@@ -3325,7 +3280,6 @@ log using "G_Controles.log", replace
    restore
    }  
   
-   save "$dirdata/G_BaseW.dta", replace
   } 
     
 
@@ -3344,11 +3298,7 @@ log using "G_Controles.log", replace
    gen dIQT0_E4iii_alt = .        
    gen dIQT0_E4iv_alt = .   
    
-  * Habitual: 
-   gen dIQT0_H4i = .        
-   gen dIQT0_H4ii = .        
-   gen dIQT0_H4iii = .        
-   gen dIQT0_H4iv = .    
+  * Habitual: igual ao caso 3 - vamos salvar apenas na parte final, usando os valores calculados na estimação com pesos normal (3)   
 
   
    forvalues t = 2/`=Tmax'{
@@ -3357,21 +3307,16 @@ log using "G_Controles.log", replace
 	  gen dEi = PE*WE_4i_T if T==(`t'-1)
 	  gen nEi_alt = PE_alt*WE_4i_Tante if T==`t'
 	  gen dEi_alt = PE_alt*WE_4i_T if T==(`t'-1)
-	  gen nHi = PH*WH_4i_Tante if T==`t'
-	  gen dHi = PH*WH_4i_T if T==(`t'-1)
 	  
 	  egen sum_nEi = sum(nEi)
 	  egen sum_dEi = sum(dEi)
 	  egen sum_nEi_alt = sum(nEi_alt)
 	  egen sum_dEi_alt = sum(dEi_alt)
-	  egen sum_nHi = sum(nHi)
-	  egen sum_dHi = sum(dHi)
 	  
 	  replace dIQT0_E4i = sum_nEi/sum_nEi if T==`t'
 	  replace dIQT0_E4i_alt = sum_nEi_alt/sum_nEi_alt if T==`t'
-	  replace dIQT0_H4i = sum_nHi/sum_nHi if T==`t'  
 
-	  drop nEi dEi nEi_alt dEi_alt nHi dHi sum_nEi sum_dEi sum_nEi_alt sum_dEi_alt sum_nHi sum_dHi
+	  drop nEi dEi nEi_alt dEi_alt sum_nEi sum_dEi sum_nEi_alt sum_dEi_alt 
 	
 	
    * (ii) Cor:
@@ -3379,21 +3324,17 @@ log using "G_Controles.log", replace
 	  gen dEii = PE*WE_4ii_T if T==(`t'-1)
 	  gen nEii_alt = PE_alt*WE_4ii_Tante if T==`t'
 	  gen dEii_alt = PE_alt*WE_4ii_T if T==(`t'-1)
-	  gen nHii = PH*WH_4ii_Tante if T==`t'
-	  gen dHii = PH*WH_4ii_T if T==(`t'-1)
 	  
 	  egen sum_nEii = sum(nEii)
 	  egen sum_dEii = sum(dEii)
 	  egen sum_nEii_alt = sum(nEii_alt)
 	  egen sum_dEii_alt = sum(dEii_alt)
 	  egen sum_nHii = sum(nHii)
-	  egen sum_dHii = sum(dHii)
 	  
 	  replace dIQT0_E4ii = sum_nEii/sum_nEii if T==`t'
 	  replace dIQT0_E4ii_alt = sum_nEii_alt/sum_nEii_alt if T==`t'
-	  replace dIQT0_H4ii = sum_nHii/sum_nHii if T==`t'  
 
-	  drop nEii dEii nEii_alt dEii_alt nHii dHii sum_nEii sum_dEii sum_nEii_alt sum_dEii_alt sum_nHii sum_dHii
+	  drop nEii dEii nEii_alt dEii_alt sum_nEii sum_dEii sum_nEii_alt sum_dEii_alt 
 	
 	
    * (iii) Setor Público:
@@ -3401,21 +3342,16 @@ log using "G_Controles.log", replace
 	  gen dEiii = PE*WE_4iii_T if T==(`t'-1)
 	  gen nEiii_alt = PE_alt*WE_4iii_Tante if T==`t'
 	  gen dEiii_alt = PE_alt*WE_4iii_T if T==(`t'-1)
-	  gen nHiii = PH*WH_4iii_Tante if T==`t'
-	  gen dHiii = PH*WH_4iii_T if T==(`t'-1)
 	  
 	  egen sum_nEiii = sum(nEiii)
 	  egen sum_dEiii = sum(dEiii)
 	  egen sum_nEiii_alt = sum(nEiii_alt)
 	  egen sum_dEiii_alt = sum(dEiii_alt)
-	  egen sum_nHiii = sum(nHiii)
-	  egen sum_dHiii = sum(dHiii)
 	  
 	  replace dIQT0_E4iii = sum_nEiii/sum_nEiii if T==`t'
 	  replace dIQT0_E4iii_alt = sum_nEiii_alt/sum_nEiii_alt if T==`t'
-	  replace dIQT0_H4iii = sum_nHiii/sum_nHiii if T==`t'  
 
-	  drop nEiii dEiii nEiii_alt dEiii_alt nHiii dHiii sum_nEiii sum_dEiii sum_nEiii_alt sum_dEiii_alt sum_nHiii sum_dHiii
+	  drop nEiii dEiii nEiii_alt dEiii_alt sum_nEiii sum_dEiii sum_nEiii_alt sum_dEiii_alt 
 	  
 	  
    * (iv) Informal: 
@@ -3423,21 +3359,16 @@ log using "G_Controles.log", replace
 	  gen dEiv = PE*WE_4iv_T if T==(`t'-1)
 	  gen nEiv_alt = PE_alt*WE_4iv_Tante if T==`t'
 	  gen dEiv_alt = PE_alt*WE_4iv_T if T==(`t'-1)
-	  gen nHiv = PH*WH_4iv_Tante if T==`t'
-	  gen dHiv = PH*WH_4iv_T if T==(`t'-1)
 	  
 	  egen sum_nEiv = sum(nEiv)
 	  egen sum_dEiv = sum(dEiv)
 	  egen sum_nEiv_alt = sum(nEiv_alt)
 	  egen sum_dEiv_alt = sum(dEiv_alt)
-	  egen sum_nHiv = sum(nHiv)
-	  egen sum_dHiv = sum(dHiv)
 	  
 	  replace dIQT0_E4iv = sum_nEiv/sum_nEiv if T==`t'
 	  replace dIQT0_E4iv_alt = sum_nEiv_alt/sum_nEiv_alt if T==`t'
-	  replace dIQT0_H4iv = sum_nHiv/sum_nHiv if T==`t'  
 
-	  drop nEiv dEiv nEiv_alt dEiv_alt nHiv dHiv sum_nEiv sum_dEiv sum_nEiv_alt sum_dEiv_alt sum_nHiv sum_dHiv
+	  drop nEiv dEiv nEiv_alt dEiv_alt sum_nEiv sum_dEiv sum_nEiv_alt sum_dEiv_alt 
    }
   
   
@@ -3453,12 +3384,7 @@ log using "G_Controles.log", replace
    gen dIQT1_E4ii_alt = .        
    gen dIQT1_E4iii_alt = .        
    gen dIQT1_E4iv_alt = .   
-   
-  * Habitual: 
-   gen dIQT1_H4i = .        
-   gen dIQT1_H4ii = .        
-   gen dIQT1_H4iii = .        
-   gen dIQT1_H4iv = . 
+
   
    forvalues t = 2/`=Tmax'{
 	* (i) Sem controles: 
@@ -3466,21 +3392,16 @@ log using "G_Controles.log", replace
 	  gen dEi = PE*WE_4i_Tprox if T==(`t'-1)
 	  gen nEi_alt = PE_alt*WE_4i_T if T==`t'
 	  gen dEi_alt = PE_alt*WE_4i_Tprox if T==(`t'-1)
-	  gen nHi = PH*WH_4i_T if T==`t'
-	  gen dHi = PH*WH_4i_Tprox if T==(`t'-1)
 	  
 	  egen sum_nEi = sum(nEi)
 	  egen sum_dEi = sum(dEi)
 	  egen sum_nEi_alt = sum(nEi_alt)
 	  egen sum_dEi_alt = sum(dEi_alt)
-	  egen sum_nHi = sum(nHi)
-	  egen sum_dHi = sum(dHi)
 	  
 	  replace dIQT1_E4i = sum_nEi/sum_nEi if T==`t'
 	  replace dIQT1_E4i_alt = sum_nEi_alt/sum_nEi_alt if T==`t'
-	  replace dIQT1_H4i = sum_nHi/sum_nHi if T==`t'  
 
-	  drop nEi dEi nEi_alt dEi_alt nHi dHi sum_nEi sum_dEi sum_nEi_alt sum_dEi_alt sum_nHi sum_dHi
+	  drop nEi dEi nEi_alt dEi_alt sum_nEi sum_dEi sum_nEi_alt sum_dEi_alt
 	
 	
    * (ii) Cor:
@@ -3488,21 +3409,16 @@ log using "G_Controles.log", replace
 	  gen dEii = PE*WE_4ii_Tprox if T==(`t'-1)
 	  gen nEii_alt = PE_alt*WE_4ii_T if T==`t'
 	  gen dEii_alt = PE_alt*WE_4ii_Tprox if T==(`t'-1)
-	  gen nHii = PH*WH_4ii_T if T==`t'
-	  gen dHii = PH*WH_4ii_Tprox if T==(`t'-1)
 	  
 	  egen sum_nEii = sum(nEii)
 	  egen sum_dEii = sum(dEii)
 	  egen sum_nEii_alt = sum(nEii_alt)
 	  egen sum_dEii_alt = sum(dEii_alt)
-	  egen sum_nHii = sum(nHii)
-	  egen sum_dHii = sum(dHii)
 	  
 	  replace dIQT1_E4ii = sum_nEii/sum_nEii if T==`t'
 	  replace dIQT1_E4ii_alt = sum_nEii_alt/sum_nEii_alt if T==`t'
-	  replace dIQT1_H4ii = sum_nHii/sum_nHii if T==`t'  
 
-	  drop nEii dEii nEii_alt dEii_alt nHii dHii sum_nEii sum_dEii sum_nEii_alt sum_dEii_alt sum_nHii sum_dHii
+	  drop nEii dEii nEii_alt dEii_alt sum_nEii sum_dEii sum_nEii_alt sum_dEii_alt 
 	
 	
    * (iii) Setor Público:
@@ -3510,21 +3426,16 @@ log using "G_Controles.log", replace
 	  gen dEiii = PE*WE_4iii_Tprox if T==(`t'-1)
 	  gen nEiii_alt = PE_alt*WE_4iii_T if T==`t'
 	  gen dEiii_alt = PE_alt*WE_4iii_Tprox if T==(`t'-1)
-	  gen nHiii = PH*WH_4iii_T if T==`t'
-	  gen dHiii = PH*WH_4iii_Tprox if T==(`t'-1)
 	  
 	  egen sum_nEiii = sum(nEiii)
 	  egen sum_dEiii = sum(dEiii)
 	  egen sum_nEiii_alt = sum(nEiii_alt)
 	  egen sum_dEiii_alt = sum(dEiii_alt)
-	  egen sum_nHiii = sum(nHiii)
-	  egen sum_dHiii = sum(dHiii)
 	  
 	  replace dIQT1_E4iii = sum_nEiii/sum_nEiii if T==`t'
-	  replace dIQT1_E4iii_alt = sum_nEiii_alt/sum_nEiii_alt if T==`t'
-	  replace dIQT1_H4iii = sum_nHiii/sum_nHiii if T==`t'  
+	  replace dIQT1_E4iii_alt = sum_nEiii_alt/sum_nEiii_alt if T==`t' 
 
-	  drop nEiii dEiii nEiii_alt dEiii_alt nHiii dHiii sum_nEiii sum_dEiii sum_nEiii_alt sum_dEiii_alt sum_nHiii sum_dHiii
+	  drop nEiii dEiii nEiii_alt dEiii_alt sum_nEiii sum_dEiii sum_nEiii_alt sum_dEiii_alt 
 	  
 	  
    * (iv) Informal: 
@@ -3532,41 +3443,38 @@ log using "G_Controles.log", replace
 	  gen dEiv = PE*WE_4iv_Tprox if T==(`t'-1)
 	  gen nEiv_alt = PE_alt*WE_4iv_T if T==`t'
 	  gen dEiv_alt = PE_alt*WE_4iv_Tprox if T==(`t'-1)
-	  gen nHiv = PH*WH_4iv_T if T==`t'
-	  gen dHiv = PH*WH_4iv_Tprox if T==(`t'-1)
 	  
 	  egen sum_nEiv = sum(nEiv)
 	  egen sum_dEiv = sum(dEiv)
 	  egen sum_nEiv_alt = sum(nEiv_alt)
 	  egen sum_dEiv_alt = sum(dEiv_alt)
-	  egen sum_nHiv = sum(nHiv)
-	  egen sum_dHiv = sum(dHiv)
 	  
 	  replace dIQT1_E4iv = sum_nEiv/sum_nEiv if T==`t'
 	  replace dIQT1_E4iv_alt = sum_nEiv_alt/sum_nEiv_alt if T==`t'
-	  replace dIQT1_H4iv = sum_nHiv/sum_nHiv if T==`t'  
 
-	  drop nEiv dEiv nEiv_alt dEiv_alt nHiv dHiv sum_nEiv sum_dEiv sum_nEiv_alt sum_dEiv_alt sum_nHiv sum_dHiv  
+	  drop nEiv dEiv nEiv_alt dEiv_alt sum_nEiv sum_dEiv sum_nEiv_alt sum_dEiv_alt 
    }  
    
    
  * dIQT: índice de Fisher    
    gen dIQT_E4i = (dIQT0_E4i*dIQT1_E4i)^(1/2)
    gen dIQT_E4i_alt = (dIQT0_E4i_alt*dIQT1_E4i_alt)^(1/2)
-   gen dIQT_H4i = (dIQT0_H4i*dIQT1_H4i)^(1/2)
+   gen dIQT_H4i = (dIQT0_H3i*dIQT1_H3i)^(1/2)
    
    gen dIQT_E4ii = (dIQT0_E4ii*dIQT1_E4ii)^(1/2)
    gen dIQT_E4ii_alt = (dIQT0_E4ii_alt*dIQT1_E4ii_alt)^(1/2)
-   gen dIQT_H4ii = (dIQT0_H4ii*dIQT1_H4ii)^(1/2)
+   gen dIQT_H4ii = (dIQT0_H3ii*dIQT1_H3ii)^(1/2)
   
    gen dIQT_E4iii = (dIQT0_E4iii*dIQT1_E4iii)^(1/2)
    gen dIQT_E4iii_alt = (dIQT0_E4iii_alt*dIQT1_E4iii_alt)^(1/2)
-   gen dIQT_H4iii = (dIQT0_H4iii*dIQT1_H4iii)^(1/2)  
+   gen dIQT_H4iii = (dIQT0_H3iii*dIQT1_H3iii)^(1/2)  
   
    gen dIQT_E4iv = (dIQT0_E4iv*dIQT1_E4iv)^(1/2)
    gen dIQT_E4iv_alt = (dIQT0_E4iv_alt*dIQT1_E4iv_alt)^(1/2)
-   gen dIQT_H4iv = (dIQT0_H4iv*dIQT1_H4iv)^(1/2)
+   gen dIQT_H4iv = (dIQT0_H3iv*dIQT1_H3iv)^(1/2)
    
+   
+ save "$dirdata/G_BaseW.dta", replace
    
  * IQT: Base separada 
   {
@@ -3635,8 +3543,6 @@ log using "G_Controles.log", replace
    save "$dirdata/G_IQT_Controles.dta", replace
    restore
    }  
-  
-   save "$dirdata/G_BaseW.dta", replace
   } 	
 }
 
