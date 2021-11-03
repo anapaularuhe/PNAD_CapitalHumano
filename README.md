@@ -120,7 +120,8 @@ Arquivos referentes ao uso da PNAD Contínua no projeto sobre Capital Humano e P
    - C_PNADC_POamostra.dta
 
   * Outputs: 
-   - G0_BaseEstimacao.dta                         | Base final com salários preditos e pesos ponderados por horas - Regressões com controles
+   - G0_BaseEstimacao.dta                         | Base para as regressões 
+   - G_BaseW.dta                                  | Base final com salários preditos e pesos ponderados por horas - Regressões com controles 
    - G_IQT_Controles.dta                          | Base com os IQT calculados com controles, habitual e efetivo, com e sem peso, estratégias C e C_alt
    
    - Regressões:
@@ -176,4 +177,4 @@ Arquivos referentes ao uso da PNAD Contínua no projeto sobre Capital Humano e P
      . G2_Tabela_Habitual_t                       | Tabelas Habitual - log = 0 (2) - Trimestre t
      . G3_Tabela_Habitual_t                       | Tabelas Habitual - Reg com pesos (3) - Trimestre t
      . G4_Tabela_Habitual_t                       | Tabelas Habitual - Reg com pesos + log=0 (4) - Trimestre t                 
-   
+          
