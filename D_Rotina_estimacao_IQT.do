@@ -1896,22 +1896,22 @@ log using "G_Controles.log", replace
 	  if `t' > 1 replace WE_1iii_Tante = RegWE_1iii_`i' if T==`t'
 	  if `t' > 1 replace WH_1iii_Tante = RegWH_1iii_`i' if T==`t'	  
 	  
-	  if `t' > 1 replace WE_1i_Tante = RegWE_1i_`i' if T==`t'
-	  if `t' > 1 replace WH_1i_Tante = RegWH_1i_`i' if T==`t'	 
+	  if `t' > 1 replace WE_1iv_Tante = RegWE_1i_`i' if T==`t'
+	  if `t' > 1 replace WH_1iv_Tante = RegWH_1i_`i' if T==`t'	 
 	 
 	 
 	  local j = `t'+1 
-	  if `t' < `=Tmax' replace WE_1i_Tprox = RegWE_1i__`j' if T==`t'
-	  if `t' < `=Tmax' replace WH_1i__Tprox = RegWH_1i__`j' if T==`t'
+	  if `t' < `=Tmax' replace WE_1i_Tprox = RegWE_1i_`j' if T==`t'
+	  if `t' < `=Tmax' replace WH_1i_Tprox = RegWH_1i_`j' if T==`t'
 	  
-	  if `t' < `=Tmax' replace WE_1ii_Tprox = RegWE_1ii__`j' if T==`t'
-	  if `t' < `=Tmax' replace WH_1ii__Tprox = RegWH_1ii__`j' if T==`t'
+	  if `t' < `=Tmax' replace WE_1ii_Tprox = RegWE_1ii_`j' if T==`t'
+	  if `t' < `=Tmax' replace WH_1ii_Tprox = RegWH_1ii_`j' if T==`t'
 	  
-	  if `t' < `=Tmax' replace WE_1iii_Tprox = RegWE_1iii__`j' if T==`t'
-	  if `t' < `=Tmax' replace WH_1iii__Tprox = RegWH_1iii__`j' if T==`t'	  
+	  if `t' < `=Tmax' replace WE_1iii_Tprox = RegWE_1iii_`j' if T==`t'
+	  if `t' < `=Tmax' replace WH_1iii_Tprox = RegWH_1iii_`j' if T==`t'	  
 	  
-	  if `t' < `=Tmax' replace WE_1iv_Tprox = RegWE_1iv__`j' if T==`t'
-	  if `t' < `=Tmax' replace WH_1iv__Tprox = RegWH_1iv__`j' if T==`t'
+	  if `t' < `=Tmax' replace WE_1iv_Tprox = RegWE_1iv_`j' if T==`t'
+	  if `t' < `=Tmax' replace WH_1iv_Tprox = RegWH_1iv_`j' if T==`t'
    }
  
 
@@ -2021,13 +2021,13 @@ log using "G_Controles.log", replace
 	  if `t' > 1 replace WE_2i_Tante = RegWE_2i_`i' if T==`t'
 	  if `t' > 1 replace WE_2ii_Tante = RegWE_2ii_`i' if T==`t'
 	  if `t' > 1 replace WE_2iii_Tante = RegWE_2iii_`i' if T==`t'
-	  if `t' > 1 replace WE_2i_Tante = RegWE_2i_`i' if T==`t' 
+	  if `t' > 1 replace WE_2iv_Tante = RegWE_2i_`i' if T==`t' 
 	 
 	  local j = `t'+1 
-	  if `t' < `=Tmax' replace WE_2i_Tprox = RegWE_2i__`j' if T==`t'	  
-	  if `t' < `=Tmax' replace WE_2ii_Tprox = RegWE_2ii__`j' if T==`t'
-	  if `t' < `=Tmax' replace WE_2iii_Tprox = RegWE_2iii__`j' if T==`t'  
-	  if `t' < `=Tmax' replace WE_2iv_Tprox = RegWE_2iv__`j' if T==`t'
+	  if `t' < `=Tmax' replace WE_2i_Tprox = RegWE_2i_`j' if T==`t'	  
+	  if `t' < `=Tmax' replace WE_2ii_Tprox = RegWE_2ii_`j' if T==`t'
+	  if `t' < `=Tmax' replace WE_2iii_Tprox = RegWE_2iii_`j' if T==`t'  
+	  if `t' < `=Tmax' replace WE_2iv_Tprox = RegWE_2iv_`j' if T==`t'
    }
  
 
@@ -2189,22 +2189,22 @@ log using "G_Controles.log", replace
 	  if `t' > 1 replace WE_3iii_Tante = RegWE_3iii_`i' if T==`t'
 	  if `t' > 1 replace WH_3iii_Tante = RegWH_3iii_`i' if T==`t'	  
 	  
-	  if `t' > 1 replace WE_3i_Tante = RegWE_3i_`i' if T==`t'
-	  if `t' > 1 replace WH_3i_Tante = RegWH_3i_`i' if T==`t'	 
+	  if `t' > 1 replace WE_3iv_Tante = RegWE_3i_`i' if T==`t'
+	  if `t' > 1 replace WH_3iv_Tante = RegWH_3i_`i' if T==`t'	 
 	 
 	 
 	  local j = `t'+1 
-	  if `t' < `=Tmax' replace WE_3i_Tprox = RegWE_3i__`j' if T==`t'
-	  if `t' < `=Tmax' replace WH_3i__Tprox = RegWH_3i__`j' if T==`t'
+	  if `t' < `=Tmax' replace WE_3i_Tprox = RegWE_3i_`j' if T==`t'
+	  if `t' < `=Tmax' replace WH_3i_Tprox = RegWH_3i_`j' if T==`t'
 	  
-	  if `t' < `=Tmax' replace WE_3ii_Tprox = RegWE_3ii__`j' if T==`t'
-	  if `t' < `=Tmax' replace WH_3ii__Tprox = RegWH_3ii__`j' if T==`t'
+	  if `t' < `=Tmax' replace WE_3ii_Tprox = RegWE_3ii_`j' if T==`t'
+	  if `t' < `=Tmax' replace WH_3ii_Tprox = RegWH_3ii_`j' if T==`t'
 	  
-	  if `t' < `=Tmax' replace WE_3iii_Tprox = RegWE_3iii__`j' if T==`t'
-	  if `t' < `=Tmax' replace WH_3iii__Tprox = RegWH_3iii__`j' if T==`t'	  
+	  if `t' < `=Tmax' replace WE_3iii_Tprox = RegWE_3iii_`j' if T==`t'
+	  if `t' < `=Tmax' replace WH_3iii_Tprox = RegWH_3iii_`j' if T==`t'	  
 	  
-	  if `t' < `=Tmax' replace WE_3iv_Tprox = RegWE_3iv__`j' if T==`t'
-	  if `t' < `=Tmax' replace WH_3iv__Tprox = RegWH_3iv__`j' if T==`t'
+	  if `t' < `=Tmax' replace WE_3iv_Tprox = RegWE_3iv_`j' if T==`t'
+	  if `t' < `=Tmax' replace WH_3iv_Tprox = RegWH_3iv_`j' if T==`t'
    }
  
 
@@ -2314,13 +2314,13 @@ log using "G_Controles.log", replace
 	  if `t' > 1 replace WE_4i_Tante = RegWE_4i_`i' if T==`t'
 	  if `t' > 1 replace WE_4ii_Tante = RegWE_4ii_`i' if T==`t'
 	  if `t' > 1 replace WE_4iii_Tante = RegWE_4iii_`i' if T==`t'
-	  if `t' > 1 replace WE_4i_Tante = RegWE_4i_`i' if T==`t' 
+	  if `t' > 1 replace WE_4iv_Tante = RegWE_4iv_`i' if T==`t' 
 	 
 	  local j = `t'+1 
-	  if `t' < `=Tmax' replace WE_4i_Tprox = RegWE_4i__`j' if T==`t'	  
-	  if `t' < `=Tmax' replace WE_4ii_Tprox = RegWE_4ii__`j' if T==`t'
-	  if `t' < `=Tmax' replace WE_4iii_Tprox = RegWE_4iii__`j' if T==`t'  
-	  if `t' < `=Tmax' replace WE_4iv_Tprox = RegWE_4iv__`j' if T==`t'
+	  if `t' < `=Tmax' replace WE_4i_Tprox = RegWE_4i_`j' if T==`t'	  
+	  if `t' < `=Tmax' replace WE_4ii_Tprox = RegWE_4ii_`j' if T==`t'
+	  if `t' < `=Tmax' replace WE_4iii_Tprox = RegWE_4iii_`j' if T==`t'  
+	  if `t' < `=Tmax' replace WE_4iv_Tprox = RegWE_4iv_`j' if T==`t'
    }
  
 
@@ -2720,7 +2720,7 @@ log using "G_Controles.log", replace
    gen dIQT0_E2iii_alt = .        
    gen dIQT0_E2iv_alt = .   
    
-  * Habitual: 
+  * Habitual: igual ao caso 1
    gen dIQT0_H2i = .        
    gen dIQT0_H2ii = .        
    gen dIQT0_H2iii = .        
@@ -2929,19 +2929,19 @@ log using "G_Controles.log", replace
  * dIQT: índice de Fisher    
    gen dIQT_E2i = (dIQT0_E2i*dIQT1_E2i)^(1/2)
    gen dIQT_E2i_alt = (dIQT0_E2i_alt*dIQT1_E2i_alt)^(1/2)
-   gen dIQT_H2i = (dIQT0_H2i*dIQT1_H2i)^(1/2)
+   gen dIQT_H2i = (dIQT0_H1i*dIQT1_H1i)^(1/2)
    
    gen dIQT_E2ii = (dIQT0_E2ii*dIQT1_E2ii)^(1/2)
    gen dIQT_E2ii_alt = (dIQT0_E2ii_alt*dIQT1_E2ii_alt)^(1/2)
-   gen dIQT_H2ii = (dIQT0_H2ii*dIQT1_H2ii)^(1/2)
+   gen dIQT_H2ii = (dIQT0_H1ii*dIQT1_H1ii)^(1/2)
   
    gen dIQT_E2iii = (dIQT0_E2iii*dIQT1_E2iii)^(1/2)
    gen dIQT_E2iii_alt = (dIQT0_E2iii_alt*dIQT1_E2iii_alt)^(1/2)
-   gen dIQT_H2iii = (dIQT0_H2iii*dIQT1_H2iii)^(1/2)  
+   gen dIQT_H2iii = (dIQT0_H1iii*dIQT1_H1iii)^(1/2)  
   
    gen dIQT_E2iv = (dIQT0_E2iv*dIQT1_E2iv)^(1/2)
    gen dIQT_E2iv_alt = (dIQT0_E2iv_alt*dIQT1_E2iv_alt)^(1/2)
-   gen dIQT_H2iv = (dIQT0_H2iv*dIQT1_H2iv)^(1/2)
+   gen dIQT_H2iv = (dIQT0_H1iv*dIQT1_H1iv)^(1/2)
    
    
  * IQT: Base separada 
