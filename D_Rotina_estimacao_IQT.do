@@ -2364,7 +2364,7 @@ log using "G_Controles.log", replace
    gen PHi = Peso*HH
    bysort T: egen PHt = sum(PHi)
    gen PH = PHi/PHt
-   label var PhabA "Peso para cálculo do IQT de rendimento habitual"
+   label var PH "Peso para cálculo do IQT de rendimento habitual"
    
    order PH, after(PE) 
    drop PHi PHt
@@ -2434,9 +2434,9 @@ log using "G_Controles.log", replace
 	  egen sum_nHi = sum(nHi)
 	  egen sum_dHi = sum(dHi)
 	  
-	  replace dIQT0_E1i = sum_nEi/sum_nEi if T==`t'
-	  replace dIQT0_E1i_alt = sum_nEi_alt/sum_nEi_alt if T==`t'
-	  replace dIQT0_H1i = sum_nHi/sum_nHi if T==`t'  
+	  replace dIQT0_E1i = sum_nEi/sum_dEi if T==`t'
+	  replace dIQT0_E1i_alt = sum_nEi_alt/sum_dEi_alt if T==`t'
+	  replace dIQT0_H1i = sum_nHi/sum_dHi if T==`t'  
 
 	  drop nEi dEi nEi_alt dEi_alt nHi dHi sum_nEi sum_dEi sum_nEi_alt sum_dEi_alt sum_nHi sum_dHi
 	
@@ -2456,9 +2456,9 @@ log using "G_Controles.log", replace
 	  egen sum_nHii = sum(nHii)
 	  egen sum_dHii = sum(dHii)
 	  
-	  replace dIQT0_E1ii = sum_nEii/sum_nEii if T==`t'
-	  replace dIQT0_E1ii_alt = sum_nEii_alt/sum_nEii_alt if T==`t'
-	  replace dIQT0_H1ii = sum_nHii/sum_nHii if T==`t'  
+	  replace dIQT0_E1ii = sum_nEii/sum_dEii if T==`t'
+	  replace dIQT0_E1ii_alt = sum_nEii_alt/sum_dEii_alt if T==`t'
+	  replace dIQT0_H1ii = sum_nHii/sum_dHii if T==`t'  
 
 	  drop nEii dEii nEii_alt dEii_alt nHii dHii sum_nEii sum_dEii sum_nEii_alt sum_dEii_alt sum_nHii sum_dHii
 	
@@ -2478,9 +2478,9 @@ log using "G_Controles.log", replace
 	  egen sum_nHiii = sum(nHiii)
 	  egen sum_dHiii = sum(dHiii)
 	  
-	  replace dIQT0_E1iii = sum_nEiii/sum_nEiii if T==`t'
-	  replace dIQT0_E1iii_alt = sum_nEiii_alt/sum_nEiii_alt if T==`t'
-	  replace dIQT0_H1iii = sum_nHiii/sum_nHiii if T==`t'  
+	  replace dIQT0_E1iii = sum_nEiii/sum_dEiii if T==`t'
+	  replace dIQT0_E1iii_alt = sum_nEiii_alt/sum_dEiii_alt if T==`t'
+	  replace dIQT0_H1iii = sum_nHiii/sum_dHiii if T==`t'  
 
 	  drop nEiii dEiii nEiii_alt dEiii_alt nHiii dHiii sum_nEiii sum_dEiii sum_nEiii_alt sum_dEiii_alt sum_nHiii sum_dHiii
 	  
@@ -2500,9 +2500,9 @@ log using "G_Controles.log", replace
 	  egen sum_nHiv = sum(nHiv)
 	  egen sum_dHiv = sum(dHiv)
 	  
-	  replace dIQT0_E1iv = sum_nEiv/sum_nEiv if T==`t'
-	  replace dIQT0_E1iv_alt = sum_nEiv_alt/sum_nEiv_alt if T==`t'
-	  replace dIQT0_H1iv = sum_nHiv/sum_nHiv if T==`t'  
+	  replace dIQT0_E1iv = sum_nEiv/sum_dEiv if T==`t'
+	  replace dIQT0_E1iv_alt = sum_nEiv_alt/sum_dEiv_alt if T==`t'
+	  replace dIQT0_H1iv = sum_nHiv/sum_dHiv if T==`t'  
 
 	  drop nEiv dEiv nEiv_alt dEiv_alt nHiv dHiv sum_nEiv sum_dEiv sum_nEiv_alt sum_dEiv_alt sum_nHiv sum_dHiv
    }
@@ -2543,9 +2543,9 @@ log using "G_Controles.log", replace
 	  egen sum_nHi = sum(nHi)
 	  egen sum_dHi = sum(dHi)
 	  
-	  replace dIQT1_E1i = sum_nEi/sum_nEi if T==`t'
-	  replace dIQT1_E1i_alt = sum_nEi_alt/sum_nEi_alt if T==`t'
-	  replace dIQT1_H1i = sum_nHi/sum_nHi if T==`t'  
+	  replace dIQT1_E1i = sum_nEi/sum_dEi if T==`t'
+	  replace dIQT1_E1i_alt = sum_nEi_alt/sum_dEi_alt if T==`t'
+	  replace dIQT1_H1i = sum_nHi/sum_dHi if T==`t'  
 
 	  drop nEi dEi nEi_alt dEi_alt nHi dHi sum_nEi sum_dEi sum_nEi_alt sum_dEi_alt sum_nHi sum_dHi
 	
@@ -2565,9 +2565,9 @@ log using "G_Controles.log", replace
 	  egen sum_nHii = sum(nHii)
 	  egen sum_dHii = sum(dHii)
 	  
-	  replace dIQT1_E1ii = sum_nEii/sum_nEii if T==`t'
-	  replace dIQT1_E1ii_alt = sum_nEii_alt/sum_nEii_alt if T==`t'
-	  replace dIQT1_H1ii = sum_nHii/sum_nHii if T==`t'  
+	  replace dIQT1_E1ii = sum_nEii/sum_dEii if T==`t'
+	  replace dIQT1_E1ii_alt = sum_nEii_alt/sum_dEii_alt if T==`t'
+	  replace dIQT1_H1ii = sum_nHii/sum_dHii if T==`t'  
 
 	  drop nEii dEii nEii_alt dEii_alt nHii dHii sum_nEii sum_dEii sum_nEii_alt sum_dEii_alt sum_nHii sum_dHii
 	
@@ -2587,9 +2587,9 @@ log using "G_Controles.log", replace
 	  egen sum_nHiii = sum(nHiii)
 	  egen sum_dHiii = sum(dHiii)
 	  
-	  replace dIQT1_E1iii = sum_nEiii/sum_nEiii if T==`t'
-	  replace dIQT1_E1iii_alt = sum_nEiii_alt/sum_nEiii_alt if T==`t'
-	  replace dIQT1_H1iii = sum_nHiii/sum_nHiii if T==`t'  
+	  replace dIQT1_E1iii = sum_nEiii/sum_dEiii if T==`t'
+	  replace dIQT1_E1iii_alt = sum_nEiii_alt/sum_dEiii_alt if T==`t'
+	  replace dIQT1_H1iii = sum_nHiii/sum_dHiii if T==`t'  
 
 	  drop nEiii dEiii nEiii_alt dEiii_alt nHiii dHiii sum_nEiii sum_dEiii sum_nEiii_alt sum_dEiii_alt sum_nHiii sum_dHiii
 	  
@@ -2609,9 +2609,9 @@ log using "G_Controles.log", replace
 	  egen sum_nHiv = sum(nHiv)
 	  egen sum_dHiv = sum(dHiv)
 	  
-	  replace dIQT1_E1iv = sum_nEiv/sum_nEiv if T==`t'
-	  replace dIQT1_E1iv_alt = sum_nEiv_alt/sum_nEiv_alt if T==`t'
-	  replace dIQT1_H1iv = sum_nHiv/sum_nHiv if T==`t'  
+	  replace dIQT1_E1iv = sum_nEiv/sum_dEiv if T==`t'
+	  replace dIQT1_E1iv_alt = sum_nEiv_alt/sum_dEiv_alt if T==`t'
+	  replace dIQT1_H1iv = sum_nHiv/sum_dHiv if T==`t'  
 
 	  drop nEiv dEiv nEiv_alt dEiv_alt nHiv dHiv sum_nEiv sum_dEiv sum_nEiv_alt sum_dEiv_alt sum_nHiv sum_dHiv  
    }  
@@ -2736,8 +2736,8 @@ log using "G_Controles.log", replace
 	  egen sum_nEi_alt = sum(nEi_alt)
 	  egen sum_dEi_alt = sum(dEi_alt)
 	  
-	  replace dIQT0_E2i = sum_nEi/sum_nEi if T==`t'
-	  replace dIQT0_E2i_alt = sum_nEi_alt/sum_nEi_alt if T==`t'  
+	  replace dIQT0_E2i = sum_nEi/sum_dEi if T==`t'
+	  replace dIQT0_E2i_alt = sum_nEi_alt/sum_dEi_alt if T==`t'  
 
 	  drop nEi dEi nEi_alt dEi_alt sum_nEi sum_dEi sum_nEi_alt sum_dEi_alt
 	
@@ -2753,8 +2753,8 @@ log using "G_Controles.log", replace
 	  egen sum_nEii_alt = sum(nEii_alt)
 	  egen sum_dEii_alt = sum(dEii_alt)
 	  
-	  replace dIQT0_E2ii = sum_nEii/sum_nEii if T==`t'
-	  replace dIQT0_E2ii_alt = sum_nEii_alt/sum_nEii_alt if T==`t'
+	  replace dIQT0_E2ii = sum_nEii/sum_dEii if T==`t'
+	  replace dIQT0_E2ii_alt = sum_nEii_alt/sum_dEii_alt if T==`t'
 
 	  drop nEii dEii nEii_alt dEii_alt sum_nEii sum_dEii sum_nEii_alt sum_dEii_alt
 	
@@ -2770,8 +2770,8 @@ log using "G_Controles.log", replace
 	  egen sum_nEiii_alt = sum(nEiii_alt)
 	  egen sum_dEiii_alt = sum(dEiii_alt)
 	  
-	  replace dIQT0_E2iii = sum_nEiii/sum_nEiii if T==`t'
-	  replace dIQT0_E2iii_alt = sum_nEiii_alt/sum_nEiii_alt if T==`t'
+	  replace dIQT0_E2iii = sum_nEiii/sum_dEiii if T==`t'
+	  replace dIQT0_E2iii_alt = sum_nEiii_alt/sum_dEiii_alt if T==`t'
 
 	  drop nEiii dEiii nEiii_alt dEiii_alt sum_nEiii sum_dEiii sum_nEiii_alt sum_dEiii_al
 	  
@@ -2787,8 +2787,8 @@ log using "G_Controles.log", replace
 	  egen sum_nEiv_alt = sum(nEiv_alt)
 	  egen sum_dEiv_alt = sum(dEiv_alt)
 	  
-	  replace dIQT0_E2iv = sum_nEiv/sum_nEiv if T==`t'
-	  replace dIQT0_E2iv_alt = sum_nEiv_alt/sum_nEiv_alt if T==`t'
+	  replace dIQT0_E2iv = sum_nEiv/sum_dEiv if T==`t'
+	  replace dIQT0_E2iv_alt = sum_nEiv_alt/sum_dEiv_alt if T==`t'
 
 	  drop nEiv dEiv nEiv_alt dEiv_alt sum_nEiv sum_dEiv sum_nEiv_alt sum_dEiv_alt 
    }
@@ -2820,8 +2820,8 @@ log using "G_Controles.log", replace
 	  egen sum_nEi_alt = sum(nEi_alt)
 	  egen sum_dEi_alt = sum(dEi_alt)
 	  
-	  replace dIQT1_E2i = sum_nEi/sum_nEi if T==`t'
-	  replace dIQT1_E2i_alt = sum_nEi_alt/sum_nEi_alt if T==`t'  
+	  replace dIQT1_E2i = sum_nEi/sum_dEi if T==`t'
+	  replace dIQT1_E2i_alt = sum_nEi_alt/sum_dEi_alt if T==`t'  
 
 	  drop nEi dEi nEi_alt dEi_alt sum_nEi sum_dEi sum_nEi_alt sum_dEi_alt
 	
@@ -2837,8 +2837,8 @@ log using "G_Controles.log", replace
 	  egen sum_nEii_alt = sum(nEii_alt)
 	  egen sum_dEii_alt = sum(dEii_alt)
 	  
-	  replace dIQT1_E2ii = sum_nEii/sum_nEii if T==`t'
-	  replace dIQT1_E2ii_alt = sum_nEii_alt/sum_nEii_alt if T==`t' 
+	  replace dIQT1_E2ii = sum_nEii/sum_dEii if T==`t'
+	  replace dIQT1_E2ii_alt = sum_nEii_alt/sum_dEii_alt if T==`t' 
 
 	  drop nEii dEii nEii_alt dEii_alt sum_nEii sum_dEii sum_nEii_alt sum_dEii_alt
 	
@@ -2854,8 +2854,8 @@ log using "G_Controles.log", replace
 	  egen sum_nEiii_alt = sum(nEiii_alt)
 	  egen sum_dEiii_alt = sum(dEiii_alt)
 	  
-	  replace dIQT1_E2iii = sum_nEiii/sum_nEiii if T==`t'
-	  replace dIQT1_E2iii_alt = sum_nEiii_alt/sum_nEiii_alt if T==`t'  
+	  replace dIQT1_E2iii = sum_nEiii/sum_dEiii if T==`t'
+	  replace dIQT1_E2iii_alt = sum_nEiii_alt/sum_dEiii_alt if T==`t'  
 
 	  drop nEiii dEiii nEiii_alt dEiii_alt sum_nEiii sum_dEiii sum_nEiii_alt sum_dEiii_alt 
 	  
@@ -2871,8 +2871,8 @@ log using "G_Controles.log", replace
 	  egen sum_nEiv_alt = sum(nEiv_alt)
 	  egen sum_dEiv_alt = sum(dEiv_alt)
 	  
-	  replace dIQT1_E2iv = sum_nEiv/sum_nEiv if T==`t'
-	  replace dIQT1_E2iv_alt = sum_nEiv_alt/sum_nEiv_alt if T==`t'
+	  replace dIQT1_E2iv = sum_nEiv/sum_dEiv if T==`t'
+	  replace dIQT1_E2iv_alt = sum_nEiv_alt/sum_dEiv_alt if T==`t'
 
 	  drop nEiv dEiv nEiv_alt dEiv_alt sum_nEiv sum_dEiv sum_nEiv_alt sum_dEiv_alt   
    }  
@@ -3009,9 +3009,9 @@ log using "G_Controles.log", replace
 	  egen sum_nHi = sum(nHi)
 	  egen sum_dHi = sum(dHi)
 	  
-	  replace dIQT0_E3i = sum_nEi/sum_nEi if T==`t'
-	  replace dIQT0_E3i_alt = sum_nEi_alt/sum_nEi_alt if T==`t'
-	  replace dIQT0_H3i = sum_nHi/sum_nHi if T==`t'  
+	  replace dIQT0_E3i = sum_nEi/sum_dEi if T==`t'
+	  replace dIQT0_E3i_alt = sum_nEi_alt/sum_dEi_alt if T==`t'
+	  replace dIQT0_H3i = sum_nHi/sum_dHi if T==`t'  
 
 	  drop nEi dEi nEi_alt dEi_alt nHi dHi sum_nEi sum_dEi sum_nEi_alt sum_dEi_alt sum_nHi sum_dHi
 	
@@ -3031,9 +3031,9 @@ log using "G_Controles.log", replace
 	  egen sum_nHii = sum(nHii)
 	  egen sum_dHii = sum(dHii)
 	  
-	  replace dIQT0_E3ii = sum_nEii/sum_nEii if T==`t'
-	  replace dIQT0_E3ii_alt = sum_nEii_alt/sum_nEii_alt if T==`t'
-	  replace dIQT0_H3ii = sum_nHii/sum_nHii if T==`t'  
+	  replace dIQT0_E3ii = sum_nEii/sum_dEii if T==`t'
+	  replace dIQT0_E3ii_alt = sum_nEii_alt/sum_dEii_alt if T==`t'
+	  replace dIQT0_H3ii = sum_nHii/sum_dHii if T==`t'  
 
 	  drop nEii dEii nEii_alt dEii_alt nHii dHii sum_nEii sum_dEii sum_nEii_alt sum_dEii_alt sum_nHii sum_dHii
 	
@@ -3053,9 +3053,9 @@ log using "G_Controles.log", replace
 	  egen sum_nHiii = sum(nHiii)
 	  egen sum_dHiii = sum(dHiii)
 	  
-	  replace dIQT0_E3iii = sum_nEiii/sum_nEiii if T==`t'
-	  replace dIQT0_E3iii_alt = sum_nEiii_alt/sum_nEiii_alt if T==`t'
-	  replace dIQT0_H3iii = sum_nHiii/sum_nHiii if T==`t'  
+	  replace dIQT0_E3iii = sum_nEiii/sum_dEiii if T==`t'
+	  replace dIQT0_E3iii_alt = sum_nEiii_alt/sum_dEiii_alt if T==`t'
+	  replace dIQT0_H3iii = sum_nHiii/sum_dHiii if T==`t'  
 
 	  drop nEiii dEiii nEiii_alt dEiii_alt nHiii dHiii sum_nEiii sum_dEiii sum_nEiii_alt sum_dEiii_alt sum_nHiii sum_dHiii
 	  
@@ -3075,9 +3075,9 @@ log using "G_Controles.log", replace
 	  egen sum_nHiv = sum(nHiv)
 	  egen sum_dHiv = sum(dHiv)
 	  
-	  replace dIQT0_E3iv = sum_nEiv/sum_nEiv if T==`t'
-	  replace dIQT0_E3iv_alt = sum_nEiv_alt/sum_nEiv_alt if T==`t'
-	  replace dIQT0_H3iv = sum_nHiv/sum_nHiv if T==`t'  
+	  replace dIQT0_E3iv = sum_nEiv/sum_dEiv if T==`t'
+	  replace dIQT0_E3iv_alt = sum_nEiv_alt/sum_dEiv_alt if T==`t'
+	  replace dIQT0_H3iv = sum_nHiv/sum_dHiv if T==`t'  
 
 	  drop nEiv dEiv nEiv_alt dEiv_alt nHiv dHiv sum_nEiv sum_dEiv sum_nEiv_alt sum_dEiv_alt sum_nHiv sum_dHiv
    }
@@ -3118,9 +3118,9 @@ log using "G_Controles.log", replace
 	  egen sum_nHi = sum(nHi)
 	  egen sum_dHi = sum(dHi)
 	  
-	  replace dIQT1_E3i = sum_nEi/sum_nEi if T==`t'
-	  replace dIQT1_E3i_alt = sum_nEi_alt/sum_nEi_alt if T==`t'
-	  replace dIQT1_H3i = sum_nHi/sum_nHi if T==`t'  
+	  replace dIQT1_E3i = sum_nEi/sum_dEi if T==`t'
+	  replace dIQT1_E3i_alt = sum_nEi_alt/sum_dEi_alt if T==`t'
+	  replace dIQT1_H3i = sum_nHi/sum_dHi if T==`t'  
 
 	  drop nEi dEi nEi_alt dEi_alt nHi dHi sum_nEi sum_dEi sum_nEi_alt sum_dEi_alt sum_nHi sum_dHi
 	
@@ -3140,9 +3140,9 @@ log using "G_Controles.log", replace
 	  egen sum_nHii = sum(nHii)
 	  egen sum_dHii = sum(dHii)
 	  
-	  replace dIQT1_E3ii = sum_nEii/sum_nEii if T==`t'
-	  replace dIQT1_E3ii_alt = sum_nEii_alt/sum_nEii_alt if T==`t'
-	  replace dIQT1_H3ii = sum_nHii/sum_nHii if T==`t'  
+	  replace dIQT1_E3ii = sum_nEii/sum_dEii if T==`t'
+	  replace dIQT1_E3ii_alt = sum_nEii_alt/sum_dEii_alt if T==`t'
+	  replace dIQT1_H3ii = sum_nHii/sum_dHii if T==`t'  
 
 	  drop nEii dEii nEii_alt dEii_alt nHii dHii sum_nEii sum_dEii sum_nEii_alt sum_dEii_alt sum_nHii sum_dHii
 	
@@ -3162,9 +3162,9 @@ log using "G_Controles.log", replace
 	  egen sum_nHiii = sum(nHiii)
 	  egen sum_dHiii = sum(dHiii)
 	  
-	  replace dIQT1_E3iii = sum_nEiii/sum_nEiii if T==`t'
-	  replace dIQT1_E3iii_alt = sum_nEiii_alt/sum_nEiii_alt if T==`t'
-	  replace dIQT1_H3iii = sum_nHiii/sum_nHiii if T==`t'  
+	  replace dIQT1_E3iii = sum_nEiii/sum_dEiii if T==`t'
+	  replace dIQT1_E3iii_alt = sum_nEiii_alt/sum_dEiii_alt if T==`t'
+	  replace dIQT1_H3iii = sum_nHiii/sum_dHiii if T==`t'  
 
 	  drop nEiii dEiii nEiii_alt dEiii_alt nHiii dHiii sum_nEiii sum_dEiii sum_nEiii_alt sum_dEiii_alt sum_nHiii sum_dHiii
 	  
@@ -3184,9 +3184,9 @@ log using "G_Controles.log", replace
 	  egen sum_nHiv = sum(nHiv)
 	  egen sum_dHiv = sum(dHiv)
 	  
-	  replace dIQT1_E3iv = sum_nEiv/sum_nEiv if T==`t'
-	  replace dIQT1_E3iv_alt = sum_nEiv_alt/sum_nEiv_alt if T==`t'
-	  replace dIQT1_H3iv = sum_nHiv/sum_nHiv if T==`t'  
+	  replace dIQT1_E3iv = sum_nEiv/sum_dEiv if T==`t'
+	  replace dIQT1_E3iv_alt = sum_nEiv_alt/sum_dEiv_alt if T==`t'
+	  replace dIQT1_H3iv = sum_nHiv/sum_dHiv if T==`t'  
 
 	  drop nEiv dEiv nEiv_alt dEiv_alt nHiv dHiv sum_nEiv sum_dEiv sum_nEiv_alt sum_dEiv_alt sum_nHiv sum_dHiv  
    }  
@@ -3313,8 +3313,8 @@ log using "G_Controles.log", replace
 	  egen sum_nEi_alt = sum(nEi_alt)
 	  egen sum_dEi_alt = sum(dEi_alt)
 	  
-	  replace dIQT0_E4i = sum_nEi/sum_nEi if T==`t'
-	  replace dIQT0_E4i_alt = sum_nEi_alt/sum_nEi_alt if T==`t'
+	  replace dIQT0_E4i = sum_nEi/sum_dEi if T==`t'
+	  replace dIQT0_E4i_alt = sum_nEi_alt/sum_dEi_alt if T==`t'
 
 	  drop nEi dEi nEi_alt dEi_alt sum_nEi sum_dEi sum_nEi_alt sum_dEi_alt 
 	
@@ -3329,10 +3329,9 @@ log using "G_Controles.log", replace
 	  egen sum_dEii = sum(dEii)
 	  egen sum_nEii_alt = sum(nEii_alt)
 	  egen sum_dEii_alt = sum(dEii_alt)
-	  egen sum_nHii = sum(nHii)
 	  
-	  replace dIQT0_E4ii = sum_nEii/sum_nEii if T==`t'
-	  replace dIQT0_E4ii_alt = sum_nEii_alt/sum_nEii_alt if T==`t'
+	  replace dIQT0_E4ii = sum_nEii/sum_dEii if T==`t'
+	  replace dIQT0_E4ii_alt = sum_nEii_alt/sum_dEii_alt if T==`t'
 
 	  drop nEii dEii nEii_alt dEii_alt sum_nEii sum_dEii sum_nEii_alt sum_dEii_alt 
 	
@@ -3348,8 +3347,8 @@ log using "G_Controles.log", replace
 	  egen sum_nEiii_alt = sum(nEiii_alt)
 	  egen sum_dEiii_alt = sum(dEiii_alt)
 	  
-	  replace dIQT0_E4iii = sum_nEiii/sum_nEiii if T==`t'
-	  replace dIQT0_E4iii_alt = sum_nEiii_alt/sum_nEiii_alt if T==`t'
+	  replace dIQT0_E4iii = sum_nEiii/sum_dEiii if T==`t'
+	  replace dIQT0_E4iii_alt = sum_nEiii_alt/sum_dEiii_alt if T==`t'
 
 	  drop nEiii dEiii nEiii_alt dEiii_alt sum_nEiii sum_dEiii sum_nEiii_alt sum_dEiii_alt 
 	  
@@ -3365,8 +3364,8 @@ log using "G_Controles.log", replace
 	  egen sum_nEiv_alt = sum(nEiv_alt)
 	  egen sum_dEiv_alt = sum(dEiv_alt)
 	  
-	  replace dIQT0_E4iv = sum_nEiv/sum_nEiv if T==`t'
-	  replace dIQT0_E4iv_alt = sum_nEiv_alt/sum_nEiv_alt if T==`t'
+	  replace dIQT0_E4iv = sum_nEiv/sum_dEiv if T==`t'
+	  replace dIQT0_E4iv_alt = sum_nEiv_alt/sum_dEiv_alt if T==`t'
 
 	  drop nEiv dEiv nEiv_alt dEiv_alt sum_nEiv sum_dEiv sum_nEiv_alt sum_dEiv_alt 
    }
@@ -3398,8 +3397,8 @@ log using "G_Controles.log", replace
 	  egen sum_nEi_alt = sum(nEi_alt)
 	  egen sum_dEi_alt = sum(dEi_alt)
 	  
-	  replace dIQT1_E4i = sum_nEi/sum_nEi if T==`t'
-	  replace dIQT1_E4i_alt = sum_nEi_alt/sum_nEi_alt if T==`t'
+	  replace dIQT1_E4i = sum_nEi/sum_dEi if T==`t'
+	  replace dIQT1_E4i_alt = sum_nEi_alt/sum_dEi_alt if T==`t'
 
 	  drop nEi dEi nEi_alt dEi_alt sum_nEi sum_dEi sum_nEi_alt sum_dEi_alt
 	
@@ -3415,8 +3414,8 @@ log using "G_Controles.log", replace
 	  egen sum_nEii_alt = sum(nEii_alt)
 	  egen sum_dEii_alt = sum(dEii_alt)
 	  
-	  replace dIQT1_E4ii = sum_nEii/sum_nEii if T==`t'
-	  replace dIQT1_E4ii_alt = sum_nEii_alt/sum_nEii_alt if T==`t'
+	  replace dIQT1_E4ii = sum_nEii/sum_dEii if T==`t'
+	  replace dIQT1_E4ii_alt = sum_nEii_alt/sum_dEii_alt if T==`t'
 
 	  drop nEii dEii nEii_alt dEii_alt sum_nEii sum_dEii sum_nEii_alt sum_dEii_alt 
 	
@@ -3432,8 +3431,8 @@ log using "G_Controles.log", replace
 	  egen sum_nEiii_alt = sum(nEiii_alt)
 	  egen sum_dEiii_alt = sum(dEiii_alt)
 	  
-	  replace dIQT1_E4iii = sum_nEiii/sum_nEiii if T==`t'
-	  replace dIQT1_E4iii_alt = sum_nEiii_alt/sum_nEiii_alt if T==`t' 
+	  replace dIQT1_E4iii = sum_nEiii/sum_dEiii if T==`t'
+	  replace dIQT1_E4iii_alt = sum_nEiii_alt/sum_dEiii_alt if T==`t' 
 
 	  drop nEiii dEiii nEiii_alt dEiii_alt sum_nEiii sum_dEiii sum_nEiii_alt sum_dEiii_alt 
 	  
@@ -3449,8 +3448,8 @@ log using "G_Controles.log", replace
 	  egen sum_nEiv_alt = sum(nEiv_alt)
 	  egen sum_dEiv_alt = sum(dEiv_alt)
 	  
-	  replace dIQT1_E4iv = sum_nEiv/sum_nEiv if T==`t'
-	  replace dIQT1_E4iv_alt = sum_nEiv_alt/sum_nEiv_alt if T==`t'
+	  replace dIQT1_E4iv = sum_nEiv/sum_dEiv if T==`t'
+	  replace dIQT1_E4iv_alt = sum_nEiv_alt/sum_dEiv_alt if T==`t'
 
 	  drop nEiv dEiv nEiv_alt dEiv_alt sum_nEiv sum_dEiv sum_nEiv_alt sum_dEiv_alt 
    }  
