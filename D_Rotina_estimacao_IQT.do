@@ -1896,8 +1896,8 @@ log using "G_Controles.log", replace
 	  if `t' > 1 replace WE_1iii_Tante = RegWE_1iii_`i' if T==`t'
 	  if `t' > 1 replace WH_1iii_Tante = RegWH_1iii_`i' if T==`t'	  
 	  
-	  if `t' > 1 replace WE_1iv_Tante = RegWE_1i_`i' if T==`t'
-	  if `t' > 1 replace WH_1iv_Tante = RegWH_1i_`i' if T==`t'	 
+	  if `t' > 1 replace WE_1iv_Tante = RegWE_1iv_`i' if T==`t'
+	  if `t' > 1 replace WH_1iv_Tante = RegWH_1iv_`i' if T==`t'	 
 	 
 	 
 	  local j = `t'+1 
@@ -2021,7 +2021,7 @@ log using "G_Controles.log", replace
 	  if `t' > 1 replace WE_2i_Tante = RegWE_2i_`i' if T==`t'
 	  if `t' > 1 replace WE_2ii_Tante = RegWE_2ii_`i' if T==`t'
 	  if `t' > 1 replace WE_2iii_Tante = RegWE_2iii_`i' if T==`t'
-	  if `t' > 1 replace WE_2iv_Tante = RegWE_2i_`i' if T==`t' 
+	  if `t' > 1 replace WE_2iv_Tante = RegWE_2iv_`i' if T==`t' 
 	 
 	  local j = `t'+1 
 	  if `t' < `=Tmax' replace WE_2i_Tprox = RegWE_2i_`j' if T==`t'	  
@@ -2189,8 +2189,8 @@ log using "G_Controles.log", replace
 	  if `t' > 1 replace WE_3iii_Tante = RegWE_3iii_`i' if T==`t'
 	  if `t' > 1 replace WH_3iii_Tante = RegWH_3iii_`i' if T==`t'	  
 	  
-	  if `t' > 1 replace WE_3iv_Tante = RegWE_3i_`i' if T==`t'
-	  if `t' > 1 replace WH_3iv_Tante = RegWH_3i_`i' if T==`t'	 
+	  if `t' > 1 replace WE_3iv_Tante = RegWE_3iv_`i' if T==`t'
+	  if `t' > 1 replace WH_3iv_Tante = RegWH_3iv_`i' if T==`t'	 
 	 
 	 
 	  local j = `t'+1 
@@ -3551,7 +3551,7 @@ log using "G_Controles.log", replace
 {
  use "$dirdata/G_IQT_Controles.dta", clear
 
- egen Tmax = max(T)
+* egen Tmax = max(T)
  
 ** G.4.1 Baseline:
  {
