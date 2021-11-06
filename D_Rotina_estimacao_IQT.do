@@ -2901,7 +2901,7 @@ log using "G_Controles.log", replace
  * IQT: Base separada 
   {
   preserve
-   keep T dIQT_E2i dIQT_E2ii dIQT_E2ii dIQT_E2iv dIQT_E2i_alt dIQT_E2ii_alt dIQT_E2iii_alt dIQT_E2iv_alt dIQT_H2i dIQT_H2ii dIQT_H2iii dIQT_H2iv
+   keep T dIQT_E2i dIQT_E2ii dIQT_E2iii dIQT_E2iv dIQT_E2i_alt dIQT_E2ii_alt dIQT_E2iii_alt dIQT_E2iv_alt dIQT_H2i dIQT_H2ii dIQT_H2iii dIQT_H2iv
    duplicates drop
   
    *OBS: calcularemos apenas os IQT com 2012.2 = 100
@@ -3215,7 +3215,7 @@ log using "G_Controles.log", replace
  * IQT: Base separada 
   {
   preserve
-   keep T dIQT_E3i dIQT_E3ii dIQT_E3ii dIQT_E3iv dIQT_E3i_alt dIQT_E3ii_alt dIQT_E3iii_alt dIQT_E3iv_alt dIQT_H3i dIQT_H3ii dIQT_H3iii dIQT_H3iv
+   keep T dIQT_E3i dIQT_E3ii dIQT_E3iii dIQT_E3iv dIQT_E3i_alt dIQT_E3ii_alt dIQT_E3iii_alt dIQT_E3iv_alt dIQT_H3i dIQT_H3ii dIQT_H3iii dIQT_H3iv
    duplicates drop
   
    *OBS: calcularemos apenas os IQT com 2012.2 = 100
@@ -3478,7 +3478,7 @@ log using "G_Controles.log", replace
  * IQT: Base separada 
   {
   preserve
-   keep T dIQT_E4i dIQT_E4ii dIQT_E4ii dIQT_E4iv dIQT_E4i_alt dIQT_E4ii_alt dIQT_E4iii_alt dIQT_E4iv_alt dIQT_H4i dIQT_H4ii dIQT_H4iii dIQT_H4iv
+   keep T dIQT_E4i dIQT_E4ii dIQT_E4iii dIQT_E4iv dIQT_E4i_alt dIQT_E4ii_alt dIQT_E4iii_alt dIQT_E4iv_alt dIQT_H4i dIQT_H4ii dIQT_H4iii dIQT_H4iv
    duplicates drop
   
    *OBS: calcularemos apenas os IQT com 2012.2 = 100
@@ -3551,7 +3551,7 @@ log using "G_Controles.log", replace
 {
  use "$dirdata/G_IQT_Controles.dta", clear
 
-* egen Tmax = max(T)
+egen Tmax = max(T)
  
 ** G.4.1 Baseline:
  {
@@ -3663,7 +3663,12 @@ log using "G_Controles.log", replace
   * (iv) Informal:
     twoway (line IQT_E4iv T) (line IQT_E4iv_alt T) (line IQT_H4iv T), xtitle(" ") xlabel(1(2)`=Tmax', angle(vertical) valuelabel) title("Com peso + log = 0") name(IQT_4iv, replace)
  }  	  
-     
+ 
+ 
+** Comparando 4 tipos de regressão
+   twoway (line IQT_E1iv_alt T) (line IQT_E2iv_alt T) (line IQT_E3iv_alt T) (line IQT_E4iv_alt T), xtitle(" ") xlabel(1(2)`=Tmax', angle(vertical) valuelabel) title("Comparação Regressões - C_alt (iv)") name(IQT_regressoes, replace)
+ 
+ 
  save "$dirdata/G_IQT_Controles.dta", replace
 }  
 
@@ -3672,6 +3677,14 @@ log using "G_Controles.log", replace
 * G.5: EXPORTANDO TABELAS *****************************************************
 {
  use "$dirdata/G0_BaseEstimacao.dta", clear
+ 
+ * Cor/raça ignorada:  2.093 observações em 8.249.275 (0,03 %)
+   drop if Cor == 9
+   
+   gen PretoPardoIndig = 0
+   replace PretoPardoIndig = 1 if (Cor==2 | Cor==4 | Cor== 5)
+   label var PretoPardoIndig "Preto, Parto ou Indigena"
+ 
 
 ** G.5.1: Baseline 
  {
@@ -3688,31 +3701,31 @@ log using "G_Controles.log", replace
 	
    * (ii) Cor: 
     * Efetivo:
-	 regress logW_efet_C mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 Cor1 Cor2 Cor3 Cor4 Cor5 if T==`t'
+	 regress logW_efet_C mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 PretoPardoIndig if T==`t'
 	 outreg2 using "$dirdata/G_Tabelas/G1_Tabela_Efetivo_`t'", append ctitle("Cor") word  tex(pretty) label
 	 
    * Habitual:
-	 regress logW_hab_C mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 Cor1 Cor2 Cor3 Cor4 Cor5 if T==`t'
+	 regress logW_hab_C mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 PretoPardoIndig if T==`t'
 	 outreg2 using "$dirdata/G_Tabelas/G1_Tabela_Habitual_`t'", append ctitle("Cor") word tex(pretty) label
 
 	 
    * (iii) Setor público: 
     * Efetivo:
-	 regress logW_efet_C mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 Cor1 Cor2 Cor3 Cor4 Cor5 publico if T==`t'
+	 regress logW_efet_C mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 PretoPardoIndig publico if T==`t'
 	 outreg2 using "$dirdata/G_Tabelas/G1_Tabela_Efetivo_`t'", append ctitle("Setor Público") word tex(pretty) label
 	 
    * Habitual:
-	 regress logW_hab_C mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 Cor1 Cor2 Cor3 Cor4 Cor5 publico if T==`t'
+	 regress logW_hab_C mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 PretoPardoIndig publico if T==`t'
 	 outreg2 using "$dirdata/G_Tabelas/G1_Tabela_Habitual_`t'", append ctitle("Setor Público") word tex(pretty) label		 
 	  
 	  
    * (iv) Setor informal: 
     * Efetivo:
-	 regress logW_efet_C mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 Cor1 Cor2 Cor3 Cor4 Cor5 publico informal if T==`t'
+	 regress logW_efet_C mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 PretoPardoIndig publico informal if T==`t'
 	 outreg2 using "$dirdata/G_Tabelas/G1_Tabela_Efetivo_`t'", append ctitle("Informal") word tex(pretty) label
 	 
    * Habitual:
-	 regress logW_hab_C mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 Cor1 Cor2 Cor3 Cor4 Cor5 publico informal if T==`t'
+	 regress logW_hab_C mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 PretoPardoIndig publico informal if T==`t'
 	 outreg2 using "$dirdata/G_Tabelas/G1_Tabela_Habitual_`t'", append ctitle("Informal") word tex(pretty) label
   
     estimates clear
@@ -3734,19 +3747,19 @@ log using "G_Controles.log", replace
 	
    * (ii) Cor: 
     * Efetivo:
-	 regress logW_efet0_C mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 Cor1 Cor2 Cor3 Cor4 Cor5 if T==`t'
+	 regress logW_efet0_C mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 PretoPardoIndig if T==`t'
 	 outreg2 using "$dirdata/G_Tabelas/G2_Tabela_Efetivo_`t'", append ctitle("Cor") word tex(pretty) label
 
 	 
    * (iii) Setor público: 
     * Efetivo:
-	 regress logW_efet0_C mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 Cor1 Cor2 Cor3 Cor4 Cor5 publico if T==`t'
+	 regress logW_efet0_C mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 PretoPardoIndig publico if T==`t'
 	 outreg2 using "$dirdata/G_Tabelas/G2_Tabela_Efetivo_`t'", append ctitle("Setor Público") word tex(pretty) label
 	 
 	 
    * (iv) Setor informal: 
     * Efetivo:
-	 regress logW_efet0_C mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 Cor1 Cor2 Cor3 Cor4 Cor5 publico informal if T==`t'
+	 regress logW_efet0_C mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 PretoPardoIndig publico informal if T==`t'
 	 outreg2 using "$dirdata/G_Tabelas/G2_Tabela_Efetivo_`t'", append ctitle("Informal") word tex(pretty) label
     
 	estimates clear
@@ -3770,31 +3783,31 @@ log using "G_Controles.log", replace
 	
    * (ii) Cor: 
     * Efetivo:
-	 regress logW_efet_C mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 Cor1 Cor2 Cor3 Cor4 Cor5 if T==`t' [iw = Peso]
+	 regress logW_efet_C mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 PretoPardoIndig if T==`t' [iw = Peso]
 	 outreg2 using "$dirdata/G_Tabelas/G3_Tabela_Efetivo_`t'", append ctitle("Cor") word tex(pretty) label
 	 
    * Habitual:
-	 regress logW_hab_C mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 Cor1 Cor2 Cor3 Cor4 Cor5 if T==`t' [iw = Peso]
+	 regress logW_hab_C mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 PretoPardoIndig if T==`t' [iw = Peso]
 	 outreg2 using "$dirdata/G_Tabelas/G3_Tabela_Habitual_`t'", append ctitle("Cor") word tex(pretty) label	
 
 	 
    * (iii) Setor público: 
     * Efetivo:
-	 regress logW_efet_C mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 Cor1 Cor2 Cor3 Cor4 Cor5 publico if T==`t' [iw = Peso]
+	 regress logW_efet_C mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 PretoPardoIndig publico if T==`t' [iw = Peso]
 	 outreg2 using "$dirdata/G_Tabelas/G3_Tabela_Efetivo_`t'", append ctitle("Setor Público") word tex(pretty) label
 	 
    * Habitual:
-	 regress logW_hab_C mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 Cor1 Cor2 Cor3 Cor4 Cor5 publico if T==`t' [iw = Peso]
+	 regress logW_hab_C mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 PretoPardoIndig publico if T==`t' [iw = Peso]
 	 outreg2 using "$dirdata/G_Tabelas/G3_Tabela_Habitual_`t'", append ctitle("Setor Público") word tex(pretty) label
 		 
 	  	  
    * (iv) Setor informal: 
     * Efetivo:
-	 regress logW_efet_C mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 Cor1 Cor2 Cor3 Cor4 Cor5 publico informal if T==`t' [iw = Peso]
+	 regress logW_efet_C mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 PretoPardoIndig publico informal if T==`t' [iw = Peso]
 	 outreg2 using "$dirdata/G_Tabelas/G3_Tabela_Efetivo_`t'", append ctitle("Informal") word tex(pretty) label
 	 
    * Habitual:
-	 regress logW_hab_C mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 Cor1 Cor2 Cor3 Cor4 Cor5 publico informal if T==`t' [iw = Peso]
+	 regress logW_hab_C mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 PretoPardoIndig publico informal if T==`t' [iw = Peso]
 	 outreg2 using "$dirdata/G_Tabelas/G3_Tabela_Habitual_`t'", append ctitle("Informal") word tex(pretty) label
 	 
 	estimates clear 
@@ -3816,19 +3829,19 @@ log using "G_Controles.log", replace
 	
    * (ii) Cor: 
     * Efetivo:
-	 regress logW_efet0_C mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 Cor1 Cor2 Cor3 Cor4 Cor5 if T==`t' [iw = Peso]
+	 regress logW_efet0_C mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 PretoPardoIndig if T==`t' [iw = Peso]
 	 outreg2 using "$dirdata/G_Tabelas/G4_Tabela_Efetivo_`t'", append ctitle("Cor") word tex(pretty) label
 
 	 
    * (iii) Setor público: 
     * Efetivo:
-	 regress logW_efet0_C mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 Cor1 Cor2 Cor3 Cor4 Cor5 publico if T==`t' [iw = Peso]
+	 regress logW_efet0_C mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 PretoPardoIndig publico if T==`t' [iw = Peso]
 	 outreg2 using "$dirdata/G_Tabelas/G4_Tabela_Efetivo_`t'", append ctitle("Setor Público") word tex(pretty) label
 	 
 	 
    * (iv) Setor informal: 
     * Efetivo:
-	 regress logW_efet0_C mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 Cor1 Cor2 Cor3 Cor4 Cor5 publico informal if T==`t' [iw = Peso]
+	 regress logW_efet0_C mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 PretoPardoIndig publico informal if T==`t' [iw = Peso]
 	 outreg2 using "$dirdata/G_Tabelas/G4_Tabela_Efetivo_`t'", append ctitle("Informal") word tex(pretty) label
     
 	estimates clear
@@ -3861,7 +3874,6 @@ ok 10. IQT
    ok - Rendimento e horas habituais
    ok - Com peso
    ok - Com controles
-	  - Estimação com pesos - rend. habitual, estratégia C
 	  - Por região
 	  - Por área de atividade
 */   
