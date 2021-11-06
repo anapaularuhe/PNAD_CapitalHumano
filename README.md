@@ -177,4 +177,16 @@ Arquivos referentes ao uso da PNAD Contínua no projeto sobre Capital Humano e P
      . G2_Tabela_Habitual_t                       | Tabelas Habitual - log = 0 (2) - Trimestre t
      . G3_Tabela_Habitual_t                       | Tabelas Habitual - Reg com pesos (3) - Trimestre t
      . G4_Tabela_Habitual_t                       | Tabelas Habitual - Reg com pesos + log=0 (4) - Trimestre t                 
-          
+ 
+
+> ---------------------------------------------------------
+
+> G. GRÁFICOS
+  * Rotina: G_Graficos
+  * Inputs:
+   - G_IQT_Controles.dta
+
+  * Outputs:
+   - Gráficos dos IQT. Essa rotina é cópia de parte da rotina D, salva em um do-file separado apenas para facilitar a visualização dos gráficos.
+   
+
