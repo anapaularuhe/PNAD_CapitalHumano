@@ -3666,7 +3666,7 @@ egen Tmax = max(T)
  
  
 ** Comparando 4 tipos de regressão
-   twoway (line IQT_E1iv_alt T) (line IQT_E2iv_alt T) (line IQT_E3iv_alt T) (line IQT_E4iv_alt T), xtitle(" ") xlabel(1(2)`=Tmax', angle(vertical) valuelabel) title("Comparação Regressões - C_alt (iv)") name(IQT_regressoes, replace)
+   twoway (line IQT_E1iv_alt T) (line IQT_E2iv_alt T) (line IQT_E3iv_alt T) (line IQT_E4iv_alt T), ytitle(IQT) ytitle(, orientation(vertical)) xtitle(" ") xlabel(1(2)38, labels angle(vertical) valuelabel) title("Comparação Regressões - C_alt Informal") legend(on order(1 "Baseline" 2 "log = 0" 3 "Com peso" 4 "Com peso + log = 0")) name(IQT_regressoes, replace)
  
  
  save "$dirdata/G_IQT_Controles.dta", replace
