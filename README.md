@@ -4,11 +4,15 @@ Arquivos referentes ao uso da PNAD Contínua no projeto sobre Capital Humano e P
 
 > Projeto Capital Humano e Produtividade
 > FGV IBRE - Núcleo de Mercado de Trabalho e Produtividade
-> Outubro de 2021
+> Estimação IQT
+> 2021
 > ---------------------------------------------------------
 
-> A. IMPORTANDO DADOS E CONSTRUINDO BASE COM DEFLATORES
-  * Rotina: A_Limpeza_amostra.do
+
+> ROTINA: IQT.do 
+  - LogIQT.log
+
+> A. IMPORTANDO DADOS E CONSTRUINDO BASE COMPLETA COM DEFLATORES
   * Inputs:
    - A0_PNADC2012_2021_bruta.dta                 | Base bruta da PNAD, em .dta
    - deflator_PNADC_2021_trimestral_040506.xls   | Deflatores brutos da PNAD, em .xls, com aba editada
@@ -21,172 +25,83 @@ Arquivos referentes ao uso da PNAD Contínua no projeto sobre Capital Humano e P
 
 > ---------------------------------------------------------
 
-> B. LIMPANDO BASE
-  * Mesma rotina
+> B. SELEÇÃO DE VARIÁVEIS E ORGANIZAÇÃO DA BASE
   * Inputs:
    - A2_PNADC2012_2021_completa_deflatores.dta 
 
   * Outputs:
-   - B_PNADC2012_2021_limpa.dta                   | Base restrita às variáveis de interesse, ainda sem seleção da amostra
+   - B_PNADC2012_2021_limpa.dta                   | Base restrita às variáveis de interesse, ainda sem seleção da amostra, com labels e renomeações.
   
 
 > ---------------------------------------------------------
 
-> C. SELECIONANDO AMOSTRA: POPULAÇÃO OCUPADA
-  * Mesma rotina
+> C. RESTRIÇÃO DA AMOSTRA: POPULAÇÃO OCUPADA
   * Inputs:
    - B_PNADC2012_2021_limpa.dta
 
   * Outputs:
-   - C_amostra_PO_BR.xls                          | Tabelas em .xls com características da amostra
+   - C_Caracteristicas_PO.xls                     | Tabelas em .xls com características da amostra
    - C_PNADC_POamostra.dta                        | Base limpa, restrita à amostra de interesse
-   - A_Limpeza_amostra.log                        | Log da rotina
 
 
 > ---------------------------------------------------------
 
-> D. ESTIMAÇÕES E IQT - SALÁRIO EFETIVO
-  * Rotina: D_Rotina_estimacao_IQT
+> D. ESTIMAÇÃO IQT
   * Inputs:
    - C_PNADC_POamostra.dta
 
   * Outputs:
-   - DA1_Estimacoes.ster                          | Arquivo que armazena as regressões - Salário Efetivo - Estratégia A
-   - DA2_Coeficientes_unico.dta                   | Base com os coeficientes da regressão única - Salário Efetivo - Estratégia A
-   - DA2_Coeficientes_genero.dta                  | Base com os coeficientes das regressões separadas por gênero - Salário Efetivo - Estratégia A
+   - D_BaseEstimacao.dta                          | Base final com salários preditos, pesos ponderados por horas e componentes do IQT 
+   - D_IQT.dta                                    | Base com os IQTs calculados
+   - D_IQT.xlsx                                   | Arquivo excel com os IQTs calculados
+   
+   - D_Regressões_Efetivo_i.ster                  | Arquivo que armazena as regressões - Salário Efetivo - Sem controles
+   - D_Regressões_Efetivo_ii.ster                 | Arquivo que armazena as regressões - Salário Efetivo - Cor
+   - D_Regressões_Efetivo_iii.ster                | Arquivo que armazena as regressões - Salário Efetivo - Setor Público
+   - D_Regressões_Efetivo_iv.ster                 | Arquivo que armazena as regressões - Salário Efetivo - Informal
 
-   - DC1_Estimacoes.ster                          | Arquivo que armazena as regressões - Salário Efetivo - Estratégia C
-   - DC2_Coeficientes_unico.dta                   | Base com os coeficientes da regressão única - Salário Efetivo - Estratégia C
-   - DC2_Coeficientes_genero.dta                  | Base com os coeficientes das regressões separadas por gênero - Salário Efetivo - Estratégia C
-
-   - DC10_Estimacoes.ster                         | Arquivo que armazena as regressões - Salário Efetivo - Estratégia C - logW=0 se W=0 
-   - DC20_Coeficientes_genero.dta                 | Base com os coeficientes das regressões separadas por gênero - Salário Efetivo - Estratégia C - logW=0 se W=0 
-
-   - DC1_Estimacoes_peso.ster                     | Arquivo que armazena as regressões com peso - Salário Efetivo - Estratégia C 
-   - DC2_Coeficientes_genero_peso.dta             | Base com os coeficientes das regressões com peso separadas por gênero - Salário Efetivo - Estratégia C
-
-   - DC10_Estimacoes_peso.ster                    | Arquivo que armazena as regressões com peso- Salário Efetivo - Estratégia C - logW=0 se W=0 
-   - DC20_Coeficientes_genero_peso.dta            | Base com os coeficientes das regressões com peso separadas por gênero - Salário Efetivo - Estratégia C - logW=0 se W=0 
-
-   - DD1_Estimacoes.ster                          | Arquivo que armazena as regressões - Salário Efetivo - Estratégia D
-   - DD2_Coeficientes_unico.dta                   | Base com os coeficientes da regressão única - Salário Efetivo - Estratégia D
-   - DD2_Coeficientes_genero.dta                  | Base com os coeficientes das regressões separadas por gênero - Salário Efetivo - Estratégia D
-      
-   - D0_BaseEstimacao.dta                         | Base final com salários preditos e pesos ponderados por horas - Salário Efetivo  
-   - D_IQT_Efetivo.dta                            | Base com os IQTs calculados para as quatro estratégias - Salário Efetivo
-
-   (obs: as estimações A e B são equivalentes para o rendimento efetivo, de modo que estimamos as regressões apenas uma vez, para o caso A).
+   - D_Regressões_Habitual_i.ster                 | Arquivo que armazena as regressões - Salário Habitual - Sem controles
+   - D_Regressões_Habitual_ii.ster                | Arquivo que armazena as regressões - Salário Habitual - Cor
+   - D_Regressões_Habitual_iii.ster               | Arquivo que armazena as regressões - Salário Habitual - Setor Público
+   - D_Regressões_Habitual_iv.ster                | Arquivo que armazena as regressões - Salário Habitual - Informal
 
 
 > ---------------------------------------------------------
 
-> E. ESTIMAÇÕES E IQT - SALÁRIO HABITUAL
-  * Mesma rotina
+> E. RETORNOS EDUCAÇÃO: TABELAS E BASE DTA
   * Inputs:
-   - C_PNADC_POamostra.dta
+   - D_BaseEstimacao.dta
 
   * Outputs:
-   - EA1_Estimacoes.ster                          | Arquivo que armazena as regressões - Salário Habitual - Estratégia A
-   - EA2_Coeficientes_unico.dta                   | Base com os coeficientes da regressão única - Salário Habitual - Estratégia A
-   - EA2_Coeficientes_genero.dta                  | Base com os coeficientes das regressões separadas por gênero - Salário Habitual - Estratégia A
+  Para cada período/trimestre t =  1, ..., Tmax
+   - E_Tabelas/Efetivo_t.doc                      | Tabela com os coeficientes da regressão em Word - Salário Efetivo
+   - E_Tabelas/Efetivo_t.tex                      | Tabela com os coeficientes da regressão em Latex - Salário Efetivo
+   - E_Tabelas/Habitual_t.doc                     | Tabela com os coeficientes da regressão em Word - Salário Habitual
+   - E_Tabelas/Habitual_t.tex                     | Tabela com os coeficientes da regressão em Latex - Salário Habitual
+  
 
-   - EB1_Estimacoes.ster                          | Arquivo que armazena as regressões - Salário Habitual - Estratégia B
-   - EB2_Coeficientes_unico.dta                   | Base com os coeficientes da regressão única - Salário Habitual - Estratégia B
-   - EB2_Coeficientes_genero.dta                  | Base com os coeficientes das regressões separadas por gênero - Salário Habitual - Estratégia B
-      
-   - E0_BaseEstimacao.dta                         | Base final com salários preditos e pesos ponderados por horas - Salário Habitual  
-   - E_IQT_Habitual.dta                           | Base com os IQTs calculados para as quatro estratégias - Salário Habitual
+   - E_Coeficientes_Efetivo_i                     | Base .dta dos coeficientes estimados - Salário Efetivo - Sem controles 
+   - E_Coeficientes_Efetivo_ii                    | Base .dta dos coeficientes estimados - Salário Efetivo - Cor
+   - E_Coeficientes_Efetivo_iii                   | Base .dta dos coeficientes estimados - Salário Efetivo - Setor público
+   - E_Coeficientes_Efetivo_iv                    | Base .dta dos coeficientes estimados - Salário Efetivo - Informal
 
-   (obs: as estimações A, C e D são equivalentes para o rendimento habitual, de modo que estimamos as regressões apenas uma vez, para o caso A).
+   - E_Coeficientes_Efetivo                       | Base .dta consolidada dos coeficientes estimados - Salário Efetivo 
 
-   - F_IQT.dta                                    | Base com os IQT: habitual e efetivo, todas estratégias      
+
+   - E_Coeficientes_Habitual_i                    | Base .dta dos coeficientes estimados - Salário Habitual - Sem controles 
+   - E_Coeficientes_Habitual_ii                   | Base .dta dos coeficientes estimados - Salário Habitual - Cor
+   - E_Coeficientes_Habitual_iii                  | Base .dta dos coeficientes estimados - Salário Habitual - Setor público
+   - E_Coeficientes_Habitual_iv                   | Base .dta dos coeficientes estimados - Salário Habitual - Informal
+
+   - E_Coeficientes_Habitual                      | Base .dta consolidada dos coeficientes estimados - Salário Habitual 
+
 
 
 > ---------------------------------------------------------
 
 > F. GRÁFICOS
-  * Rotina: F_Graficos (cópia da última parte da rotina anterior)
-  * Input:
-   - F_IQT
-
-  * Outputs: gráficos em .png               
- 
-
-> ---------------------------------------------------------
-
-> G. ESTIMAÇÕES COM CONTROLES
-  * Rotina: D_Rotina_estimacao_IQT
   * Inputs:
-   - C_PNADC_POamostra.dta
-
-  * Outputs: 
-   - G0_BaseEstimacao.dta                         | Base para as regressões 
-   - G_BaseW.dta                                  | Base final com salários preditos e pesos ponderados por horas - Regressões com controles 
-   - G_IQT_Controles.dta                          | Base com os IQT calculados com controles, habitual e efetivo, com e sem peso, estratégias C e C_alt
-   
-   - Regressões:
-     . G1i_E_Estimacao.ster                       | Regressões Efetivo - Baseline (1) - Sem controles (i)
-     . G1ii_E_Estimacao.ster                      | Regressões Efetivo - Baseline (1) - Cor (ii)
-     . G1iii_E_Estimacao.ster                     | Regressões Efetivo - Baseline (1) - Setor público (iii)
-     . G1vi_E_Estimacao.ster                      | Regressões Efetivo - Baseline (1) - Informal (iv)      
-
-     . G2i_E_Estimacao.ster                       | Regressões Efetivo - log = 0 (2) - Sem controles (i)
-     . G2ii_E_Estimacao.ster                      | Regressões Efetivo - log = 0 (2) - Cor (ii)
-     . G2iii_E_Estimacao.ster                     | Regressões Efetivo - log = 0 (2) - Setor público (iii)
-     . G2vi_E_Estimacao.ster                      | Regressões Efetivo - log = 0 (2) - Informal (iv)
-
-     . G3i_E_Estimacao.ster                       | Regressões Efetivo - Reg com pesos (3) - Sem controles (i)
-     . G3ii_E_Estimacao.ster                      | Regressões Efetivo - Reg com pesos (3) - Cor (ii)
-     . G3iii_E_Estimacao.ster                     | Regressões Efetivo - Reg com pesos (3) - Setor público (iii)
-     . G3vi_E_Estimacao.ster                      | Regressões Efetivo - Reg com pesos (3) - Informal (iv)
-
-     . G4i_E_Estimacao.ster                       | Regressões Efetivo - Reg com pesos + log=0 (4) - Sem controles (i)
-     . G4ii_E_Estimacao.ster                      | Regressões Efetivo - Reg com pesos + log=0 (4) - Cor (ii)
-     . G4iii_E_Estimacao.ster                     | Regressões Efetivo - Reg com pesos + log=0 (4) - Setor público (iii)
-     . G4vi_E_Estimacao.ster                      | Regressões Efetivo - Reg com pesos + log=0 (4) - Informal (iv)     
-
- 
-     . G1i_H_Estimacao.ster                       | Regressões Habitual - Baseline (1) - Sem controles (i)
-     . G1ii_H_Estimacao.ster                      | Regressões Habitual - Baseline (1) - Cor (ii)
-     . G1iii_H_Estimacao.ster                     | Regressões Habitual - Baseline (1) - Setor público (iii)
-     . G1vi_H_Estimacao.ster                      | Regressões Habitual - Baseline (1) - Informal (iv)      
-
-     . G2i_H_Estimacao.ster                       | Regressões Habitual - log = 0 (2) - Sem controles (i)
-     . G2ii_H_Estimacao.ster                      | Regressões Habitual - log = 0 (2) - Cor (ii)
-     . G2iii_H_Estimacao.ster                     | Regressões Habitual - log = 0 (2) - Setor público (iii)
-     . G2vi_H_Estimacao.ster                      | Regressões Habitual - log = 0 (2) - Informal (iv)
-
-     . G3i_H_Estimacao.ster                       | Regressões Habitual - Reg com pesos (3) - Sem controles (i)
-     . G3ii_H_Estimacao.ster                      | Regressões Habitual - Reg com pesos (3) - Cor (ii)
-     . G3iii_H_Estimacao.ster                     | Regressões Habitual - Reg com pesos (3) - Setor público (iii)
-     . G3vi_H_Estimacao.ster                      | Regressões Habitual - Reg com pesos (3) - Informal (iv)
-
-     . G4i_H_Estimacao.ster                       | Regressões Habitual - Reg com pesos + log=0 (4) - Sem controles (i)
-     . G4ii_H_Estimacao.ster                      | Regressões Habitual - Reg com pesos + log=0 (4) - Cor (ii)
-     . G4iii_H_Estimacao.ster                     | Regressões Habitual - Reg com pesos + log=0 (4) - Setor público (iii)
-     . G4vi_H_Estimacao.ster                      | Regressões Habitual - Reg com pesos + log=0 (4) - Informal (iv)     
-
-
-   - Tabelas: Para cada t em {1, ..., Tmax} - arquivos Word, Latex e .txt
-     . G1_Tabela_Efetivo_t                        | Tabelas Efetivo - Baseline (1) - Trimestre t
-     . G2_Tabela_Efetivo_t                        | Tabelas Efetivo - log = 0 (2) - Trimestre t
-     . G3_Tabela_Efetivo_t                        | Tabelas Efetivo - Reg com pesos (3) - Trimestre t
-     . G4_Tabela_Efetivo_t                        | Tabelas Efetivo - Reg com pesos + log=0 (4) - Trimestre t                 
-
-     . G1_Tabela_Habitual_t                       | Tabelas Habitual - Baseline (1) - Trimestre t
-     . G2_Tabela_Habitual_t                       | Tabelas Habitual - log = 0 (2) - Trimestre t
-     . G3_Tabela_Habitual_t                       | Tabelas Habitual - Reg com pesos (3) - Trimestre t
-     . G4_Tabela_Habitual_t                       | Tabelas Habitual - Reg com pesos + log=0 (4) - Trimestre t                 
- 
-
-> ---------------------------------------------------------
-
-> G. GRÁFICOS
-  * Rotina: G_Graficos
-  * Inputs:
-   - G_IQT_Controles.dta
-
+   - D_BaseEstimacao.dta
+  
   * Outputs:
-   - Gráficos dos IQT. Essa rotina é cópia de parte da rotina D, salva em um do-file separado apenas para facilitar a visualização dos gráficos.
-   
-
+   - Gráficos em .png
