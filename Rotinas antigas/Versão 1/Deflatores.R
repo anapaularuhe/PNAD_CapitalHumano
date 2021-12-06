@@ -1,32 +1,32 @@
 # PNADC NO R ------------------------------------
 # FGV IBRE - Instituto Brasileiro de Economia
-# N˙cleo de Mercado de Trabalho
+# N√∫cleo de Mercado de Trabalho
 # Ana Paula Nothen Ruhe
 
-# DocumentaÁ„o CRAN: https://cran.r-project.org/web/packages/PNADcIBGE/PNADcIBGE.pdf
+# Documenta√ß√£o CRAN: https://cran.r-project.org/web/packages/PNADcIBGE/PNADcIBGE.pdf
 # Tutorial: https://rpubs.com/gabriel-assuncao-ibge/pnadc
 
-# > PREPARA«√O ----------------------------------
-setwd("C:/Users/ana.ruhe/Documents/Capital_Humano") # Definindo o diretÛrio 
-rm(list = ls())                                     # Equivalente do R a clear all (limpar vari·veis amarzenadas na memÛria)
+# > PREPARA√á√ÉO ----------------------------------
+setwd("C:/Users/ana.ruhe/Documents/Capital_Humano") # Definindo o diret√≥rio 
+rm(list = ls())                                     # Equivalente do R a clear all (limpar vari√°veis amarzenadas na mem√≥ria)
 
 
 # Pacotes
-library(PNADcIBGE)       # Necess·rio para importar os dados da PNAD  
-library(survey)          # Necess·rio para lidar com pesquisas amostrais
-library(dplyr)           # Pacote de manipulaÁ„o de dados
+library(PNADcIBGE)       # Necess√°rio para importar os dados da PNAD  
+library(survey)          # Necess√°rio para lidar com pesquisas amostrais
+library(dplyr)           # Pacote de manipula√ß√£o de dados
 library(haven)           # Pacote que permite lidar com formato .dta
 
 
 # > SALVANDO DEFLATORES -----------------------------------
-# Criamos data frame vazio para comeÁar o loop:  
+# Criamos data frame vazio para come√ßar o loop:  
   deflator = data.frame("Ano" = 0, "Trimestre" = 0, "UF" = 0, "Efetivo" = 0, "Habitual" = 0)
 
 # Loop para os anos 2012-2020:
-  # 1. Importamos a PNAD de cada trimestre com a funÁ„o get_pnad
-  # 2. Salvamos o deflator na vari·vel tempor·ria def
-  # 3. Fazemos o "append" de def com o dataframe que j· tem os perÌodos anteriores
-  # 4. Passamos para o perÌodo seguinte  
+  # 1. Importamos a PNAD de cada trimestre com a fun√ß√£o get_pnad
+  # 2. Salvamos o deflator na vari√°vel tempor√°ria def
+  # 3. Fazemos o "append" de def com o dataframe que j√° tem os per√≠odos anteriores
+  # 4. Passamos para o per√≠odo seguinte  
 
   for (t in 2012:2020){
     for (i in 1:4){
@@ -37,7 +37,7 @@ library(haven)           # Pacote que permite lidar com formato .dta
     }
   }
 
-# Removendo vari·veis tempor·rias:
+# Removendo vari√°veis tempor√°rias:
   rm(pnad,def,i,t)
   
 # Removendo primeira linha de zeros:
@@ -45,8 +45,8 @@ library(haven)           # Pacote que permite lidar com formato .dta
   
   
 # Para o ano de 2021:
-  pnad2021.1 = get_pnadc(2021, quarter = 1)      # Microdados 1∫ trimestre de 2021; formato "survey"
-  pnad2021.2 = get_pnadc(2021, quarter = 2)      # Microdados 2∫ trimestre de 2021; formato "survey"
+  pnad2021.1 = get_pnadc(2021, quarter = 1)      # Microdados 1¬∫ trimestre de 2021; formato "survey"
+  pnad2021.2 = get_pnadc(2021, quarter = 2)      # Microdados 2¬∫ trimestre de 2021; formato "survey"
 
   deflator2021.1 = data.frame("Ano" = pnad2021.1$variables$Ano, "Trimestre" = pnad2021.1$variables$Trimestre, "UF" = pnad2021.1$variables$UF, "Efetivo" = pnad2021.1$variables$Efetivo, "Habitual" = pnad2021.1$variables$Habitual)
   deflator2021.2 = data.frame("Ano" = pnad2021.2$variables$Ano, "Trimestre" = pnad2021.2$variables$Trimestre, "UF" = pnad2021.2$variables$UF, "Efetivo" = pnad2021.2$variables$Efetivo, "Habitual" = pnad2021.2$variables$Habitual)
@@ -57,7 +57,7 @@ library(haven)           # Pacote que permite lidar com formato .dta
   deflator = rbind(deflator, deflator2021.2)
   
   
-# Removendo vari·veis tempor·rias:
+# Removendo vari√°veis tempor√°rias:
   rm(pnad2021.1,pnad2021.2,deflator2021.1,deflator2021.2)  
 
 
