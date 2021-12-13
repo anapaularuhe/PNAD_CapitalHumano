@@ -22,10 +22,12 @@
 ** Servidor bif004 (Ana Paula):
    global dirpath = "A:/Ana Paula Ruhe/Capital Humano" 
    global dirdata = "A:/Ana Paula Ruhe/Capital Humano/Dados"
+   global diroriginal = "A:/Ana Paula Ruhe/Capital Humano/Dados/PNAD Original"
    
 ** Servidor RDPBI1VPR0002 (Ana Paula):   
-   global dirpath = "B:/Ana Paula Ruhe/Capital Humano"
-   global dirdata = "B:/Ana Paula Ruhe/Capital Humano/Dados"
+   global dirpath = "W:/Ana Paula Ruhe/Capital Humano"
+   global dirdata = "W:/Ana Paula Ruhe/Capital Humano/Dados"
+   global diroriginal = "W:/Ana Paula Ruhe/Capital Humano/Dados/PNAD Original"
 
 ** Janaina:    
    global dirpath = "C:\Users\janaina.feijo\Documents\capital_humano\result"   
@@ -36,62 +38,7 @@
   
   
 *******************************************************************************
-* A. IMPORTANDO DADOS E CONSTRUINDO BASE COMPLETA COM DEFLATORES: 2012.2-2021.2 
-*******************************************************************************
-{
-* Primeira importação: datazoom
-/*
-   datazoom_pnadcontinua, years( 2012 2013 2014 2015 2016 2017 2018 2019 2020 2021) original("$dirpath\PNAD_Original") saving ("$dirdata") nid
-  
-  * Com os dados em .dta: criando base completa
-	use "$dirdata/PNADC_trimestral_2012.dta"
-	append using "$dirdata/PNADC_trimestral_2013.dta"
-	append using "$dirdata/PNADC_trimestral_2014.dta"
-	append using "$dirdata/PNADC_trimestral_2015.dta"
-	append using "$dirdata/PNADC_trimestral_2016.dta"
-	append using "$dirdata/PNADC_trimestral_2017.dta"
-	append using "$dirdata/PNADC_trimestral_2018.dta"
-	append using "$dirdata/PNADC_trimestral_2019.dta"
-	append using "$dirdata/PNADC_trimestral_2020.dta"
-	append using "$dirdata/PNADC_trimestral_2021.dta"
-
-	save "$dirdata/A0_PNADC2012_2021_bruta.dta", replace
-*/	
-	
-	
-* Construindo base completa com deflatores 
-
-  * Salvando deflatores em dta
-	import excel "$dirdata\deflator_PNADC_2021_trimestral_040506.xls", sheet("deflatormod") firstrow clear
-	destring Ano UF, replace 
-	save  "$dirdata/A1_deflator_2t2021.dta" , replace
-	 
-  * Merge
-	use "$dirdata/A0_PNADC2012_2021_bruta.dta", clear
-	destring Trimestre, replace
-    merge m:1 Ano UF Trimestre using "$dirdata/A1_deflator_2t2021.dta"
-	drop _merge
-	
-  * Criando variável de Período 
-    gen T = ((Ano - 2012)*4) + Trimestre
-    label var T "Período sequencial"
-    order T, after(Trimestre)
-   
-    * Label:
-     tostring Ano, generate(Ano_string) 
-	 tostring Trimestre, generate(Trimestre_string)
-     gen Periodo = Ano_string + "-" + Trimestre_string
-     labmask T, values(Periodo)
-   
-     drop Ano_string Trimestre_string Periodo
-	 
-   save "$dirdata/A2_PNADC2012_2021_completa_deflatores.dta", replace	
-   
-}
-
-
-*******************************************************************************
-* B. SELEÇÃO DE VARIÁVEIS E ORGANIZAÇÃO DA BASE
+* A. IMPORTAÇÃO DADOS, DEFLATORES E SELEÇÃO DE VARIÁVEIS: 2012.1-2021.3 
 *******************************************************************************
 {
 /* Vamos manter as seguintes variáveis:
@@ -128,10 +75,104 @@
 	
 */
 
-  use "$dirdata/A2_PNADC2012_2021_completa_deflatores.dta", clear
-  keep Ano Trimestre T UF V1027 V1028 V1029 V2007 V2009 V2010 VD3004 VD3005 VD3006 VD4001 VD4002 VD4009 VD4010 VD4016 VD4017 VD4019 VD4020 VD4031 VD4032 VD4035 Efetivo Habitual
-
+* A.1: IMPORTANDO DADOS EM .DTA ***********************************************
+*(Apenas variáveis acima)
+{
+  use "$diroriginal/PNADC_012012.dta", clear
+  keep Ano Trimestre T UF V1027 V1028 V1029 V2007 V2009 V2010 VD3004 VD3005 VD3006 VD4001 VD4002 VD4009 VD4010 VD4016 VD4017 VD4019 VD4020 VD4031 VD4032 VD4035
+  save "$dirdata/A_PNADC_20122021.dta", replace
+  
+  append using "$diroriginal/PNADC_022012.dta", keep(Ano Trimestre T UF V1027 V1028 V1029 V2007 V2009 V2010 VD3004 VD3005 VD3006 VD4001 VD4002 VD4009 VD4010 VD4016 VD4017 VD4019 VD4020 VD4031 VD4032 VD4035)
+  append using "$diroriginal/PNADC_032012.dta", keep(Ano Trimestre T UF V1027 V1028 V1029 V2007 V2009 V2010 VD3004 VD3005 VD3006 VD4001 VD4002 VD4009 VD4010 VD4016 VD4017 VD4019 VD4020 VD4031 VD4032 VD4035)
+  append using "$diroriginal/PNADC_042012.dta", keep(Ano Trimestre T UF V1027 V1028 V1029 V2007 V2009 V2010 VD3004 VD3005 VD3006 VD4001 VD4002 VD4009 VD4010 VD4016 VD4017 VD4019 VD4020 VD4031 VD4032 VD4035)
+  append using "$diroriginal/PNADC_022012.dta", keep(Ano Trimestre T UF V1027 V1028 V1029 V2007 V2009 V2010 VD3004 VD3005 VD3006 VD4001 VD4002 VD4009 VD4010 VD4016 VD4017 VD4019 VD4020 VD4031 VD4032 VD4035)
+  
+  append using "$diroriginal/PNADC_012013.dta", keep(Ano Trimestre T UF V1027 V1028 V1029 V2007 V2009 V2010 VD3004 VD3005 VD3006 VD4001 VD4002 VD4009 VD4010 VD4016 VD4017 VD4019 VD4020 VD4031 VD4032 VD4035)
+  append using "$diroriginal/PNADC_022013.dta", keep(Ano Trimestre T UF V1027 V1028 V1029 V2007 V2009 V2010 VD3004 VD3005 VD3006 VD4001 VD4002 VD4009 VD4010 VD4016 VD4017 VD4019 VD4020 VD4031 VD4032 VD4035)
+  append using "$diroriginal/PNADC_032013.dta", keep(Ano Trimestre T UF V1027 V1028 V1029 V2007 V2009 V2010 VD3004 VD3005 VD3006 VD4001 VD4002 VD4009 VD4010 VD4016 VD4017 VD4019 VD4020 VD4031 VD4032 VD4035)
+  append using "$diroriginal/PNADC_042013.dta", keep(Ano Trimestre T UF V1027 V1028 V1029 V2007 V2009 V2010 VD3004 VD3005 VD3006 VD4001 VD4002 VD4009 VD4010 VD4016 VD4017 VD4019 VD4020 VD4031 VD4032 VD4035)
    
+  append using "$diroriginal/PNADC_012014.dta", keep(Ano Trimestre T UF V1027 V1028 V1029 V2007 V2009 V2010 VD3004 VD3005 VD3006 VD4001 VD4002 VD4009 VD4010 VD4016 VD4017 VD4019 VD4020 VD4031 VD4032 VD4035)
+  append using "$diroriginal/PNADC_022014.dta", keep(Ano Trimestre T UF V1027 V1028 V1029 V2007 V2009 V2010 VD3004 VD3005 VD3006 VD4001 VD4002 VD4009 VD4010 VD4016 VD4017 VD4019 VD4020 VD4031 VD4032 VD4035)
+  append using "$diroriginal/PNADC_032014.dta", keep(Ano Trimestre T UF V1027 V1028 V1029 V2007 V2009 V2010 VD3004 VD3005 VD3006 VD4001 VD4002 VD4009 VD4010 VD4016 VD4017 VD4019 VD4020 VD4031 VD4032 VD4035)
+  append using "$diroriginal/PNADC_042014.dta", keep(Ano Trimestre T UF V1027 V1028 V1029 V2007 V2009 V2010 VD3004 VD3005 VD3006 VD4001 VD4002 VD4009 VD4010 VD4016 VD4017 VD4019 VD4020 VD4031 VD4032 VD4035)
+   
+  append using "$diroriginal/PNADC_012015.dta", keep(Ano Trimestre T UF V1027 V1028 V1029 V2007 V2009 V2010 VD3004 VD3005 VD3006 VD4001 VD4002 VD4009 VD4010 VD4016 VD4017 VD4019 VD4020 VD4031 VD4032 VD4035)
+  append using "$diroriginal/PNADC_022015.dta", keep(Ano Trimestre T UF V1027 V1028 V1029 V2007 V2009 V2010 VD3004 VD3005 VD3006 VD4001 VD4002 VD4009 VD4010 VD4016 VD4017 VD4019 VD4020 VD4031 VD4032 VD4035)
+  append using "$diroriginal/PNADC_032015.dta", keep(Ano Trimestre T UF V1027 V1028 V1029 V2007 V2009 V2010 VD3004 VD3005 VD3006 VD4001 VD4002 VD4009 VD4010 VD4016 VD4017 VD4019 VD4020 VD4031 VD4032 VD4035)
+  append using "$diroriginal/PNADC_042015.dta", keep(Ano Trimestre T UF V1027 V1028 V1029 V2007 V2009 V2010 VD3004 VD3005 VD3006 VD4001 VD4002 VD4009 VD4010 VD4016 VD4017 VD4019 VD4020 VD4031 VD4032 VD4035)
+  
+  append using "$diroriginal/PNADC_012016.dta", keep(Ano Trimestre T UF V1027 V1028 V1029 V2007 V2009 V2010 VD3004 VD3005 VD3006 VD4001 VD4002 VD4009 VD4010 VD4016 VD4017 VD4019 VD4020 VD4031 VD4032 VD4035)
+  append using "$diroriginal/PNADC_022016.dta", keep(Ano Trimestre T UF V1027 V1028 V1029 V2007 V2009 V2010 VD3004 VD3005 VD3006 VD4001 VD4002 VD4009 VD4010 VD4016 VD4017 VD4019 VD4020 VD4031 VD4032 VD4035)
+  append using "$diroriginal/PNADC_032016.dta", keep(Ano Trimestre T UF V1027 V1028 V1029 V2007 V2009 V2010 VD3004 VD3005 VD3006 VD4001 VD4002 VD4009 VD4010 VD4016 VD4017 VD4019 VD4020 VD4031 VD4032 VD4035)
+  append using "$diroriginal/PNADC_042016.dta", keep(Ano Trimestre T UF V1027 V1028 V1029 V2007 V2009 V2010 VD3004 VD3005 VD3006 VD4001 VD4002 VD4009 VD4010 VD4016 VD4017 VD4019 VD4020 VD4031 VD4032 VD4035)
+  
+  append using "$diroriginal/PNADC_012017.dta", keep(Ano Trimestre T UF V1027 V1028 V1029 V2007 V2009 V2010 VD3004 VD3005 VD3006 VD4001 VD4002 VD4009 VD4010 VD4016 VD4017 VD4019 VD4020 VD4031 VD4032 VD4035)
+  append using "$diroriginal/PNADC_022017.dta", keep(Ano Trimestre T UF V1027 V1028 V1029 V2007 V2009 V2010 VD3004 VD3005 VD3006 VD4001 VD4002 VD4009 VD4010 VD4016 VD4017 VD4019 VD4020 VD4031 VD4032 VD4035)
+  append using "$diroriginal/PNADC_032017.dta", keep(Ano Trimestre T UF V1027 V1028 V1029 V2007 V2009 V2010 VD3004 VD3005 VD3006 VD4001 VD4002 VD4009 VD4010 VD4016 VD4017 VD4019 VD4020 VD4031 VD4032 VD4035)
+  append using "$diroriginal/PNADC_042017.dta", keep(Ano Trimestre T UF V1027 V1028 V1029 V2007 V2009 V2010 VD3004 VD3005 VD3006 VD4001 VD4002 VD4009 VD4010 VD4016 VD4017 VD4019 VD4020 VD4031 VD4032 VD4035)
+  
+  append using "$diroriginal/PNADC_012018.dta", keep(Ano Trimestre T UF V1027 V1028 V1029 V2007 V2009 V2010 VD3004 VD3005 VD3006 VD4001 VD4002 VD4009 VD4010 VD4016 VD4017 VD4019 VD4020 VD4031 VD4032 VD4035)
+  append using "$diroriginal/PNADC_022018.dta", keep(Ano Trimestre T UF V1027 V1028 V1029 V2007 V2009 V2010 VD3004 VD3005 VD3006 VD4001 VD4002 VD4009 VD4010 VD4016 VD4017 VD4019 VD4020 VD4031 VD4032 VD4035)
+  append using "$diroriginal/PNADC_032018.dta", keep(Ano Trimestre T UF V1027 V1028 V1029 V2007 V2009 V2010 VD3004 VD3005 VD3006 VD4001 VD4002 VD4009 VD4010 VD4016 VD4017 VD4019 VD4020 VD4031 VD4032 VD4035)
+  append using "$diroriginal/PNADC_042018.dta", keep(Ano Trimestre T UF V1027 V1028 V1029 V2007 V2009 V2010 VD3004 VD3005 VD3006 VD4001 VD4002 VD4009 VD4010 VD4016 VD4017 VD4019 VD4020 VD4031 VD4032 VD4035)
+
+  append using "$diroriginal/PNADC_012019.dta", keep(Ano Trimestre T UF V1027 V1028 V1029 V2007 V2009 V2010 VD3004 VD3005 VD3006 VD4001 VD4002 VD4009 VD4010 VD4016 VD4017 VD4019 VD4020 VD4031 VD4032 VD4035)
+  append using "$diroriginal/PNADC_022019.dta", keep(Ano Trimestre T UF V1027 V1028 V1029 V2007 V2009 V2010 VD3004 VD3005 VD3006 VD4001 VD4002 VD4009 VD4010 VD4016 VD4017 VD4019 VD4020 VD4031 VD4032 VD4035)
+  append using "$diroriginal/PNADC_032019.dta", keep(Ano Trimestre T UF V1027 V1028 V1029 V2007 V2009 V2010 VD3004 VD3005 VD3006 VD4001 VD4002 VD4009 VD4010 VD4016 VD4017 VD4019 VD4020 VD4031 VD4032 VD4035)
+  append using "$diroriginal/PNADC_042019.dta", keep(Ano Trimestre T UF V1027 V1028 V1029 V2007 V2009 V2010 VD3004 VD3005 VD3006 VD4001 VD4002 VD4009 VD4010 VD4016 VD4017 VD4019 VD4020 VD4031 VD4032 VD4035)
+  
+  append using "$diroriginal/PNADC_012020.dta", keep(Ano Trimestre T UF V1027 V1028 V1029 V2007 V2009 V2010 VD3004 VD3005 VD3006 VD4001 VD4002 VD4009 VD4010 VD4016 VD4017 VD4019 VD4020 VD4031 VD4032 VD4035)
+  append using "$diroriginal/PNADC_022020.dta", keep(Ano Trimestre T UF V1027 V1028 V1029 V2007 V2009 V2010 VD3004 VD3005 VD3006 VD4001 VD4002 VD4009 VD4010 VD4016 VD4017 VD4019 VD4020 VD4031 VD4032 VD4035)
+  append using "$diroriginal/PNADC_032020.dta", keep(Ano Trimestre T UF V1027 V1028 V1029 V2007 V2009 V2010 VD3004 VD3005 VD3006 VD4001 VD4002 VD4009 VD4010 VD4016 VD4017 VD4019 VD4020 VD4031 VD4032 VD4035)
+  append using "$diroriginal/PNADC_042020.dta", keep(Ano Trimestre T UF V1027 V1028 V1029 V2007 V2009 V2010 VD3004 VD3005 VD3006 VD4001 VD4002 VD4009 VD4010 VD4016 VD4017 VD4019 VD4020 VD4031 VD4032 VD4035)
+
+  append using "$diroriginal/PNADC_012021.dta", keep(Ano Trimestre T UF V1027 V1028 V1029 V2007 V2009 V2010 VD3004 VD3005 VD3006 VD4001 VD4002 VD4009 VD4010 VD4016 VD4017 VD4019 VD4020 VD4031 VD4032 VD4035)
+  append using "$diroriginal/PNADC_022021.dta", keep(Ano Trimestre T UF V1027 V1028 V1029 V2007 V2009 V2010 VD3004 VD3005 VD3006 VD4001 VD4002 VD4009 VD4010 VD4016 VD4017 VD4019 VD4020 VD4031 VD4032 VD4035)
+  append using "$diroriginal/PNADC_032021.dta", keep(Ano Trimestre T UF V1027 V1028 V1029 V2007 V2009 V2010 VD3004 VD3005 VD3006 VD4001 VD4002 VD4009 VD4010 VD4016 VD4017 VD4019 VD4020 VD4031 VD4032 VD4035)
+
+  save "$dirdata/A_PNADC_20122021.dta", replace
+}	
+	
+* A.2: DEFLATORES *************************************************************
+{
+ * Salvando deflatores em dta
+   import excel "$diroriginal\deflator_PNADC_2021_trimestral_070809.xls", firstrow clear
+	
+    destring Ano UF, replace 
+	keep if trim=="01-02-03" || trim=="04-05-06" || trim=="07-08-09" || trim=="10-11-12"
+	
+	gen Trimestre = 1 if trim=="01-02-03"
+	replace Trimestre = 2 if trim=="04-05-06"
+	replace Trimestre = 3 if trim=="07-08-09"
+	replace Trimestre = 4 if trim=="10-11-12"
+	
+	save  "$dirdata/A_Deflator.dta" , replace
+	 
+  * Merge
+	use "$dirdata/A_PNADC_20122021.dta", clear
+	destring Trimestre, replace
+    merge m:1 Ano UF Trimestre using "$dirdata/A_Deflator.dta"
+	drop _merge
+	
+  * Criando variável de Período 
+    gen T = ((Ano - 2012)*4) + Trimestre
+    label var T "Período sequencial"
+    order T, after(Trimestre)
+   
+    * Label:
+     tostring Ano, generate(Ano_string) 
+	 tostring Trimestre, generate(Trimestre_string)
+     gen Periodo = Ano_string + "-" + Trimestre_string
+     labmask T, values(Periodo)
+   
+     drop Ano_string Trimestre_string Periodo
+	 
+   save "$dirdata/A_PNADC_20122021.dta", replace	
+}
+
+* A.3: ORGANIZAÇÃO DA BASE ****************************************************
+{
 * Nomeando algumas variáveis de forma mais intuitiva:
   rename V1028 Peso
   rename V1029 Populacao
@@ -302,15 +343,16 @@
 	label var Experiencia4 "Experiência elevada à 4 potência"
 
    
-   save "$dirdata/B_PNADC2012_2021_limpa.dta", replace
+   save "$dirdata/A_PNADC_20122021.dta", replace
+}  
 }
 
 
 *******************************************************************************
-* C. RESTRIÇÃO DA AMOSTRA: POPULAÇÃO OCUPADA 
+* B. RESTRIÇÃO DA AMOSTRA: POPULAÇÃO OCUPADA 
 *******************************************************************************
 {
-  use "$dirdata/B_PNADC2012_2021_limpa.dta", clear
+  use "$dirdata/A_PNADC_20122021.dta", clear
 
 * 1. ANALISANDO INDIVÍDUOS DA PO COM MISSING VALUES EM VARIÁVEIS FUNDAMENTAIS:
   preserve
@@ -341,17 +383,17 @@
   drop if VD4019==. & VD4020==. 
   
   * Ao longo do tempo:
-    tabout T VD4002 [iw = Peso] using "$dirdata/C_Caracteristicas_PO.xls", cells(freq row) replace
+    tabout T VD4002 [iw = Peso] using "$dirdata/B_Caracteristicas_PO.xls", cells(freq row) replace
       
   * Participação por cor e gênero:
-    tabout T Sexo [iw = Peso] using "$dirdata/C_Caracteristicas_PO.xls", cells(freq row) append
-    tabout T Cor  [iw = Peso] using "$dirdata/C_Caracteristicas_PO.xls", cells(freq row) append
+    tabout T Sexo [iw = Peso] using "$dirdata/B_Caracteristicas_PO.xls", cells(freq row) append
+    tabout T Cor  [iw = Peso] using "$dirdata/B_Caracteristicas_PO.xls", cells(freq row) append
    
   * Participação por região:
-    tabout T Regiao  [iw = Peso] using "$dirdata/C_Caracteristicas_PO.xls",  cells(freq row) append
+    tabout T Regiao  [iw = Peso] using "$dirdata/B_Caracteristicas_PO.xls",  cells(freq row) append
   
   * Participação por grupo de escolaridade:
-    tabout T VD3006  [iw = Peso] using "$dirdata/C_Caracteristicas_PO.xls",  cells(freq row) append
+    tabout T VD3006  [iw = Peso] using "$dirdata/B_Caracteristicas_PO.xls",  cells(freq row) append
  
 
 * 3. CONSTRUINDO RENDIMENTOS REAIS E SALÁRIOS-HORA
@@ -393,18 +435,18 @@
     label var logW_efet "Log do rendimento real efetivo por hora"
     
   
-  save "$dirdata/C_PNADC_POamostra.dta", replace
+  save "$dirdata/B_PNADC_POamostra.dta", replace
 }
 
 
 *******************************************************************************
-* D. ESTIMAÇÃO IQT
+* C. ESTIMAÇÃO IQT
 *******************************************************************************
 {
  
-* D.0: PREPARAÇÃO *************************************************************
+* C.0: PREPARAÇÃO *************************************************************
 { 
-  use "$dirdata/C_PNADC_POamostra.dta", clear
+  use "$dirdata/B_PNADC_POamostra.dta", clear
   
 * Eliminar variáveis que não são necessárias para a estimação (reduzir uso de memória):
   drop UF Regiao V1027 Populacao Idade VD3004 VD3005 VD4001 VD4002 VD4009 VD4010 VD4016 VD4017 VD4019 VD4019_real VD4020 VD4020_real VD4032 Efetivo Habitual 
@@ -442,13 +484,13 @@
    replace PretoPardoIndig = 1 if (Cor==2 | Cor==4 | Cor== 5)
    label var PretoPardoIndig "Preto, Parto ou Indigena"
    
- save "$dirdata/D_BaseEstimacao.dta", replace   
+ save "$dirdata/C_BaseEstimacao.dta", replace   
  } 
 
 
-* D.1: REGRESSÕES (RETORNOS EDUC E EXPER) + SALÁRIOS PREDITOS *****************
+* C.1: REGRESSÕES (RETORNOS EDUC E EXPER) + SALÁRIOS PREDITOS *****************
 {
- use "$dirdata/D_BaseEstimacao.dta", clear
+ use "$dirdata/C_BaseEstimacao.dta", clear
  
  ** ESTIMAÇÃO
  {
@@ -458,54 +500,54 @@
  * (i) Sem controles: 
   * Efetivo:
     regress logW_efet mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 if T==`t' [iw = Peso]
-	estimates save "$dirdata/D_Regressões_Efetivo_i", append
+	estimates save "$dirdata/C_Regressões_Efetivo_i", append
 	predict RegLog_Ei_`t' if (T>=(`t'-1) & T<=(`t'+1)) 
 	 
   * Habitual:
 	regress logW_hab mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 if T==`t' [iw = Peso]
-	estimates save "$dirdata/D_Regressões_Habitual_i", append
+	estimates save "$dirdata/C_Regressões_Habitual_i", append
 	predict RegLog_Hi_`t' if(T>=(`t'-1) & T<=(`t'+1))	 
 	
 	
  * (ii) Cor: 
   * Efetivo:
     regress logW_efet mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 PretoPardoIndig if T==`t' [iw = Peso]
-	estimates save "$dirdata/D_Regressões_Efetivo_ii", append
+	estimates save "$dirdata/C_Regressões_Efetivo_ii", append
 	gen RegLog_Eii_`t' = _b[_cons] + _b[mulher]*mulher + _b[educ2]*educ2 + _b[educ3]*educ3 + _b[educ4]*educ4 + _b[educ5]*educ5 + _b[educ6]*educ6 + _b[Experiencia]*Experiencia + _b[Experiencia2]*Experiencia2 + _b[Experiencia3]*Experiencia3 + _b[Experiencia4]*Experiencia4 + _b[ExperMulher]*ExperMulher + _b[ExperMulher2]*ExperMulher2 + _b[ExperMulher3]*ExperMulher3 + _b[ExperMulher4]*ExperMulher4 if(T>=(`t'-1) & T<=(`t'+1))	 
 	 
   * Habitual:
 	regress logW_hab mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 PretoPardoIndig if T==`t' [iw = Peso]
-	estimates save "$dirdata/D_Regressões_Habitual_ii", append
+	estimates save "$dirdata/C_Regressões_Habitual_ii", append
 	gen RegLog_Hii_`t' = _b[_cons] + _b[mulher]*mulher + _b[educ2]*educ2 + _b[educ3]*educ3 + _b[educ4]*educ4 + _b[educ5]*educ5 + _b[educ6]*educ6 + _b[Experiencia]*Experiencia + _b[Experiencia2]*Experiencia2 + _b[Experiencia3]*Experiencia3 + _b[Experiencia4]*Experiencia4 + _b[ExperMulher]*ExperMulher + _b[ExperMulher2]*ExperMulher2 + _b[ExperMulher3]*ExperMulher3 + _b[ExperMulher4]*ExperMulher4 if(T>=(`t'-1) & T<=(`t'+1)) 
 	
 	 
  * (iii) Setor público: 
   * Efetivo:
 	regress logW_efet mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 PretoPardoIndig publico if T==`t' [iw = Peso]
-	estimates save "$dirdata/D_Regressões_Efetivo_iii", append
+	estimates save "$dirdata/C_Regressões_Efetivo_iii", append
 	gen RegLog_Eiii_`t' = _b[_cons] + _b[mulher]*mulher + _b[educ2]*educ2 + _b[educ3]*educ3 + _b[educ4]*educ4 + _b[educ5]*educ5 + _b[educ6]*educ6 + _b[Experiencia]*Experiencia + _b[Experiencia2]*Experiencia2 + _b[Experiencia3]*Experiencia3 + _b[Experiencia4]*Experiencia4 + _b[ExperMulher]*ExperMulher + _b[ExperMulher2]*ExperMulher2 + _b[ExperMulher3]*ExperMulher3 + _b[ExperMulher4]*ExperMulher4 if(T>=(`t'-1) & T<=(`t'+1))	 
 	 
   * Habitual:
 	regress logW_hab mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 PretoPardoIndig publico if T==`t' [iw = Peso]
-	estimates save "$dirdata/D_Regressões_Habitual_iii", append
+	estimates save "$dirdata/C_Regressões_Habitual_iii", append
 	gen RegLog_Hiii_`t' = _b[_cons] + _b[mulher]*mulher + _b[educ2]*educ2 + _b[educ3]*educ3 + _b[educ4]*educ4 + _b[educ5]*educ5 + _b[educ6]*educ6 + _b[Experiencia]*Experiencia + _b[Experiencia2]*Experiencia2 + _b[Experiencia3]*Experiencia3 + _b[Experiencia4]*Experiencia4 + _b[ExperMulher]*ExperMulher + _b[ExperMulher2]*ExperMulher2 + _b[ExperMulher3]*ExperMulher3 + _b[ExperMulher4]*ExperMulher4 if(T>=(`t'-1) & T<=(`t'+1)) 
 	  
 	  
  * (iv) Setor informal: 
   * Efetivo:
     regress logW_efet mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 PretoPardoIndig publico informal if T==`t' [iw = Peso]
-	estimates save "$dirdata/D_Regressões_Efetivo_iv", append
+	estimates save "$dirdata/C_Regressões_Efetivo_iv", append
 	gen RegLog_Eiv_`t' = _b[_cons] + _b[mulher]*mulher + _b[educ2]*educ2 + _b[educ3]*educ3 + _b[educ4]*educ4 + _b[educ5]*educ5 + _b[educ6]*educ6 + _b[Experiencia]*Experiencia + _b[Experiencia2]*Experiencia2 + _b[Experiencia3]*Experiencia3 + _b[Experiencia4]*Experiencia4 + _b[ExperMulher]*ExperMulher + _b[ExperMulher2]*ExperMulher2 + _b[ExperMulher3]*ExperMulher3 + _b[ExperMulher4]*ExperMulher4 if(T>=(`t'-1) & T<=(`t'+1))	 
 	 
   * Habitual:
 	regress logW_hab mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 PretoPardoIndig publico informal if T==`t' [iw = Peso]
-	estimates save "$dirdata/D_Regressões_Habitual_iv", append
+	estimates save "$dirdata/C_Regressões_Habitual_iv", append
 	gen RegLog_Hiv_`t' = _b[_cons] + _b[mulher]*mulher + _b[educ2]*educ2 + _b[educ3]*educ3 + _b[educ4]*educ4 + _b[educ5]*educ5 + _b[educ6]*educ6 + _b[Experiencia]*Experiencia + _b[Experiencia2]*Experiencia2 + _b[Experiencia3]*Experiencia3 + _b[Experiencia4]*Experiencia4 + _b[ExperMulher]*ExperMulher + _b[ExperMulher2]*ExperMulher2 + _b[ExperMulher3]*ExperMulher3 + _b[ExperMulher4]*ExperMulher4 if(T>=(`t'-1) & T<=(`t'+1)) 
 	  
   estimates drop _all
   }
 
-  save "$dirdata/D_BaseEstimacao.dta", replace  
+  save "$dirdata/C_BaseEstimacao.dta", replace  
   } 
 
 
@@ -624,15 +666,15 @@
        drop RegW_Ei_`t' RegW_Hi_`t' RegW_Eii_`t' RegW_Hii_`t' RegW_Eiii_`t' RegW_Hiii_`t' RegW_Eiv_`t' RegW_Hiv_`t' 
    }  
  
-   save "$dirdata/D_BaseEstimacao.dta", replace
+   save "$dirdata/C_BaseEstimacao.dta", replace
   }
 
 } 
  
 
-* D.2: PESOS ******************************************************************
+* C.2: PESOS ******************************************************************
 {
- use "$dirdata/D_BaseEstimacao.dta", clear
+ use "$dirdata/C_BaseEstimacao.dta", clear
 
  * EFETIVO:
    bysort T VD3006 Experiencia: egen HE = mean(VD4035)
@@ -663,11 +705,11 @@
    order PH, after(PE) 
    drop PHi PHt
 
- save "$dirdata/D_BaseEstimacao.dta", replace
+ save "$dirdata/C_BaseEstimacao.dta", replace
 } 
  
  
-* D.3: IQT ********************************************************************
+* C.3: IQT ********************************************************************
 {
  * IQT0
   * Efetivo:
@@ -850,7 +892,7 @@
    gen dIQT_Hiv = (dIQT0_Hiv*dIQT1_Hiv)^(1/2)
    
  
- save "$dirdata/D_BaseEstimacao.dta", replace  
+ save "$dirdata/C_BaseEstimacao.dta", replace  
  
  * IQT: Base separada 
   {
@@ -898,8 +940,8 @@
      replace IQT_Hiv = IQT_Hiv[_n-1]*dIQT_Hiv if _n > 2
      label var IQT_Hiv "IQT Habitual - Informal" 
    
-   save "$dirdata/D_IQT.dta", replace
-   export excel T IQT_Ei IQT_Eii IQT_Eiii IQT_Eiv IQT_Hi IQT_Hii IQT_Hiii IQT_Hiv using "$dirdata\D_IQT.xlsx", firstrow(varlabels) replace
+   save "$dirdata/C_IQT.dta", replace
+   export excel T IQT_Ei IQT_Eii IQT_Eiii IQT_Eiv IQT_Hi IQT_Hii IQT_Hiii IQT_Hiv using "$dirdata\C_IQT.xlsx", firstrow(varlabels) replace
 
    restore
    }  
@@ -910,88 +952,90 @@
 
 
 *******************************************************************************
-* E. RETORNOS EDUCAÇÃO: TABELAS E BASE DTA
+* D. RETORNOS EDUCAÇÃO: TABELAS E BASE DTA
 *******************************************************************************
 {
- use "$dirdata/D_BaseEstimacao.dta", clear
+ use "$dirdata/C_BaseEstimacao.dta", clear
  
-* E.1. EXPORTANDO TABELAS *****************************************************
+* D.1. EXPORTANDO TABELAS *****************************************************
 { 
+* Grupo baseline: homens, grupo de educação 0 a 4 anos, 0 anos de experiência. 
+
  forvalues t = 1/`=Tmax' {     
  * (i) Sem controles: 
   * Efetivo:
     regress logW_efet mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 if T==`t' [iw = Peso]
-	outreg2 using "$dirdata/E_Tabelas/Efetivo_`t'", replace ctitle("Sem controles") word tex(pretty) label
+	outreg2 using "$dirdata/D_Tabelas/Efetivo_`t'", replace ctitle("Sem controles") word tex(pretty) label
 	 
   * Habitual:
 	regress logW_hab mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 if T==`t' [iw = Peso]
-	outreg2 using "$dirdata/E_Tabelas/Habitual_`t'", replace ctitle("Sem controles") word tex(pretty) label
+	outreg2 using "$dirdata/D_Tabelas/Habitual_`t'", replace ctitle("Sem controles") word tex(pretty) label
 	
 	
  * (ii) Cor: 
   * Efetivo:
 	regress logW_efet mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 PretoPardoIndig if T==`t' [iw = Peso]
-	outreg2 using "$dirdata/E_Tabelas/Efetivo_`t'", append ctitle("Cor") word tex(pretty) label
+	outreg2 using "$dirdata/D_Tabelas/Efetivo_`t'", append ctitle("Cor") word tex(pretty) label
 	 
   * Habitual:
 	regress logW_hab mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 PretoPardoIndig if T==`t' [iw = Peso]
-	outreg2 using "$dirdata/E_Tabelas/Habitual_`t'", append ctitle("Cor") word tex(pretty) label
+	outreg2 using "$dirdata/D_Tabelas/Habitual_`t'", append ctitle("Cor") word tex(pretty) label
 
 	 
  * (iii) Setor público: 
   * Efetivo:
 	regress logW_efet mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 PretoPardoIndig publico if T==`t' [iw = Peso]
-	outreg2 using "$dirdata/E_Tabelas/Efetivo_`t'", append ctitle("Setor Publico") word tex(pretty) label
+	outreg2 using "$dirdata/D_Tabelas/Efetivo_`t'", append ctitle("Setor Publico") word tex(pretty) label
 	 
   * Habitual:
 	regress logW_hab mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 PretoPardoIndig publico if T==`t' [iw = Peso]
-	outreg2 using "$dirdata/E_Tabelas/Habitual_`t'", append ctitle("Setor Publico") word tex(pretty) label
+	outreg2 using "$dirdata/D_Tabelas/Habitual_`t'", append ctitle("Setor Publico") word tex(pretty) label
 		 
 	  	  
  * (iv) Setor informal: 
   * Efetivo:
 	regress logW_efet mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 PretoPardoIndig publico informal if T==`t' [iw = Peso]
-	outreg2 using "$dirdata/E_Tabelas/Efetivo_`t'", append ctitle("Informal") word tex(pretty) label
+	outreg2 using "$dirdata/D_Tabelas/Efetivo_`t'", append ctitle("Informal") word tex(pretty) label
 	 
   * Habitual:
 	regress logW_hab mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 PretoPardoIndig publico informal if T==`t' [iw = Peso]
-	outreg2 using "$dirdata/E_Tabelas/Habitual_`t'", append ctitle("Informal") word tex(pretty) label
+	outreg2 using "$dirdata/D_Tabelas/Habitual_`t'", append ctitle("Informal") word tex(pretty) label
 	 
  estimates drop _all 
  }
 }
 
  
-* E.2. SALVANDO COEFICIENTES: BASE DTA ****************************************
+* D.2. SALVANDO COEFICIENTES: BASE DTA ****************************************
 {
  ** Efetivo:
  { 
-    statsby, by(T) saving("$dirdata/E_Coeficientes_Efetivo_i.dta", replace): regress logW_efet mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4
+    statsby, by(T) saving("$dirdata/D_Coeficientes_Efetivo_i.dta", replace): regress logW_efet mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4
 	estimates drop _all
     
-	statsby, by(T) saving("$dirdata/E_Coeficientes_Efetivo_ii.dta", replace): regress logW_efet mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 PretoPardoIndig
+	statsby, by(T) saving("$dirdata/D_Coeficientes_Efetivo_ii.dta", replace): regress logW_efet mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 PretoPardoIndig
 	estimates drop _all
 	
-	statsby, by(T) saving("$dirdata/E_Coeficientes_Efetivo_iii.dta", replace): regress logW_efet mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 PretoPardoIndig publico
+	statsby, by(T) saving("$dirdata/D_Coeficientes_Efetivo_iii.dta", replace): regress logW_efet mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 PretoPardoIndig publico
     estimates drop _all
 	
-    statsby, by(T) saving("$dirdata/E_Coeficientes_Efetivo_iv.dta", replace): regress logW_efet mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 PretoPardoIndig publico informal 
+    statsby, by(T) saving("$dirdata/D_Coeficientes_Efetivo_iv.dta", replace): regress logW_efet mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 PretoPardoIndig publico informal 
     estimates drop _all	
  }	
    
    
  ** Habitual:
  {
-    statsby, by(T) saving("$dirdata/E_Coeficientes_Habitual_i.dta", replace): regress logW_hab mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4
+    statsby, by(T) saving("$dirdata/D_Coeficientes_Habitual_i.dta", replace): regress logW_hab mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4
 	estimates drop _all	
 	
-    statsby, by(T) saving("$dirdata/E_Coeficientes_Habitual_ii.dta", replace): regress logW_hab mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 PretoPardoIndig
+    statsby, by(T) saving("$dirdata/D_Coeficientes_Habitual_ii.dta", replace): regress logW_hab mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 PretoPardoIndig
 	estimates drop _all	
 	
-    statsby, by(T) saving("$dirdata/E_Coeficientes_Habitual_iii.dta", replace): regress logW_hab mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 PretoPardoIndig publico  
+    statsby, by(T) saving("$dirdata/D_Coeficientes_Habitual_iii.dta", replace): regress logW_hab mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 PretoPardoIndig publico  
 	estimates drop _all	
 	
-    statsby, by(T) saving("$dirdata/E_Coeficientes_Habitual_iv.dta", replace): regress logW_hab mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 PretoPardoIndig publico informal 
+    statsby, by(T) saving("$dirdata/D_Coeficientes_Habitual_iv.dta", replace): regress logW_hab mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 PretoPardoIndig publico informal 
     estimates drop _all
  } 	
 	
@@ -1001,7 +1045,7 @@
   {
     * Vamos fazer na ordem (iv)-(i) para que a base final fique ordenada (i)-(iv).
 	* (iv)
-    use "$dirdata/E_Coeficientes_Efetivo_iv.dta", clear
+    use "$dirdata/D_Coeficientes_Efetivo_iv.dta", clear
 	
 	* Renomeando variáveis e labels para diferenciar entre estratégias de controles:
 	foreach x of varlist _b_* {
@@ -1009,53 +1053,53 @@
 	  label var `x' "`nome' - Informal"
 	  rename `x' iv_`nome'
     }	
-	save "$dirdata/E_Coeficientes_Efetivo", replace   
+	save "$dirdata/D_Coeficientes_Efetivo", replace   
 	
 	
 	* (iii)
-	use "$dirdata/E_Coeficientes_Efetivo_iii.dta", clear 
+	use "$dirdata/D_Coeficientes_Efetivo_iii.dta", clear 
 	foreach x of varlist _b_* {
       local nome = substr("`x'", 4, 12)
 	  label var `x' "`nome' - Setor publico"
 	  rename `x' iii_`nome'
     }
 	
-	merge 1:1 T using "$dirdata/E_Coeficientes_Efetivo"
+	merge 1:1 T using "$dirdata/D_Coeficientes_Efetivo"
 	drop _merge
-	save "$dirdata/E_Coeficientes_Efetivo", replace		
+	save "$dirdata/D_Coeficientes_Efetivo", replace		
 	
 	
 	* (ii)
-	use "$dirdata/E_Coeficientes_Efetivo_ii.dta", clear 
+	use "$dirdata/D_Coeficientes_Efetivo_ii.dta", clear 
 	foreach x of varlist _b_* {
       local nome = substr("`x'", 4, 12)
 	  label var `x' "`nome' - Cor"
 	  rename `x' ii_`nome'
     }
 	
-	merge 1:1 T using "$dirdata/E_Coeficientes_Efetivo"
+	merge 1:1 T using "$dirdata/D_Coeficientes_Efetivo"
 	drop _merge
-	save "$dirdata/E_Coeficientes_Efetivo", replace	
+	save "$dirdata/D_Coeficientes_Efetivo", replace	
 	
 	
 	* (i)
-	use "$dirdata/E_Coeficientes_Efetivo_i.dta", clear
+	use "$dirdata/D_Coeficientes_Efetivo_i.dta", clear
 	foreach x of varlist _b_* {
       local nome = substr("`x'", 4, 12)
 	  label var `x' "`nome' - Sem controles"
 	  rename `x' i_`nome'
     }	
 	
-	merge 1:1 T using "$dirdata/E_Coeficientes_Efetivo"
+	merge 1:1 T using "$dirdata/D_Coeficientes_Efetivo"
 	drop _merge
-	save "$dirdata/E_Coeficientes_Efetivo", replace
+	save "$dirdata/D_Coeficientes_Efetivo", replace
   } 
  
   * Habitual:
   {
     * Vamos fazer na ordem (iv)-(i) para que a base final fique ordenada (i)-(iv).
 	* (iv)
-    use "$dirdata/E_Coeficientes_Habitual_iv.dta", clear
+    use "$dirdata/D_Coeficientes_Habitual_iv.dta", clear
 	
 	* Renomeando variáveis e labels para diferenciar entre estratégias de controles:
 	foreach x of varlist _b_* {
@@ -1063,46 +1107,46 @@
 	  label var `x' "`nome' - Informal"
 	  rename `x' iv_`nome'
     }	
-	save "$dirdata/E_Coeficientes_Habitual", replace   
+	save "$dirdata/D_Coeficientes_Habitual", replace   
 	
 	
 	* (iii)
-	use "$dirdata/E_Coeficientes_Habitual_iii.dta", clear 
+	use "$dirdata/D_Coeficientes_Habitual_iii.dta", clear 
 	foreach x of varlist _b_* {
       local nome = substr("`x'", 4, 12)
 	  label var `x' "`nome' - Setor publico"
 	  rename `x' iii_`nome'
     }
 	
-	merge 1:1 T using "$dirdata/E_Coeficientes_Habitual"
+	merge 1:1 T using "$dirdata/D_Coeficientes_Habitual"
 	drop _merge
-	save "$dirdata/E_Coeficientes_Habitual", replace		
+	save "$dirdata/D_Coeficientes_Habitual", replace		
 	
 	
 	* (ii)
-	use "$dirdata/E_Coeficientes_Habitual_ii.dta", clear 
+	use "$dirdata/D_Coeficientes_Habitual_ii.dta", clear 
 	foreach x of varlist _b_* {
       local nome = substr("`x'", 4, 12)
 	  label var `x' "`nome' - Cor"
 	  rename `x' ii_`nome'
     }
 	
-	merge 1:1 T using "$dirdata/E_Coeficientes_Habitual"
+	merge 1:1 T using "$dirdata/D_Coeficientes_Habitual"
 	drop _merge
-	save "$dirdata/E_Coeficientes_Habitual", replace	
+	save "$dirdata/D_Coeficientes_Habitual", replace	
 	
 	
 	* (i)
-	use "$dirdata/E_Coeficientes_Habitual_i.dta", clear
+	use "$dirdata/D_Coeficientes_Habitual_i.dta", clear
 	foreach x of varlist _b_* {
       local nome = substr("`x'", 4, 12)
 	  label var `x' "`nome' - Sem controles"
 	  rename `x' i_`nome'
     }	
 	
-	merge 1:1 T using "$dirdata/E_Coeficientes_Habitual"
+	merge 1:1 T using "$dirdata/D_Coeficientes_Habitual"
 	drop _merge
-	save "$dirdata/E_Coeficientes_Habitual", replace
+	save "$dirdata/D_Coeficientes_Habitual", replace
   } 
  
  }	
@@ -1111,12 +1155,12 @@
 
 
 *******************************************************************************
-* F. GRÁFICOS
+* E. GRÁFICOS
 *******************************************************************************
 {
- use "$dirdata/D_IQT.dta", clear
+ use "$dirdata/C_IQT.dta", clear
 
-* F.1. POR CONTROLE ***********************************************************
+* E.1. POR CONTROLE ***********************************************************
 {
 ** (i) Sem controles:
    twoway (line IQT_Hi T) (line IQT_Ei T), xtitle(" ") xlabel(1(2)`=Tmax', angle(vertical) valuelabel labsize(*0.8)) graphregion(color(white)) ylab(95(5)125, labsize(*0.8) angle(horizontal))  xline(10 20 32 34, lpattern(dash) lcolor(gray)) legend(c(2) symys(*.7) symxs(*.7) size(*0.7) region(c(none))) name(IQTi, replace) 
@@ -1136,7 +1180,7 @@
 }
  
  
-* F.2. COMPARANDO CONTROLES ***************************************************
+* E.2. COMPARANDO CONTROLES ***************************************************
 {
 ** Efetivo:
    twoway (line IQT_Ei T) (line IQT_Eii T) (line IQT_Eiii T) (line IQT_Eiv T), xtitle(" ") xlabel(1(2)`=Tmax', angle(vertical) valuelabel labsize(*0.8)) graphregion(color(white)) ylab(95(5)125, labsize(*0.8) angle(horizontal))  xline(10 20 32 34, lpattern(dash) lcolor(gray)) legend(c(2) symys(*.7) symxs(*.7) size(*0.7) region(c(none))) name(IQTEfetivo, replace) 
