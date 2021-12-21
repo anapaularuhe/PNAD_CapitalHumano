@@ -1102,6 +1102,8 @@
 	merge 1:1 T using "$dirdata/D_Coeficientes_Efetivo"
 	drop _merge
 	save "$dirdata/D_Coeficientes_Efetivo", replace
+	export excel using "$dirdata\D_Coeficientes.xlsx", sheet ("Efetivo") firstrow(varlabels) replace
+	
   } 
  
   * Habitual:
@@ -1156,6 +1158,7 @@
 	merge 1:1 T using "$dirdata/D_Coeficientes_Habitual"
 	drop _merge
 	save "$dirdata/D_Coeficientes_Habitual", replace
+	export excel using "$dirdata\D_Coeficientes.xlsx", sheet ("Habitual", modify) firstrow(varlabels) 
   } 
  
  }	
