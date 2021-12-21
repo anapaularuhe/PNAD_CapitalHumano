@@ -40,15 +40,15 @@
    - C_IQT.dta                                    | Base com os IQTs calculados
    - C_IQT.xlsx                                   | Arquivo excel com os IQTs calculados
    
-   - C_Regressões_Efetivo_i.ster                  | Arquivo que armazena as regressões - Salário Efetivo - Sem controles
-   - C_Regressões_Efetivo_ii.ster                 | Arquivo que armazena as regressões - Salário Efetivo - Cor
-   - C_Regressões_Efetivo_iii.ster                | Arquivo que armazena as regressões - Salário Efetivo - Setor Público
-   - C_Regressões_Efetivo_iv.ster                 | Arquivo que armazena as regressões - Salário Efetivo - Informal
+   - C_Regressões/Efetivo_i.ster                  | Arquivo que armazena as regressões - Salário Efetivo - Sem controles
+   - C_Regressões/Efetivo_ii.ster                 | Arquivo que armazena as regressões - Salário Efetivo - Cor
+   - C_Regressões/Efetivo_iii.ster                | Arquivo que armazena as regressões - Salário Efetivo - Setor Público
+   - C_Regressões/Efetivo_iv.ster                 | Arquivo que armazena as regressões - Salário Efetivo - Informal
 
-   - C_Regressões_Habitual_i.ster                 | Arquivo que armazena as regressões - Salário Habitual - Sem controles
-   - C_Regressões_Habitual_ii.ster                | Arquivo que armazena as regressões - Salário Habitual - Cor
-   - C_Regressões_Habitual_iii.ster               | Arquivo que armazena as regressões - Salário Habitual - Setor Público
-   - C_Regressões_Habitual_iv.ster                | Arquivo que armazena as regressões - Salário Habitual - Informal
+   - C_Regressões/Habitual_i.ster                 | Arquivo que armazena as regressões - Salário Habitual - Sem controles
+   - C_Regressões/Habitual_ii.ster                | Arquivo que armazena as regressões - Salário Habitual - Cor
+   - C_Regressões/Habitual_iii.ster               | Arquivo que armazena as regressões - Salário Habitual - Setor Público
+   - C_Regressões/Habitual_iv.ster                | Arquivo que armazena as regressões - Salário Habitual - Informal
 
 
 > ---------------------------------------------------------
@@ -65,18 +65,18 @@
    - D_Tabelas/Habitual_t.tex                     | Tabela com os coeficientes da regressão em Latex - Salário Habitual
   
 
-   - D_Coeficientes_Efetivo_i                     | Base .dta dos coeficientes estimados - Salário Efetivo - Sem controles 
-   - D_Coeficientes_Efetivo_ii                    | Base .dta dos coeficientes estimados - Salário Efetivo - Cor
-   - D_Coeficientes_Efetivo_iii                   | Base .dta dos coeficientes estimados - Salário Efetivo - Setor público
-   - D_Coeficientes_Efetivo_iv                    | Base .dta dos coeficientes estimados - Salário Efetivo - Informal
+   - D_Coeficientes/Efetivo_i                     | Base .dta dos coeficientes estimados - Salário Efetivo - Sem controles 
+   - D_Coeficientes/Efetivo_ii                    | Base .dta dos coeficientes estimados - Salário Efetivo - Cor
+   - D_Coeficientes/Efetivo_iii                   | Base .dta dos coeficientes estimados - Salário Efetivo - Setor público
+   - D_Coeficientes/Efetivo_iv                    | Base .dta dos coeficientes estimados - Salário Efetivo - Informal
 
    - D_Coeficientes_Efetivo                       | Base .dta consolidada dos coeficientes estimados - Salário Efetivo 
 
 
-   - D_Coeficientes_Habitual_i                    | Base .dta dos coeficientes estimados - Salário Habitual - Sem controles 
-   - D_Coeficientes_Habitual_ii                   | Base .dta dos coeficientes estimados - Salário Habitual - Cor
-   - D_Coeficientes_Habitual_iii                  | Base .dta dos coeficientes estimados - Salário Habitual - Setor público
-   - D_Coeficientes_Habitual_iv                   | Base .dta dos coeficientes estimados - Salário Habitual - Informal
+   - D_Coeficientes/Habitual_i                    | Base .dta dos coeficientes estimados - Salário Habitual - Sem controles 
+   - D_Coeficientes/Habitual_ii                   | Base .dta dos coeficientes estimados - Salário Habitual - Cor
+   - D_Coeficientes/Habitual_iii                  | Base .dta dos coeficientes estimados - Salário Habitual - Setor público
+   - D_Coeficientes/Habitual_iv                   | Base .dta dos coeficientes estimados - Salário Habitual - Informal
 
    - D_Coeficientes_Habitual                      | Base .dta consolidada dos coeficientes estimados - Salário Habitual 
 
