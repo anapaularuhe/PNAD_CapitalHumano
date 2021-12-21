@@ -131,6 +131,7 @@
   append using "$diroriginal/PNADC_022021.dta", keep(Ano Trimestre T UF V1027 V1028 V1029 V2007 V2009 V2010 VD3004 VD3005 VD3006 VD4001 VD4002 VD4009 VD4010 VD4016 VD4017 VD4019 VD4020 VD4031 VD4032 VD4035)
   append using "$diroriginal/PNADC_032021.dta", keep(Ano Trimestre T UF V1027 V1028 V1029 V2007 V2009 V2010 VD3004 VD3005 VD3006 VD4001 VD4002 VD4009 VD4010 VD4016 VD4017 VD4019 VD4020 VD4031 VD4032 VD4035)
 
+  compress 
   save "$dirdata/A_PNADC_20122021.dta", replace
 }	
 	
@@ -147,7 +148,8 @@
 	replace Trimestre = 3 if trim=="07-08-09"
 	replace Trimestre = 4 if trim=="10-11-12"
 	
-	save  "$dirdata/A_Deflator.dta" , replace
+	compress
+	save "$dirdata/A_Deflator.dta", replace
 	 
   * Merge
 	use "$dirdata/A_PNADC_20122021.dta", clear
@@ -168,6 +170,7 @@
    
      drop Ano_string Trimestre_string Periodo
 	 
+   compress
    save "$dirdata/A_PNADC_20122021.dta", replace	
 }
 
@@ -341,8 +344,10 @@
 	label var Experiencia2 "Experiência ao quadrado"
 	label var Experiencia3 "Experiência ao cubo"
 	label var Experiencia4 "Experiência elevada à 4 potência"
+	
+	order Experiencia2 Experiencia3 Experiencia4, after(Experiencia)
 
-   
+   compress
    save "$dirdata/A_PNADC_20122021.dta", replace
 }  
 }
@@ -435,6 +440,7 @@
     label var logW_efet "Log do rendimento real efetivo por hora"
     
   
+  compress
   save "$dirdata/B_PNADC_POamostra.dta", replace
 }
 
@@ -483,7 +489,7 @@
    gen PretoPardoIndig = 0
    replace PretoPardoIndig = 1 if (Cor==2 | Cor==4 | Cor== 5)
    label var PretoPardoIndig "Preto, Parto ou Indigena"
-   
+ 
  save "$dirdata/C_BaseEstimacao.dta", replace   
  } 
 
@@ -666,6 +672,7 @@
        drop RegW_Ei_`t' RegW_Hi_`t' RegW_Eii_`t' RegW_Hii_`t' RegW_Eiii_`t' RegW_Hiii_`t' RegW_Eiv_`t' RegW_Hiv_`t' 
    }  
  
+   compress
    save "$dirdata/C_BaseEstimacao.dta", replace
   }
 
@@ -705,6 +712,7 @@
    order PH, after(PE) 
    drop PHi PHt
 
+ compress
  save "$dirdata/C_BaseEstimacao.dta", replace
 } 
  
@@ -892,6 +900,7 @@
    gen dIQT_Hiv = (dIQT0_Hiv*dIQT1_Hiv)^(1/2)
    
  
+ compress
  save "$dirdata/C_BaseEstimacao.dta", replace  
  
  * IQT: Base separada 
@@ -1159,7 +1168,7 @@
 *******************************************************************************
 {
  use "$dirdata/C_IQT.dta", clear
-
+  
 * E.1. POR CONTROLE ***********************************************************
 {
 ** (i) Sem controles:
@@ -1191,6 +1200,7 @@
    twoway (line IQT_Hi T) (line IQT_Hii T) (line IQT_Hiii T) (line IQT_Hiv T), xtitle(" ") xlabel(1(2)`=Tmax', angle(vertical) valuelabel labsize(*0.8)) graphregion(color(white)) ylab(95(5)125, labsize(*0.8) angle(horizontal))  xline(10 20 32 34, lpattern(dash) lcolor(gray)) legend(c(2) symys(*.7) symxs(*.7) size(*0.7) region(c(none))) name(IQTHabitual, replace) 
    *graph export "$dirpath/Gráficos/IQTHabitual.png", width(10000) as(png) replace   
 }
-}  
+}
+
 
 log close
