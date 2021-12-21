@@ -1061,7 +1061,7 @@
 	foreach x of varlist _b_* {
       local nome = substr("`x'", 4, 12)
 	  label var `x' "`nome' - Informal"
-	  rename `x' iv_`nome'
+	  rename `x' ivE_`nome'
     }	
 	save "$dirdata/D_Coeficientes_Efetivo", replace   
 	
@@ -1071,7 +1071,7 @@
 	foreach x of varlist _b_* {
       local nome = substr("`x'", 4, 12)
 	  label var `x' "`nome' - Setor publico"
-	  rename `x' iii_`nome'
+	  rename `x' iiiE_`nome'
     }
 	
 	merge 1:1 T using "$dirdata/D_Coeficientes_Efetivo"
@@ -1084,7 +1084,7 @@
 	foreach x of varlist _b_* {
       local nome = substr("`x'", 4, 12)
 	  label var `x' "`nome' - Cor"
-	  rename `x' ii_`nome'
+	  rename `x' iiE_`nome'
     }
 	
 	merge 1:1 T using "$dirdata/D_Coeficientes_Efetivo"
@@ -1097,14 +1097,14 @@
 	foreach x of varlist _b_* {
       local nome = substr("`x'", 4, 12)
 	  label var `x' "`nome' - Sem controles"
-	  rename `x' i_`nome'
+	  rename `x' iE_`nome'
     }	
 	
 	merge 1:1 T using "$dirdata/D_Coeficientes_Efetivo"
 	drop _merge
 	save "$dirdata/D_Coeficientes_Efetivo", replace
 	
-	export excel T i_cons i_mulher i_educ2 i_educ3 i_educ4 i_educ5 i_educ6 ii_cons ii_mulher ii_educ2 ii_educ3 ii_educ4 ii_educ5 ii_educ6 iii_cons iii_mulher iii_educ2 iii_educ3 iii_educ4 iii_educ5 iii_educ6 iv_cons iv_mulher iv_educ2 iv_educ3 iv_educ4 iv_educ5 iv_educ6 using "$dirdata\D_CoeficientesEducação.xlsx", sheet ("Efetivo") firstrow(varlabels) replace
+	export excel T iE_cons iE_mulher iE_educ2 iE_educ3 iE_educ4 iE_educ5 iE_educ6 iiE_cons iiE_mulher iiE_educ2 iiE_educ3 iiE_educ4 iiE_educ5 iiE_educ6 iiiE_cons iiiE_mulher iiiE_educ2 iiiE_educ3 iiiE_educ4 iiiE_educ5 iiiE_educ6 ivE_cons ivE_mulher ivE_educ2 ivE_educ3 ivE_educ4 ivE_educ5 ivE_educ6 using "$dirdata\D_CoeficientesEducação.xlsx", sheet ("Efetivo") firstrow(varlabels) replace
 	
   } 
  
@@ -1118,7 +1118,7 @@
 	foreach x of varlist _b_* {
       local nome = substr("`x'", 4, 12)
 	  label var `x' "`nome' - Informal"
-	  rename `x' iv_`nome'
+	  rename `x' ivH_`nome'
     }	
 	save "$dirdata/D_Coeficientes_Habitual", replace   
 	
@@ -1128,7 +1128,7 @@
 	foreach x of varlist _b_* {
       local nome = substr("`x'", 4, 12)
 	  label var `x' "`nome' - Setor publico"
-	  rename `x' iii_`nome'
+	  rename `x' iiiH_`nome'
     }
 	
 	merge 1:1 T using "$dirdata/D_Coeficientes_Habitual"
@@ -1141,7 +1141,7 @@
 	foreach x of varlist _b_* {
       local nome = substr("`x'", 4, 12)
 	  label var `x' "`nome' - Cor"
-	  rename `x' ii_`nome'
+	  rename `x' iiH_`nome'
     }
 	
 	merge 1:1 T using "$dirdata/D_Coeficientes_Habitual"
@@ -1154,14 +1154,14 @@
 	foreach x of varlist _b_* {
       local nome = substr("`x'", 4, 12)
 	  label var `x' "`nome' - Sem controles"
-	  rename `x' i_`nome'
+	  rename `x' iH_`nome'
     }	
 	
 	merge 1:1 T using "$dirdata/D_Coeficientes_Habitual"
 	drop _merge
 	save "$dirdata/D_Coeficientes_Habitual", replace
 	
-	 export excel T i_cons i_mulher i_educ2 i_educ3 i_educ4 i_educ5 i_educ6 ii_cons ii_mulher ii_educ2 ii_educ3 ii_educ4 ii_educ5 ii_educ6 iii_cons iii_mulher iii_educ2 iii_educ3 iii_educ4 iii_educ5 iii_educ6 iv_cons iv_mulher iv_educ2 iv_educ3 iv_educ4 iv_educ5 iv_educ6 using "$dirdata\D_CoeficientesEducação.xlsx", sheet ("Habitual", modify) firstrow(varlabels) 
+	 export excel T iH_cons iH_mulher iH_educ2 iH_educ3 iH_educ4 iH_educ5 iH_educ6 iiH_cons iiH_mulher iiH_educ2 iiH_educ3 iiH_educ4 iiH_educ5 iiH_educ6 iiiH_cons iiiH_mulher iiiH_educ2 iiiH_educ3 iiiH_educ4 iiiH_educ5 iiiH_educ6 ivH_cons ivH_mulher ivH_educ2 ivH_educ3 ivH_educ4 ivH_educ5 ivH_educ6 using "$dirdata\D_CoeficientesEducação.xlsx", sheet ("Habitual", modify) firstrow(varlabels) 
   } 
  
  }	
