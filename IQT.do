@@ -1102,7 +1102,8 @@
 	merge 1:1 T using "$dirdata/D_Coeficientes_Efetivo"
 	drop _merge
 	save "$dirdata/D_Coeficientes_Efetivo", replace
-	export excel using "$dirdata\D_Coeficientes.xlsx", sheet ("Efetivo") firstrow(varlabels) replace
+	
+	export excel T i_cons i_mulher i_educ2 i_educ3 i_educ4 i_educ5 i_educ6 ii_cons ii_mulher ii_educ2 ii_educ3 ii_educ4 ii_educ5 ii_educ6 iii_cons iii_mulher iii_educ2 iii_educ3 iii_educ4 iii_educ5 iii_educ6 iv_cons iv_mulher iv_educ2 iv_educ3 iv_educ4 iv_educ5 iv_educ6 using "$dirdata\D_CoeficientesEducação.xlsx", sheet ("Efetivo") firstrow(varlabels) replace
 	
   } 
  
@@ -1158,7 +1159,8 @@
 	merge 1:1 T using "$dirdata/D_Coeficientes_Habitual"
 	drop _merge
 	save "$dirdata/D_Coeficientes_Habitual", replace
-	export excel using "$dirdata\D_Coeficientes.xlsx", sheet ("Habitual", modify) firstrow(varlabels) 
+	
+	 export excel T i_cons i_mulher i_educ2 i_educ3 i_educ4 i_educ5 i_educ6 ii_cons ii_mulher ii_educ2 ii_educ3 ii_educ4 ii_educ5 ii_educ6 iii_cons iii_mulher iii_educ2 iii_educ3 iii_educ4 iii_educ5 iii_educ6 iv_cons iv_mulher iv_educ2 iv_educ3 iv_educ4 iv_educ5 iv_educ6 using "$dirdata\D_CoeficientesEducação.xlsx", sheet ("Habitual", modify) firstrow(varlabels) 
   } 
  
  }	
