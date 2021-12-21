@@ -81,6 +81,9 @@
    - D_Coeficientes_Habitual                      | Base .dta consolidada dos coeficientes estimados - Salário Habitual 
 
 
+   - D_CoeficientesEducação.xlsx                  | Planilha excel com os coeficientes estimados do retorno à educação, para todos os controles e os dois tipos de rendimentos
+   - D_CoeficientesEducação_Gráficos.xlsx         | Planilha excel trabalhada a partir da anterior, com as taxas de variação dos retornos à educação e gráficos
+
 
 > ---------------------------------------------------------
 
