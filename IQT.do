@@ -213,6 +213,7 @@
   * VD3006: Grupo de anos de estudo (eliminamos observações com missing values)  
   label define VD3006_label 1 "Sem instrução e menos de 1 ano de estudo" 2 "1 a 4 anos de estudo" 3 "5 a 8 anos de estudo" 4 "9 a 11 anos de estudo" 5 "12 a 15 anos de estudo" 6 "16 anos ou mais de estudo"
   label values VD3006 VD3006_label
+  label var VD3006 "Grupo de anos de estudo"
   
   tab T VD3006 [iw=Peso] if VD4002==1
   * Obs: mais de 20% da pop ocupada (19.583.262) tem ensino superior 
