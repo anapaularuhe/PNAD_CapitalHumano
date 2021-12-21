@@ -506,48 +506,48 @@
  * (i) Sem controles: 
   * Efetivo:
     regress logW_efet mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 if T==`t' [iw = Peso]
-	estimates save "$dirdata/C_Regressões_Efetivo_i", append
+	estimates save "$dirdata/C_Regressões/Efetivo_i", append
 	predict RegLog_Ei_`t' if (T>=(`t'-1) & T<=(`t'+1)) 
 	 
   * Habitual:
 	regress logW_hab mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 if T==`t' [iw = Peso]
-	estimates save "$dirdata/C_Regressões_Habitual_i", append
+	estimates save "$dirdata/C_Regressões/Habitual_i", append
 	predict RegLog_Hi_`t' if(T>=(`t'-1) & T<=(`t'+1))	 
 	
 	
  * (ii) Cor: 
   * Efetivo:
     regress logW_efet mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 PretoPardoIndig if T==`t' [iw = Peso]
-	estimates save "$dirdata/C_Regressões_Efetivo_ii", append
+	estimates save "$dirdata/C_Regressões/Efetivo_ii", append
 	gen RegLog_Eii_`t' = _b[_cons] + _b[mulher]*mulher + _b[educ2]*educ2 + _b[educ3]*educ3 + _b[educ4]*educ4 + _b[educ5]*educ5 + _b[educ6]*educ6 + _b[Experiencia]*Experiencia + _b[Experiencia2]*Experiencia2 + _b[Experiencia3]*Experiencia3 + _b[Experiencia4]*Experiencia4 + _b[ExperMulher]*ExperMulher + _b[ExperMulher2]*ExperMulher2 + _b[ExperMulher3]*ExperMulher3 + _b[ExperMulher4]*ExperMulher4 if(T>=(`t'-1) & T<=(`t'+1))	 
 	 
   * Habitual:
 	regress logW_hab mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 PretoPardoIndig if T==`t' [iw = Peso]
-	estimates save "$dirdata/C_Regressões_Habitual_ii", append
+	estimates save "$dirdata/C_Regressões/Habitual_ii", append
 	gen RegLog_Hii_`t' = _b[_cons] + _b[mulher]*mulher + _b[educ2]*educ2 + _b[educ3]*educ3 + _b[educ4]*educ4 + _b[educ5]*educ5 + _b[educ6]*educ6 + _b[Experiencia]*Experiencia + _b[Experiencia2]*Experiencia2 + _b[Experiencia3]*Experiencia3 + _b[Experiencia4]*Experiencia4 + _b[ExperMulher]*ExperMulher + _b[ExperMulher2]*ExperMulher2 + _b[ExperMulher3]*ExperMulher3 + _b[ExperMulher4]*ExperMulher4 if(T>=(`t'-1) & T<=(`t'+1)) 
 	
 	 
  * (iii) Setor público: 
   * Efetivo:
 	regress logW_efet mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 PretoPardoIndig publico if T==`t' [iw = Peso]
-	estimates save "$dirdata/C_Regressões_Efetivo_iii", append
+	estimates save "$dirdata/C_Regressões/Efetivo_iii", append
 	gen RegLog_Eiii_`t' = _b[_cons] + _b[mulher]*mulher + _b[educ2]*educ2 + _b[educ3]*educ3 + _b[educ4]*educ4 + _b[educ5]*educ5 + _b[educ6]*educ6 + _b[Experiencia]*Experiencia + _b[Experiencia2]*Experiencia2 + _b[Experiencia3]*Experiencia3 + _b[Experiencia4]*Experiencia4 + _b[ExperMulher]*ExperMulher + _b[ExperMulher2]*ExperMulher2 + _b[ExperMulher3]*ExperMulher3 + _b[ExperMulher4]*ExperMulher4 if(T>=(`t'-1) & T<=(`t'+1))	 
 	 
   * Habitual:
 	regress logW_hab mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 PretoPardoIndig publico if T==`t' [iw = Peso]
-	estimates save "$dirdata/C_Regressões_Habitual_iii", append
+	estimates save "$dirdata/C_Regressões/Habitual_iii", append
 	gen RegLog_Hiii_`t' = _b[_cons] + _b[mulher]*mulher + _b[educ2]*educ2 + _b[educ3]*educ3 + _b[educ4]*educ4 + _b[educ5]*educ5 + _b[educ6]*educ6 + _b[Experiencia]*Experiencia + _b[Experiencia2]*Experiencia2 + _b[Experiencia3]*Experiencia3 + _b[Experiencia4]*Experiencia4 + _b[ExperMulher]*ExperMulher + _b[ExperMulher2]*ExperMulher2 + _b[ExperMulher3]*ExperMulher3 + _b[ExperMulher4]*ExperMulher4 if(T>=(`t'-1) & T<=(`t'+1)) 
 	  
 	  
  * (iv) Setor informal: 
   * Efetivo:
     regress logW_efet mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 PretoPardoIndig publico informal if T==`t' [iw = Peso]
-	estimates save "$dirdata/C_Regressões_Efetivo_iv", append
+	estimates save "$dirdata/C_Regressões/Efetivo_iv", append
 	gen RegLog_Eiv_`t' = _b[_cons] + _b[mulher]*mulher + _b[educ2]*educ2 + _b[educ3]*educ3 + _b[educ4]*educ4 + _b[educ5]*educ5 + _b[educ6]*educ6 + _b[Experiencia]*Experiencia + _b[Experiencia2]*Experiencia2 + _b[Experiencia3]*Experiencia3 + _b[Experiencia4]*Experiencia4 + _b[ExperMulher]*ExperMulher + _b[ExperMulher2]*ExperMulher2 + _b[ExperMulher3]*ExperMulher3 + _b[ExperMulher4]*ExperMulher4 if(T>=(`t'-1) & T<=(`t'+1))	 
 	 
   * Habitual:
 	regress logW_hab mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 PretoPardoIndig publico informal if T==`t' [iw = Peso]
-	estimates save "$dirdata/C_Regressões_Habitual_iv", append
+	estimates save "$dirdata/C_Regressões/Habitual_iv", append
 	gen RegLog_Hiv_`t' = _b[_cons] + _b[mulher]*mulher + _b[educ2]*educ2 + _b[educ3]*educ3 + _b[educ4]*educ4 + _b[educ5]*educ5 + _b[educ6]*educ6 + _b[Experiencia]*Experiencia + _b[Experiencia2]*Experiencia2 + _b[Experiencia3]*Experiencia3 + _b[Experiencia4]*Experiencia4 + _b[ExperMulher]*ExperMulher + _b[ExperMulher2]*ExperMulher2 + _b[ExperMulher3]*ExperMulher3 + _b[ExperMulher4]*ExperMulher4 if(T>=(`t'-1) & T<=(`t'+1)) 
 	  
   estimates drop _all
@@ -1019,32 +1019,32 @@
 {
  ** Efetivo:
  { 
-    statsby, by(T) saving("$dirdata/D_Coeficientes_Efetivo_i.dta", replace): regress logW_efet mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4
+    statsby, by(T) saving("$dirdata/D_Coeficientes/Efetivo_i.dta", replace): regress logW_efet mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4
 	estimates drop _all
     
-	statsby, by(T) saving("$dirdata/D_Coeficientes_Efetivo_ii.dta", replace): regress logW_efet mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 PretoPardoIndig
+	statsby, by(T) saving("$dirdata/D_Coeficientes/Efetivo_ii.dta", replace): regress logW_efet mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 PretoPardoIndig
 	estimates drop _all
 	
-	statsby, by(T) saving("$dirdata/D_Coeficientes_Efetivo_iii.dta", replace): regress logW_efet mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 PretoPardoIndig publico
+	statsby, by(T) saving("$dirdata/D_Coeficientes/Efetivo_iii.dta", replace): regress logW_efet mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 PretoPardoIndig publico
     estimates drop _all
 	
-    statsby, by(T) saving("$dirdata/D_Coeficientes_Efetivo_iv.dta", replace): regress logW_efet mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 PretoPardoIndig publico informal 
+    statsby, by(T) saving("$dirdata/D_Coeficientes/Efetivo_iv.dta", replace): regress logW_efet mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 PretoPardoIndig publico informal 
     estimates drop _all	
  }	
    
    
  ** Habitual:
  {
-    statsby, by(T) saving("$dirdata/D_Coeficientes_Habitual_i.dta", replace): regress logW_hab mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4
+    statsby, by(T) saving("$dirdata/D_Coeficientes/Habitual_i.dta", replace): regress logW_hab mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4
 	estimates drop _all	
 	
-    statsby, by(T) saving("$dirdata/D_Coeficientes_Habitual_ii.dta", replace): regress logW_hab mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 PretoPardoIndig
+    statsby, by(T) saving("$dirdata/D_Coeficientes/Habitual_ii.dta", replace): regress logW_hab mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 PretoPardoIndig
 	estimates drop _all	
 	
-    statsby, by(T) saving("$dirdata/D_Coeficientes_Habitual_iii.dta", replace): regress logW_hab mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 PretoPardoIndig publico  
+    statsby, by(T) saving("$dirdata/D_Coeficientes/Habitual_iii.dta", replace): regress logW_hab mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 PretoPardoIndig publico  
 	estimates drop _all	
 	
-    statsby, by(T) saving("$dirdata/D_Coeficientes_Habitual_iv.dta", replace): regress logW_hab mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 PretoPardoIndig publico informal 
+    statsby, by(T) saving("$dirdata/D_Coeficientes/Habitual_iv.dta", replace): regress logW_hab mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 PretoPardoIndig publico informal 
     estimates drop _all
  } 	
 	
@@ -1054,7 +1054,7 @@
   {
     * Vamos fazer na ordem (iv)-(i) para que a base final fique ordenada (i)-(iv).
 	* (iv)
-    use "$dirdata/D_Coeficientes_Efetivo_iv.dta", clear
+    use "$dirdata/D_Coeficientes/Efetivo_iv.dta", clear
 	
 	* Renomeando variáveis e labels para diferenciar entre estratégias de controles:
 	foreach x of varlist _b_* {
@@ -1066,7 +1066,7 @@
 	
 	
 	* (iii)
-	use "$dirdata/D_Coeficientes_Efetivo_iii.dta", clear 
+	use "$dirdata/D_Coeficientes/Efetivo_iii.dta", clear 
 	foreach x of varlist _b_* {
       local nome = substr("`x'", 4, 12)
 	  label var `x' "`nome' - Setor publico"
@@ -1079,7 +1079,7 @@
 	
 	
 	* (ii)
-	use "$dirdata/D_Coeficientes_Efetivo_ii.dta", clear 
+	use "$dirdata/D_Coeficientes/Efetivo_ii.dta", clear 
 	foreach x of varlist _b_* {
       local nome = substr("`x'", 4, 12)
 	  label var `x' "`nome' - Cor"
@@ -1092,7 +1092,7 @@
 	
 	
 	* (i)
-	use "$dirdata/D_Coeficientes_Efetivo_i.dta", clear
+	use "$dirdata/D_Coeficientes/Efetivo_i.dta", clear
 	foreach x of varlist _b_* {
       local nome = substr("`x'", 4, 12)
 	  label var `x' "`nome' - Sem controles"
@@ -1111,7 +1111,7 @@
   {
     * Vamos fazer na ordem (iv)-(i) para que a base final fique ordenada (i)-(iv).
 	* (iv)
-    use "$dirdata/D_Coeficientes_Habitual_iv.dta", clear
+    use "$dirdata/D_Coeficientes/Habitual_iv.dta", clear
 	
 	* Renomeando variáveis e labels para diferenciar entre estratégias de controles:
 	foreach x of varlist _b_* {
@@ -1123,7 +1123,7 @@
 	
 	
 	* (iii)
-	use "$dirdata/D_Coeficientes_Habitual_iii.dta", clear 
+	use "$dirdata/D_Coeficientes/Habitual_iii.dta", clear 
 	foreach x of varlist _b_* {
       local nome = substr("`x'", 4, 12)
 	  label var `x' "`nome' - Setor publico"
@@ -1136,7 +1136,7 @@
 	
 	
 	* (ii)
-	use "$dirdata/D_Coeficientes_Habitual_ii.dta", clear 
+	use "$dirdata/D_Coeficientes/Habitual_ii.dta", clear 
 	foreach x of varlist _b_* {
       local nome = substr("`x'", 4, 12)
 	  label var `x' "`nome' - Cor"
@@ -1149,7 +1149,7 @@
 	
 	
 	* (i)
-	use "$dirdata/D_Coeficientes_Habitual_i.dta", clear
+	use "$dirdata/D_Coeficientes/Habitual_i.dta", clear
 	foreach x of varlist _b_* {
       local nome = substr("`x'", 4, 12)
 	  label var `x' "`nome' - Sem controles"
