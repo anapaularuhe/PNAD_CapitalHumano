@@ -13,16 +13,16 @@
   set maxvar 30000
 	
 * Diretório: 
-** Servidor bif004 (Ana Paula):
-   global dirpath = "A:/Ana Paula Ruhe/Capital Humano" 
-   global dirdata = "A:/Ana Paula Ruhe/Capital Humano/Dados"
-   global dirbeta = "A:/Ana Paula Ruhe/Capital Humano/Retornos Educação"
-   
 ** Servidor RDPBI1VPR0002 (Ana Paula):   
    global dirpath = "W:/Ana Paula Ruhe/Capital Humano"
    global dirdata = "W:/Ana Paula Ruhe/Capital Humano/Dados"
    global dirbeta = "W:/Ana Paula Ruhe/Capital Humano/Retornos Educação"
 
+** Servidor bif004 (Ana Paula):
+   global dirpath = "A:/Ana Paula Ruhe/Capital Humano" 
+   global dirdata = "A:/Ana Paula Ruhe/Capital Humano/Dados"
+   global dirbeta = "A:/Ana Paula Ruhe/Capital Humano/Retornos Educação"
+   
 ** Janaina:    
    global dirpath = "C:\Users\janaina.feijo\Documents\capital_humano\result"   
    global dirdata = "C:\Users\janaina.feijo\Documents\capital_humano\data" 
@@ -290,7 +290,7 @@
  
 * 2.3: GRÁFICOS ***************************************************************
  {
- use "$dirdata/D_BetasAgregados.dta", clear
+ use "$dirbeta/BetasAgregados.dta", clear
  
  egen Tmax = max(T)
  
@@ -318,6 +318,10 @@
 * 3. RETORNOS MÉDIOS **********************************************************
 {
  use "$dirbeta/Base.dta", clear
+ 
+ * Corrigir: inserir intercepto? ou colocar 0? 
+ * Além disso: fazer para a exponencial?
+ 
  
  * Efetivo: sem controles
    gen iE_BetaEduc = .
