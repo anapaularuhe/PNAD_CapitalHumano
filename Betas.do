@@ -318,43 +318,41 @@
 * 3. RETORNOS MÉDIOS **********************************************************
 {
  use "$dirbeta/Base.dta", clear
- 
- * Corrigir: inserir intercepto? ou colocar 0? 
- * Além disso: fazer para a exponencial?
- 
- 
+
+* 3.1: RETORNO MÉDIO EM NÍVEL *************************************************
+ {  
  * Efetivo: sem controles
-   gen iE_BetaEduc = .
-   replace iE_BetaEduc = iE_educ2 if educ2 == 1
-   replace iE_BetaEduc = iE_educ3 if educ3 == 1
-   replace iE_BetaEduc = iE_educ4 if educ4 == 1
-   replace iE_BetaEduc = iE_educ5 if educ5 == 1
-   replace iE_BetaEduc = iE_educ6 if educ6 == 1
+   gen iE_BetaEduc = iE_cons
+   replace iE_BetaEduc = iE_cons + iE_educ2 + (mulher*iE_mulher) if educ2 == 1
+   replace iE_BetaEduc = iE_cons + iE_educ3 + (mulher*iE_mulher) if educ3 == 1
+   replace iE_BetaEduc = iE_cons + iE_educ4 + (mulher*iE_mulher) if educ4 == 1
+   replace iE_BetaEduc = iE_cons + iE_educ5 + (mulher*iE_mulher) if educ5 == 1
+   replace iE_BetaEduc = iE_cons + iE_educ6 + (mulher*iE_mulher) if educ6 == 1
    
  * Efetivo: com controles
-   gen ivE_BetaEduc = .
-   replace ivE_BetaEduc = ivE_educ2 if educ2 == 1
-   replace ivE_BetaEduc = ivE_educ3 if educ3 == 1
-   replace ivE_BetaEduc = ivE_educ4 if educ4 == 1
-   replace ivE_BetaEduc = ivE_educ5 if educ5 == 1
-   replace ivE_BetaEduc = ivE_educ6 if educ6 == 1
+   gen ivE_BetaEduc = ivE_cons
+   replace ivE_BetaEduc = ivE_cons + ivE_educ2 + (mulher*ivE_mulher) if educ2 == 1
+   replace ivE_BetaEduc = ivE_cons + ivE_educ3 + (mulher*ivE_mulher) if educ3 == 1
+   replace ivE_BetaEduc = ivE_cons + ivE_educ4 + (mulher*ivE_mulher) if educ4 == 1
+   replace ivE_BetaEduc = ivE_cons + ivE_educ5 + (mulher*ivE_mulher) if educ5 == 1
+   replace ivE_BetaEduc = ivE_cons + ivE_educ6 + (mulher*ivE_mulher) if educ6 == 1
    
    
  * Habitual: sem controles
-   gen iH_BetaEduc = .
-   replace iH_BetaEduc = iH_educ2 if educ2 == 1
-   replace iH_BetaEduc = iH_educ3 if educ3 == 1
-   replace iH_BetaEduc = iH_educ4 if educ4 == 1
-   replace iH_BetaEduc = iH_educ5 if educ5 == 1
-   replace iH_BetaEduc = iH_educ6 if educ6 == 1
+   gen iH_BetaEduc = iH_cons
+   replace iH_BetaEduc = iH_cons + iH_educ2 + (mulher*iH_mulher) if educ2 == 1
+   replace iH_BetaEduc = iH_cons + iH_educ3 + (mulher*iH_mulher) if educ3 == 1
+   replace iH_BetaEduc = iH_cons + iH_educ4 + (mulher*iH_mulher) if educ4 == 1
+   replace iH_BetaEduc = iH_cons + iH_educ5 + (mulher*iH_mulher) if educ5 == 1
+   replace iH_BetaEduc = iH_cons + iH_educ6 + (mulher*iH_mulher) if educ6 == 1
    
  * Habitual: com controles
-   gen ivH_BetaEduc = .
-   replace ivH_BetaEduc = ivH_educ2 if educ2 == 1
-   replace ivH_BetaEduc = ivH_educ3 if educ3 == 1
-   replace ivH_BetaEduc = ivH_educ4 if educ4 == 1
-   replace ivH_BetaEduc = ivH_educ5 if educ5 == 1
-   replace ivH_BetaEduc = ivH_educ6 if educ6 == 1
+   gen ivH_BetaEduc = ivH_cons
+   replace ivH_BetaEduc = ivH_cons + ivH_educ2 + (mulher*ivH_mulher) if educ2 == 1
+   replace ivH_BetaEduc = ivH_cons + ivH_educ3 + (mulher*ivH_mulher) if educ3 == 1
+   replace ivH_BetaEduc = ivH_cons + ivH_educ4 + (mulher*ivH_mulher) if educ4 == 1
+   replace ivH_BetaEduc = ivH_cons + ivH_educ5 + (mulher*ivH_mulher) if educ5 == 1
+   replace ivH_BetaEduc = ivH_cons + ivH_educ6 + (mulher*ivH_mulher) if educ6 == 1
    
    save "$dirbeta/Base.dta", replace
    
@@ -377,21 +375,90 @@
 	 compress
 	 save "$dirbeta/BetasAgregados.dta", replace
    restore
+ }
 
- * Gráfico
+
+* 3.2: RETORNO MÉDIO EM EXPONENCIAL *******************************************
+ {  
+ * Efetivo: sem controles
+   gen iE_ExpBetaEduc = exp(iE_cons)
+   replace iE_ExpBetaEduc = exp(iE_cons + iE_educ2 + (mulher*iE_mulher)) if educ2 == 1
+   replace iE_ExpBetaEduc = exp(iE_cons + iE_educ3 + (mulher*iE_mulher)) if educ3 == 1
+   replace iE_ExpBetaEduc = exp(iE_cons + iE_educ4 + (mulher*iE_mulher)) if educ4 == 1
+   replace iE_ExpBetaEduc = exp(iE_cons + iE_educ5 + (mulher*iE_mulher)) if educ5 == 1
+   replace iE_ExpBetaEduc = exp(iE_cons + iE_educ6 + (mulher*iE_mulher)) if educ6 == 1
+   
+ * Efetivo: com controles
+   gen ivE_ExpBetaEduc = exp(ivE_cons)
+   replace ivE_ExpBetaEduc = exp(ivE_cons + ivE_educ2 + (mulher*ivE_mulher)) if educ2 == 1
+   replace ivE_ExpBetaEduc = exp(ivE_cons + ivE_educ3 + (mulher*ivE_mulher)) if educ3 == 1
+   replace ivE_ExpBetaEduc = exp(ivE_cons + ivE_educ4 + (mulher*ivE_mulher)) if educ4 == 1
+   replace ivE_ExpBetaEduc = exp(ivE_cons + ivE_educ5 + (mulher*ivE_mulher)) if educ5 == 1
+   replace ivE_ExpBetaEduc = exp(ivE_cons + ivE_educ6 + (mulher*ivE_mulher)) if educ6 == 1
+   
+   
+ * Habitual: sem controles
+   gen iH_ExpBetaEduc = exp(iH_cons)
+   replace iH_ExpBetaEduc = exp(iH_cons + iH_educ2 + (mulher*iH_mulher)) if educ2 == 1
+   replace iH_ExpBetaEduc = exp(iH_cons + iH_educ3 + (mulher*iH_mulher)) if educ3 == 1
+   replace iH_ExpBetaEduc = exp(iH_cons + iH_educ4 + (mulher*iH_mulher)) if educ4 == 1
+   replace iH_ExpBetaEduc = exp(iH_cons + iH_educ5 + (mulher*iH_mulher)) if educ5 == 1
+   replace iH_ExpBetaEduc = exp(iH_cons + iH_educ6 + (mulher*iH_mulher)) if educ6 == 1
+   
+ * Habitual: com controles
+   gen ivH_ExpBetaEduc = exp(ivH_cons)
+   replace ivH_ExpBetaEduc = exp(ivH_cons + ivH_educ2 + (mulher*ivH_mulher)) if educ2 == 1
+   replace ivH_ExpBetaEduc = exp(ivH_cons + ivH_educ3 + (mulher*ivH_mulher)) if educ3 == 1
+   replace ivH_ExpBetaEduc = exp(ivH_cons + ivH_educ4 + (mulher*ivH_mulher)) if educ4 == 1
+   replace ivH_ExpBetaEduc = exp(ivH_cons + ivH_educ5 + (mulher*ivH_mulher)) if educ5 == 1
+   replace ivH_ExpBetaEduc = exp(ivH_cons + ivH_educ6 + (mulher*ivH_mulher)) if educ6 == 1
+   
+   save "$dirbeta/Base.dta", replace
+   
+   preserve 
+     collapse (mean) iE_ExpBetaEduc (mean) ivE_ExpBetaEduc (mean) iH_ExpBetaEduc (mean) ivH_ExpBetaEduc [iw = Peso], by(T)
+	 
+	 rename iE_ExpBetaEduc ExpBetaE
+     label var ExpBetaE "Exponencial do retorno médio da educação - Efetivo"
+	 rename ivE_ExpBetaEduc ExpBetaE_controles
+     label var ExpBetaE_controles "Exponencial do retorno médio da educação  - Efetivo - Com controles"
+	 
+	 rename iH_ExpBetaEduc ExpBetaH
+     label var ExpBetaH "Exponencial do retorno médio da educação  - Habitual"
+	 rename ivH_ExpBetaEduc ExpBetaH_controles
+     label var ExpBetaH_controles "Exponencial do retorno médio da educação  - Habitual - Com controles"
+	 
+	 merge 1:1 T using "$dirbeta/BetasAgregados.dta"
+	 drop _merge
+	 
+	 compress
+	 save "$dirbeta/BetasAgregados.dta", replace
+   restore
+ }
+
+
+* 3.2: GRÁFICOS *************************************************************** 
  {
-   use "$dirbeta/BetasAgregados.dta", clear
+ use "$dirbeta/BetasAgregados.dta", clear
    
-   egen Tmax = max(T)
+ egen Tmax = max(T)
    
-   twoway (line BetaE T) (line BetaE_controles T) (line BetaH T) (line BetaH_controles T), xtitle(" ") xlabel(1(2)`=Tmax', angle(vertical) valuelabel labsize(*0.8)) graphregion(color(white)) ylab(0.7(0.1)1.2, labsize(*0.8) angle(horizontal))  xline(10 20 32 34, lpattern(dash) lcolor(gray)) legend(c(2) symys(*.7) symxs(*.7) size(*0.7) region(c(none))) name(BetaAgregado, replace) 
-   *graph export "$dirpath/Gráficos/BetaAgregado.png", width(10000) as(png) replace
+ twoway (line BetaE T) (line BetaE_controles T) (line BetaH T) (line BetaH_controles T), xtitle(" ") xlabel(1(2)`=Tmax', angle(vertical) valuelabel labsize(*0.8)) graphregion(color(white)) ylab(1.85(0.1)2.25, labsize(*0.8) angle(horizontal))  xline(10 20 32 34, lpattern(dash) lcolor(gray)) legend(c(2) symys(*.7) symxs(*.7) size(*0.7) region(c(none))) name(BetaAgregado, replace) 
+ *graph export "$dirpath/Gráficos/BetaAgregado.png", width(10000) as(BetaAgregado.png) replace
    
+
+ twoway (line ExpBetaE T) (line ExpBetaE_controles T) (line ExpBetaH T) (line ExpBetaH_controles T), xtitle(" ") xlabel(1(2)`=Tmax', angle(vertical) valuelabel labsize(*0.8)) graphregion(color(white)) ylab(7(0.5)10.5, labsize(*0.8) angle(horizontal))  xline(10 20 32 34, lpattern(dash) lcolor(gray)) legend(c(1) symys(*.7) symxs(*.7) size(*0.7) region(c(none))) name(ExpBetaAgregado, replace) 
+ *graph export "$dirpath/Gráficos/BetaAgregado.png", width(10000) as(ExpBetaAgregado.png) replace
+    
  }
 }
 
 
-export excel T BetaE BetaE_controles BetaH BetaH_controles using "$dirbeta\BetasAgregados.xlsx", sheet("Betas") firstrow(varlabels) 
+export excel T BetaE BetaE_controles BetaH BetaH_controles using "$dirbeta\BetasAgregados.xlsx", sheet("Betas", modify) firstrow(varlabels) 
+export excel T ExpBetaE ExpBetaE_controles ExpBetaH ExpBetaH_controles using "$dirbeta\BetasAgregados.xlsx", sheet("Exp(Betas)", modify) firstrow(varlabels) 
 export excel T WE WE_controles WH WH_controles WE_2012 WE_2012_controles WH_2012 WH_2012_controles WE_2021 WE_2021_controles WH_2021 WH_2021_controles using "$dirbeta\BetasAgregados.xlsx", sheet ("W Médio", modify) firstrow(varlabels) 
 
 log close
+
+
+   
