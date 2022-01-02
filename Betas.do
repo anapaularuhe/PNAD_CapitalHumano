@@ -304,11 +304,11 @@
    
    
 ** Habitual: sem controles
-   twoway (line WH_2012 T) (line WH_2021 T), xtitle(" ") xlabel(1(2)`=Tmax', angle(vertical) valuelabel labsize(*0.8)) graphregion(color(white)) ylab(9(2)15, labsize(*0.8) angle(horizontal))  xline(10 20 32 34, lpattern(dash) lcolor(gray)) legend(c(1) symys(*.7) symxs(*.7) size(*0.7) region(c(none))) name(WHabitualMedio, replace) 
+   twoway (line WH_2012 T) (line WH_2021 T), xtitle(" ") xlabel(1(2)`=Tmax', angle(vertical) valuelabel labsize(*0.8)) graphregion(color(white)) ylab(10(2)15, labsize(*0.8) angle(horizontal))  xline(10 20 32 34, lpattern(dash) lcolor(gray)) legend(c(1) symys(*.7) symxs(*.7) size(*0.7) region(c(none))) name(WHabitualMedio, replace) 
    *graph export "$dirpath/Gráficos/WHabitualMedio.png", width(10000) as(png) replace
    
 ** Habitual: com controles
-   twoway (line WH_2012_controles T) (line WH_2021_controles T), xtitle(" ") xlabel(1(2)`=Tmax', angle(vertical) valuelabel labsize(*0.8)) graphregion(color(white)) ylab(9(2)15, labsize(*0.8) angle(horizontal))  xline(10 20 32 34, lpattern(dash) lcolor(gray)) legend(c(1) symys(*.7) symxs(*.7) size(*0.7) region(c(none))) name(WHabitualMedio_controles, replace) 
+   twoway (line WH_2012_controles T) (line WH_2021_controles T), xtitle(" ") xlabel(1(2)`=Tmax', angle(vertical) valuelabel labsize(*0.8)) graphregion(color(white)) ylab(10(2)15, labsize(*0.8) angle(horizontal))  xline(10 20 32 34, lpattern(dash) lcolor(gray)) legend(c(1) symys(*.7) symxs(*.7) size(*0.7) region(c(none))) name(WHabitualMedio_controles, replace) 
    *graph export "$dirpath/Gráficos/WHabitualMedio_controles.png", width(10000) as(png) replace   
  }
 }
@@ -454,9 +454,9 @@
 }
 
 
-export excel T BetaE BetaE_controles BetaH BetaH_controles using "$dirbeta\BetasAgregados.xlsx", sheet("Betas", modify) firstrow(varlabels) 
-export excel T ExpBetaE ExpBetaE_controles ExpBetaH ExpBetaH_controles using "$dirbeta\BetasAgregados.xlsx", sheet("Exp(Betas)", modify) firstrow(varlabels) 
-export excel T WE WE_controles WH WH_controles WE_2012 WE_2012_controles WH_2012 WH_2012_controles WE_2021 WE_2021_controles WH_2021 WH_2021_controles using "$dirbeta\BetasAgregados.xlsx", sheet ("W Médio", modify) firstrow(varlabels) 
+ export excel T BetaE BetaE_controles BetaH BetaH_controles using "$dirbeta\BetasAgregados.xlsx", sheet("Betas", modify) firstrow(varlabels) 
+ export excel T ExpBetaE ExpBetaE_controles ExpBetaH ExpBetaH_controles using "$dirbeta\BetasAgregados.xlsx", sheet("Exp(Betas)", modify) firstrow(varlabels) 
+ export excel T WE WE_controles WH WH_controles WE_2012 WE_2012_controles WH_2012 WH_2012_controles WE_2021 WE_2021_controles WH_2021 WH_2021_controles using "$dirbeta\BetasAgregados.xlsx", sheet ("W Médio", modify) firstrow(varlabels) 
 
 log close
 
