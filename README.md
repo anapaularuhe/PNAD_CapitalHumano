@@ -92,3 +92,17 @@
 
   * Outputs:
    - Gráficos em .png
+
+
+> ---------------------------------------------------------
+> ---------------------------------------------------------
+
+> ROTINA: IQT Preço.do 
+
+  * Inputs:
+   - C_BaseEstimacao.dta                          
+
+  * Outputs:
+   - F_BaseIQTPreço.dta                           | Base final com salários preditos, pesos ponderados por horas e componentes do IQT (Preço e Quantidade)
+   - F_IQTPreço.dta                               | Base com os IQTs (Preço e Quantidade) calculados
+   - F_IQTPreço.xlsx                              | Arquivo excel com os IQTs (Preço e Quantidade) calculados
