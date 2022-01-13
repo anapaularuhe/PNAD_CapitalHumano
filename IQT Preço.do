@@ -35,7 +35,7 @@
    
    
 *******************************************************************************
-* IQT PREÇO
+* 1. IQT PREÇO
 *******************************************************************************
 {
  use "$dirdata/C_BaseEstimacao.dta", clear
@@ -125,7 +125,7 @@
   
   
  * IQT1:
-  * Efetivo C:
+  * Efetivo:
    gen dIQTP1_Ei = .        
    gen dIQTP1_Eii = .        
    gen dIQTP1_Eiii = .        
@@ -275,10 +275,167 @@
    drop _merge
    
    save "$dirdata/F_IQTPreço.dta", replace
-   export excel T IQT_Ei IQT_Eii IQT_Eiii IQT_Eiv IQT_Hi IQT_Hii IQT_Hiii IQT_Hiv IQTP_Ei IQTP_Eii IQTP_Eiii IQTP_Eiv IQTP_Hi IQTP_Hii IQTP_Hiii IQTP_Hiv using "$dirdata\F_IQTPreço.xlsx", firstrow(varlabels) replace
+   export excel T IQT_Ei IQT_Eii IQT_Eiii IQT_Eiv IQTP_Ei IQTP_Eii IQTP_Eiii IQTP_Eiv  using "$dirdata\F_IQTPreço.xlsx", sheet("Efetivo") firstrow(varlabels) replace   
+   export excel T IQT_Hi IQT_Hii IQT_Hiii IQT_Hiv IQTP_Hi IQTP_Hii IQTP_Hiii IQTP_Hiv using "$dirdata\F_IQTPreço.xlsx", sheet ("Habitual", modify) firstrow(varlabels)
 
    restore
    }  
   
 } 
+ 
+ 
+*******************************************************************************
+* 2. IQT VALOR
+*******************************************************************************
+{
+ use "$dirdata/F_BaseIQTPreço.dta", clear
+
+ * IQT Valor: dIQT_V = dIQT_P x dIQT_Q
+  * Efetivo:
+   gen dIQTV_Ei = .        
+   gen dIQTV_Eii = .        
+   gen dIQTV_Eiii = .        
+   gen dIQTV_Eiv = .          
+   
+  * Habitual: 
+   gen dIQTV_Hi = .        
+   gen dIQTV_Hii = .        
+   gen dIQTV_Hiii = .        
+   gen dIQTV_Hiv = .    
+
+
+   forvalues t = 2/`=Tmax'{
+   * (i) Sem controles: 
+	  gen nEi = PE*WEi_T if T==`t'
+	  gen dEi = PE*WEi_T if T==(`t'-1)
+	  gen nHi = PH*WHi_T if T==`t'
+	  gen dHi = PH*WHi_T if T==(`t'-1)
+	  
+	  egen sum_nEi = sum(nEi)
+	  egen sum_dEi = sum(dEi)
+	  egen sum_nHi = sum(nHi)
+	  egen sum_dHi = sum(dHi)
+	  
+	  replace dIQTV_Ei = sum_nEi/sum_dEi if T==`t'
+	  replace dIQTV_Hi = sum_nHi/sum_dHi if T==`t'  
+
+	  drop nEi dEi nHi dHi sum_nEi sum_dEi sum_nHi sum_dHi
+	
+	
+   * (ii) Cor:
+	  gen nEii = PE*WEii_T if T==`t'
+	  gen dEii = PE*WEii_T if T==(`t'-1)
+	  gen nHii = PH*WHii_T if T==`t'
+	  gen dHii = PH*WHii_T if T==(`t'-1)
+	  
+	  egen sum_nEii = sum(nEii)
+	  egen sum_dEii = sum(dEii)
+	  egen sum_nHii = sum(nHii)
+	  egen sum_dHii = sum(dHii)
+	  
+	  replace dIQTV_Eii = sum_nEii/sum_dEii if T==`t'
+	  replace dIQTV_Hii = sum_nHii/sum_dHii if T==`t'  
+
+	  drop nEii dEii nHii dHii sum_nEii sum_dEii sum_nHii sum_dHii
+	
+	
+   * (iii) Setor Público:
+	  gen nEiii = PE*WEiii_T if T==`t'
+	  gen dEiii = PE*WEiii_T if T==(`t'-1)
+	  gen nHiii = PH*WHiii_T if T==`t'
+	  gen dHiii = PH*WHiii_T if T==(`t'-1)
+	  
+	  egen sum_nEiii = sum(nEiii)
+	  egen sum_dEiii = sum(dEiii)
+	  egen sum_nHiii = sum(nHiii)
+	  egen sum_dHiii = sum(dHiii)
+	  
+	  replace dIQTV_Eiii = sum_nEiii/sum_dEiii if T==`t'
+	  replace dIQTV_Hiii = sum_nHiii/sum_dHiii if T==`t'  
+
+	  drop nEiii dEiii nHiii dHiii sum_nEiii sum_dEiii sum_nHiii sum_dHiii
+	  
+	  
+   * (iv) Informal: 
+	  gen nEiv = PE*WEiv_T if T==`t'
+	  gen dEiv = PE*WEiv_T if T==(`t'-1)
+	  gen nHiv = PH*WHiv_T if T==`t'
+	  gen dHiv = PH*WHiv_T if T==(`t'-1)
+	  
+	  egen sum_nEiv = sum(nEiv)
+	  egen sum_dEiv = sum(dEiv)
+	  egen sum_nHiv = sum(nHiv)
+	  egen sum_dHiv = sum(dHiv)
+	  
+	  replace dIQTV_Eiv = sum_nEiv/sum_dEiv if T==`t'
+	  replace dIQTV_Hiv = sum_nHiv/sum_dHiv if T==`t'  
+
+	  drop nEiv dEiv nHiv dHiv sum_nEiv sum_dEiv sum_nHiv sum_dHiv
+   }
+ 
+ compress
+ save "$dirdata/F_BaseIQTPreço.dta", replace  
+ 
+ * IQT: Base separada 
+  {
+  preserve
+   keep T Tmax dIQTV_Ei dIQTV_Eii dIQTV_Eiii dIQTV_Eiv dIQTV_Hi dIQTV_Hii dIQTV_Hiii dIQTV_Hiv
+   duplicates drop
+  
+   *OBS: calcularemos apenas os IQT com 2012.2 = 100
+   * (i) Sem controles
+     gen IQTV_Ei = 100 if T==2
+     replace IQTV_Ei = IQTV_Ei[_n-1]*dIQTV_Ei if _n > 2
+     label var IQTV_Ei "IQT Valor - Efetivo - Sem controles"
+
+	 gen IQTV_Hi = 100 if T==2
+     replace IQTV_Hi = IQTV_Hi[_n-1]*dIQTV_Hi if _n > 2
+     label var IQTV_Hi "IQT Valor - Habitual - Sem controles"
+	 
+	 
+   * (ii) Cor
+     gen IQTV_Eii = 100 if T==2
+     replace IQTV_Eii = IQTV_Eii[_n-1]*dIQTV_Eii if _n > 2
+     label var IQTV_Eii "IQT Valor - Efetivo - Cor"
+	 
+	 gen IQTV_Hii = 100 if T==2
+     replace IQTV_Hii = IQTV_Hii[_n-1]*dIQTV_Hii if _n > 2
+     label var IQTV_Hii "IQT Valor - Habitual - Cor"
+   
+   
+   * (iii) Setor público
+     gen IQTV_Eiii = 100 if T==2
+     replace IQTV_Eiii = IQTV_Eiii[_n-1]*dIQTV_Eiii if _n > 2
+     label var IQTV_Eiii "IQT Valor - Efetivo - Setor público"
+	 
+	 gen IQTV_Hiii = 100 if T==2
+     replace IQTV_Hiii = IQTV_Hiii[_n-1]*dIQTV_Hiii if _n > 2
+     label var IQTV_Hiii "IQT Valor - Habitual - Setor público" 
+	 
+	 
+   * (iv) Informal
+     gen IQTV_Eiv = 100 if T==2
+     replace IQTV_Eiv = IQTV_Eiv[_n-1]*dIQTV_Eiv if _n > 2
+     label var IQTV_Eiv "IQT Valor - Efetivo - Informal"
+	 
+	 gen IQTV_Hiv = 100 if T==2
+     replace IQTV_Hiv = IQTV_Hiv[_n-1]*dIQTV_Hiv if _n > 2
+     label var IQTV_Hiv "IQT Valor - Habitual - Informal" 
+	 
+   
+   merge 1:1 T using "$dirdata/F_IQTPreço.dta"
+   drop _merge
+   
+   save "$dirdata/F_IQTPreço.dta", replace
+   export excel T IQT_Ei IQT_Eii IQT_Eiii IQT_Eiv IQTP_Ei IQTP_Eii IQTP_Eiii IQTP_Eiv IQTV_Ei IQTV_Eii IQTV_Eiii IQTV_Eiv  using "$dirdata\F_IQTPreço.xlsx", sheet("Efetivo") firstrow(varlabels) replace   
+   export excel T IQT_Hi IQT_Hii IQT_Hiii IQT_Hiv IQTP_Hi IQTP_Hii IQTP_Hiii IQTP_Hiv IQTV_Hi IQTV_Hii IQTV_Hiii IQTV_Hiv using "$dirdata\F_IQTPreço.xlsx", sheet ("Habitual", modify) firstrow(varlabels)
+
+   restore
+   }  
+  
+} 
+ 
+  
+ 
+ 
  
