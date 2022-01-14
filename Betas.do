@@ -14,14 +14,9 @@
 	
 * Diretório: 
 ** Servidor RDPBI1VPR0002 (Ana Paula):   
-   global dirpath = "W:/Ana Paula Ruhe/Capital Humano"
-   global dirdata = "W:/Ana Paula Ruhe/Capital Humano/Dados"
-   global dirbeta = "W:/Ana Paula Ruhe/Capital Humano/Retornos Educação"
-
-** Servidor bif004 (Ana Paula):
-   global dirpath = "A:/Ana Paula Ruhe/Capital Humano" 
-   global dirdata = "A:/Ana Paula Ruhe/Capital Humano/Dados"
-   global dirbeta = "A:/Ana Paula Ruhe/Capital Humano/Retornos Educação"
+   global dirpath = "T:\pastas_pessoais\ana_ruhe\Capital Humano\1. IQT"
+   global dirdata = "T:\pastas_pessoais\ana_ruhe\Capital Humano\1. IQT\Dados"
+   global dirbeta = "T:\pastas_pessoais\ana_ruhe\Capital Humano\3. Retornos Educação"
    
 ** Janaina:    
    global dirpath = "C:\Users\janaina.feijo\Documents\capital_humano\result"   
@@ -415,6 +410,8 @@
    
    save "$dirbeta/Base.dta", replace
    
+   
+ * Média: com pesos da PNAD
    preserve 
      collapse (mean) iE_ExpBetaEduc (mean) ivE_ExpBetaEduc (mean) iH_ExpBetaEduc (mean) ivH_ExpBetaEduc [iw = Peso], by(T)
 	 
@@ -434,6 +431,29 @@
 	 compress
 	 save "$dirbeta/BetasAgregados.dta", replace
    restore
+   
+   
+  * Média: sem pesos da PNAD
+   preserve 
+     collapse (mean) iE_ExpBetaEduc (mean) ivE_ExpBetaEduc (mean) iH_ExpBetaEduc (mean) ivH_ExpBetaEduc, by(T)
+	 
+	 rename iE_ExpBetaEduc ExpBetaE_sempeso
+     label var ExpBetaE_sempeso "Exponencial do retorno médio da educação - Efetivo (s/ peso PNAD)"
+	 rename ivE_ExpBetaEduc ExpBetaE_controles_sempeso
+     label var ExpBetaE_controles_sempeso "Exponencial do retorno médio da educação  - Efetivo - Com controles (s/ peso PNAD)"
+	 
+	 rename iH_ExpBetaEduc ExpBetaH_sempeso
+     label var ExpBetaH_sempeso "Exponencial do retorno médio da educação  - Habitual (s/ peso PNAD)"
+	 rename ivH_ExpBetaEduc ExpBetaH_controles_sempeso
+     label var ExpBetaH_controles_sempeso "Exponencial do retorno médio da educação  - Habitual - Com controles (s/ peso PNAD)"
+	 
+	 merge 1:1 T using "$dirbeta/BetasAgregados.dta"
+	 drop _merge
+	 
+	 compress
+	 save "$dirbeta/BetasAgregados.dta", replace
+   restore 
+
  }
 
 
@@ -451,12 +471,21 @@
  *graph export "$dirpath/Gráficos/BetaAgregado.png", width(10000) as(ExpBetaAgregado.png) replace
     
  }
+ 
+
+* 3.3: EXPORTANDO EXCEL *******************************************************
+ {
+  use "$dirbeta/BetasAgregados.dta", clear
+
+  export excel T BetaE BetaE_controles BetaH BetaH_controles using "$dirbeta\BetasAgregados.xlsx", sheet("Betas", modify) firstrow(varlabels) 
+  export excel T ExpBetaE ExpBetaE_controles ExpBetaH ExpBetaH_controles using "$dirbeta\BetasAgregados.xlsx", sheet("Exp(Betas)", modify) firstrow(varlabels) 
+  export excel T ExpBetaE_sempeso ExpBetaE_controles_sempeso ExpBetaH_sempeso ExpBetaH_controles_sempeso using "$dirbeta\BetasAgregados.xlsx", sheet("Exp(Betas) - Sem peso", modify) firstrow(varlabels) 
+  export excel T WE WE_controles WH WH_controles WE_2012 WE_2012_controles WH_2012 WH_2012_controles WE_2021 WE_2021_controles WH_2021 WH_2021_controles using "$dirbeta\BetasAgregados.xlsx", sheet ("W Médio", modify) firstrow(varlabels) 
+ } 
 }
 
 
- export excel T BetaE BetaE_controles BetaH BetaH_controles using "$dirbeta\BetasAgregados.xlsx", sheet("Betas", modify) firstrow(varlabels) 
- export excel T ExpBetaE ExpBetaE_controles ExpBetaH ExpBetaH_controles using "$dirbeta\BetasAgregados.xlsx", sheet("Exp(Betas)", modify) firstrow(varlabels) 
- export excel T WE WE_controles WH WH_controles WE_2012 WE_2012_controles WH_2012 WH_2012_controles WE_2021 WE_2021_controles WH_2021 WH_2021_controles using "$dirbeta\BetasAgregados.xlsx", sheet ("W Médio", modify) firstrow(varlabels) 
+
 
 log close
 

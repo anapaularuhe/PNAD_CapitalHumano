@@ -19,15 +19,10 @@
   set maxvar 30000
 	
 * Diretório: 
-** Servidor bif004 (Ana Paula):
-   global dirpath = "A:/Ana Paula Ruhe/Capital Humano" 
-   global dirdata = "A:/Ana Paula Ruhe/Capital Humano/Dados"
-   global diroriginal = "A:/Ana Paula Ruhe/Capital Humano/Dados/PNAD Original"
-   
-** Servidor RDPBI1VPR0002 (Ana Paula):   
-   global dirpath = "W:/Ana Paula Ruhe/Capital Humano"
-   global dirdata = "W:/Ana Paula Ruhe/Capital Humano/Dados"
-   global diroriginal = "W:/Ana Paula Ruhe/Capital Humano/Dados/PNAD Original"
+  ** Servidor RDPBI1VPR0002 (Ana Paula):   
+   global dirpath = "T:\pastas_pessoais\ana_ruhe\Capital Humano\1. IQT"
+   global dirdata = "T:\pastas_pessoais\ana_ruhe\Capital Humano\1. IQT\Dados"
+   global diroriginal = "T:\pastas_pessoais\ana_ruhe\Capital Humano\1. IQT\Dados\PNAD Original"
 
 ** Janaina:    
    global dirpath = "C:\Users\janaina.feijo\Documents\capital_humano\result"   
@@ -685,7 +680,7 @@
  use "$dirdata/C_BaseEstimacao.dta", clear
 
  * EFETIVO:
-   bysort T VD3006 Experiencia: egen HE = mean(VD4035)
+   bysort T Sexo VD3006 Experiencia: egen HE = mean(VD4035)
    order HE, after(VD4035)
    label var HE "Horas efetivas médias por grupo de educação e experiência para cada trimestre"
 
@@ -805,7 +800,7 @@
   
   
  * IQT1:
-  * Efetivo C:
+  * Efetivo:
    gen dIQT1_Ei = .        
    gen dIQT1_Eii = .        
    gen dIQT1_Eiii = .        
