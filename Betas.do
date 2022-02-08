@@ -14,16 +14,16 @@
 	
 * Diretório: 
 ** Servidor RDPBI1VPR0002 (Ana Paula):   
-   global dirpath = "T:\pastas_pessoais\ana_ruhe\Capital Humano\1. IQT"
-   global dirdata = "T:\pastas_pessoais\ana_ruhe\Capital Humano\1. IQT\Dados"
-   global dirbeta = "T:\pastas_pessoais\ana_ruhe\Capital Humano\3. Retornos Educação"
+   global dirpath = "T:\pastas_pessoais\ana_ruhe\Capital Humano\1_IQT"
+   global dirdata = "T:\pastas_pessoais\ana_ruhe\Capital Humano\1_IQT\Dados"
+   global dirbeta = "T:\pastas_pessoais\ana_ruhe\Capital Humano\3_Retornos Educação"
    
 ** Janaina:    
-   global dirpath = "C:\Users\janaina.feijo\Documents\capital_humano\result"   
-   global dirdata = "C:\Users\janaina.feijo\Documents\capital_humano\data" 
+  * global dirpath = "C:\Users\janaina.feijo\Documents\capital_humano\result"   
+  * global dirdata = "C:\Users\janaina.feijo\Documents\capital_humano\data" 
    
 * Salvando log:   
-  log using "$dirbeta/Log.log", replace
+  * log using "$dirbeta/Log.log", replace
   
 
   
@@ -457,7 +457,7 @@
  }
 
 
-* 3.2: GRÁFICOS *************************************************************** 
+* 3.3: GRÁFICOS *************************************************************** 
  {
  use "$dirbeta/BetasAgregados.dta", clear
    
@@ -473,7 +473,7 @@
  }
  
 
-* 3.3: EXPORTANDO EXCEL *******************************************************
+* 3.4: EXPORTANDO EXCEL *******************************************************
  {
   use "$dirbeta/BetasAgregados.dta", clear
 

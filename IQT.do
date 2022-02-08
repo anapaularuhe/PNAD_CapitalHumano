@@ -20,9 +20,10 @@
 	
 * Diretório: 
   ** Servidor RDPBI1VPR0002 (Ana Paula):   
-   global dirpath = "T:\pastas_pessoais\ana_ruhe\Capital Humano\1. IQT"
-   global dirdata = "T:\pastas_pessoais\ana_ruhe\Capital Humano\1. IQT\Dados"
-   global diroriginal = "T:\pastas_pessoais\ana_ruhe\Capital Humano\1. IQT\Dados\PNAD Original"
+   global dirpath = "T:\pastas_pessoais\ana_ruhe\Capital Humano\1_IQT"
+   global dirdata = "T:\pastas_pessoais\ana_ruhe\Capital Humano\1_IQT\Dados"
+   global diroriginal = "T:\pastas_pessoais\ana_ruhe\Capital Humano\1_IQT\Dados\PNAD Original"
+   
 
 ** Janaina:    
    global dirpath = "C:\Users\janaina.feijo\Documents\capital_humano\result"   
@@ -249,7 +250,7 @@
   gen byte publico = (VD4009>=05 & VD4009<=07) if VD4009!=.
   label var publico "Dummy = 1 se ocupado no setor publico"
   
-  gen byte informal = (VD4009==02 | VD4009==04 | VD4009==06 | VD4009==10)
+  gen byte informal = (VD4009==02 | VD4009==04 | VD4009==06 | VD4009==9 | VD4009==10)
   label var informal "Dummy = 1 se ocupado no setor informal"
   
   order publico informal, after(VD4009)
@@ -970,41 +971,41 @@
  * (i) Sem controles: 
   * Efetivo:
     regress logW_efet mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 if T==`t' [iw = Peso]
-	outreg2 using "$dirdata/D_Tabelas/Efetivo_`t'", replace ctitle("Sem controles") word tex(pretty) label
+	outreg2 using "$dirdata\D_Tabelas\Efetivo_`t'", replace ctitle("Sem controles") word tex(pretty) label: 
 	 
   * Habitual:
 	regress logW_hab mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 if T==`t' [iw = Peso]
-	outreg2 using "$dirdata/D_Tabelas/Habitual_`t'", replace ctitle("Sem controles") word tex(pretty) label
+	outreg2 using "$dirdata\D_Tabelas\Habitual_`t'", replace ctitle("Sem controles") word tex(pretty) label
 	
 	
  * (ii) Cor: 
   * Efetivo:
 	regress logW_efet mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 PretoPardoIndig if T==`t' [iw = Peso]
-	outreg2 using "$dirdata/D_Tabelas/Efetivo_`t'", append ctitle("Cor") word tex(pretty) label
+	outreg2 using "$dirdata\D_Tabelas\Efetivo_`t'", append ctitle("Cor") word tex(pretty) label
 	 
   * Habitual:
 	regress logW_hab mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 PretoPardoIndig if T==`t' [iw = Peso]
-	outreg2 using "$dirdata/D_Tabelas/Habitual_`t'", append ctitle("Cor") word tex(pretty) label
+	outreg2 using "$dirdata\D_Tabelas\Habitual_`t'", append ctitle("Cor") word tex(pretty) label
 
 	 
  * (iii) Setor público: 
   * Efetivo:
 	regress logW_efet mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 PretoPardoIndig publico if T==`t' [iw = Peso]
-	outreg2 using "$dirdata/D_Tabelas/Efetivo_`t'", append ctitle("Setor Publico") word tex(pretty) label
+	outreg2 using "$dirdata\D_Tabelas\Efetivo_`t'", append ctitle("Setor Publico") word tex(pretty) label
 	 
   * Habitual:
 	regress logW_hab mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 PretoPardoIndig publico if T==`t' [iw = Peso]
-	outreg2 using "$dirdata/D_Tabelas/Habitual_`t'", append ctitle("Setor Publico") word tex(pretty) label
+	outreg2 using "$dirdata\D_Tabelas\Habitual_`t'", append ctitle("Setor Publico") word tex(pretty) label
 		 
 	  	  
  * (iv) Setor informal: 
   * Efetivo:
 	regress logW_efet mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 PretoPardoIndig publico informal if T==`t' [iw = Peso]
-	outreg2 using "$dirdata/D_Tabelas/Efetivo_`t'", append ctitle("Informal") word tex(pretty) label
+	outreg2 using "$dirdata\D_Tabelas\Efetivo_`t'", append ctitle("Informal") word tex(pretty) label
 	 
   * Habitual:
 	regress logW_hab mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 PretoPardoIndig publico informal if T==`t' [iw = Peso]
-	outreg2 using "$dirdata/D_Tabelas/Habitual_`t'", append ctitle("Informal") word tex(pretty) label
+	outreg2 using "$dirdata\D_Tabelas\Habitual_`t'", append ctitle("Informal") word tex(pretty) label
 	 
  estimates drop _all 
  }
@@ -1015,32 +1016,32 @@
 {
  ** Efetivo:
  { 
-    statsby, by(T) saving("$dirdata/D_Coeficientes/Efetivo_i.dta", replace): regress logW_efet mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 [iw = Peso]
+    statsby, by(T) saving("$dirdata\D_Coeficientes\Efetivo_i.dta", replace): regress logW_efet mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 [iw = Peso]
 	estimates drop _all
     
-	statsby, by(T) saving("$dirdata/D_Coeficientes/Efetivo_ii.dta", replace): regress logW_efet mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 PretoPardoIndig [iw = Peso]
+	statsby, by(T) saving("$dirdata\D_Coeficientes\Efetivo_ii.dta", replace): regress logW_efet mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 PretoPardoIndig [iw = Peso]
 	estimates drop _all
 	
-	statsby, by(T) saving("$dirdata/D_Coeficientes/Efetivo_iii.dta", replace): regress logW_efet mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 PretoPardoIndig publico [iw = Peso]
+	statsby, by(T) saving("$dirdata\D_Coeficientes\Efetivo_iii.dta", replace): regress logW_efet mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 PretoPardoIndig publico [iw = Peso]
     estimates drop _all
 	
-    statsby, by(T) saving("$dirdata/D_Coeficientes/Efetivo_iv.dta", replace): regress logW_efet mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 PretoPardoIndig publico informal [iw = Peso]
+    statsby, by(T) saving("$dirdata\D_Coeficientes\Efetivo_iv.dta", replace): regress logW_efet mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 PretoPardoIndig publico informal [iw = Peso]
     estimates drop _all	
  }	
    
    
  ** Habitual:
  {
-    statsby, by(T) saving("$dirdata/D_Coeficientes/Habitual_i.dta", replace): regress logW_hab mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 [iw = Peso]
+    statsby, by(T) saving("$dirdata\D_Coeficientes\Habitual_i.dta", replace): regress logW_hab mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 [iw = Peso]
 	estimates drop _all	
 	
-    statsby, by(T) saving("$dirdata/D_Coeficientes/Habitual_ii.dta", replace): regress logW_hab mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 PretoPardoIndig [iw = Peso]
+    statsby, by(T) saving("$dirdata\D_Coeficientes\Habitual_ii.dta", replace): regress logW_hab mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 PretoPardoIndig [iw = Peso]
 	estimates drop _all	
 	
-    statsby, by(T) saving("$dirdata/D_Coeficientes/Habitual_iii.dta", replace): regress logW_hab mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 PretoPardoIndig publico [iw = Peso] 
+    statsby, by(T) saving("$dirdata\D_Coeficientes\Habitual_iii.dta", replace): regress logW_hab mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 PretoPardoIndig publico [iw = Peso] 
 	estimates drop _all	
 	
-    statsby, by(T) saving("$dirdata/D_Coeficientes/Habitual_iv.dta", replace): regress logW_hab mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 PretoPardoIndig publico informal [iw = Peso]
+    statsby, by(T) saving("$dirdata\D_Coeficientes\Habitual_iv.dta", replace): regress logW_hab mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 PretoPardoIndig publico informal [iw = Peso]
     estimates drop _all
  } 	
 	

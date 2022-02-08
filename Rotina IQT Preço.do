@@ -20,8 +20,8 @@
 	
 * Diretório: 
 ** Servidor RDPBI1VPR0002 (Ana Paula):   
-   global dirpath = "T:\pastas_pessoais\ana_ruhe\Capital Humano\2. IQT Preço"
-   global dirdata = "T:\pastas_pessoais\ana_ruhe\Capital Humano\1. IQT\Dados"
+   global dirpath = "T:\pastas_pessoais\ana_ruhe\Capital Humano\2_IQT Preço"
+   global dirdata = "T:\pastas_pessoais\ana_ruhe\Capital Humano\1_IQT\Dados"
 
 ** Janaina:    
    global dirpath = "C:\Users\janaina.feijo\Documents\capital_humano\result"   
