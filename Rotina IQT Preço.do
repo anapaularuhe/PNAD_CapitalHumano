@@ -20,12 +20,12 @@
 	
 * Diretório: 
 ** Servidor RDPBI1VPR0002 (Ana Paula):   
-   global dirpath = "T:\pastas_pessoais\ana_ruhe\Capital Humano\2_IQT Preço"
-   global dirdata = "T:\pastas_pessoais\ana_ruhe\Capital Humano\1_IQT\Dados"
+   global dirpath = "T:\pastas_pessoais\ana_ruhe\Capital Humano\IQT Preço"
+   global dirdata = "T:\pastas_pessoais\ana_ruhe\Capital Humano\IQT\Dados"
 
 ** Janaina:    
-   global dirpath = "C:\Users\janaina.feijo\Documents\capital_humano\result"   
-   global dirdata = "C:\Users\janaina.feijo\Documents\capital_humano\data" 
+  * global dirpath = "C:\Users\janaina.feijo\Documents\capital_humano\result"   
+  * global dirdata = "C:\Users\janaina.feijo\Documents\capital_humano\data" 
    
    
 *******************************************************************************
@@ -268,7 +268,7 @@
    merge 1:1 T using "$dirdata/C_IQT.dta"
    drop _merge
    
-   save "$dirpath/IQTPreço.dta", replace
+   save "$dirpath\IQTPreço.dta", replace
    export excel T IQT_Ei IQT_Eii IQT_Eiii IQT_Eiv IQTP_Ei IQTP_Eii IQTP_Eiii IQTP_Eiv  using "$dirpath\IQTPreço.xlsx", sheet("Efetivo") firstrow(varlabels) replace   
    export excel T IQT_Hi IQT_Hii IQT_Hiii IQT_Hiv IQTP_Hi IQTP_Hii IQTP_Hiii IQTP_Hiv using "$dirpath\IQTPreço.xlsx", sheet ("Habitual", modify) firstrow(varlabels)
 
