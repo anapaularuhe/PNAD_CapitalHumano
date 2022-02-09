@@ -711,6 +711,53 @@
 
  compress
  save "$dirdata/C_BaseEstimacao.dta", replace
+ 
+ 
+ * C.2.1: Evolução horas ao longo do tempo
+ {
+  preserve 
+     collapse (sum) VD4035 (sum) VD4031 [iw = Peso], by(T VD3006)
+	 
+	 rename VD4035 HE_soma
+     label var HE_soma "Horas Efetivas - Soma da população por grupo de estudo"
+	 rename VD4031 HH_soma
+     label var HH_soma "Horas Habituais - Soma da população por grupo de estudo"
+	 
+	 compress
+	 save "$dirdata/C_Horas.dta", replace
+   restore
+   
+   preserve
+      collapse (sum) VD4035 (sum) VD4031 [iw = Peso], by(T) 
+	  
+	 rename VD4035 HE_total
+     label var HE_total "Horas Efetivas - Total da população"
+	 rename VD4031 HH_total
+     label var HH_total "Horas Habituais - Total da população"
+	 
+	 merge 1:m T using "$dirdata/C_Horas.dta"
+	 drop _merge
+	 
+	 compress
+	 save "$dirdata/C_Horas.dta", replace
+   restore
+   
+   preserve
+     use "$dirdata/C_Horas.dta", clear
+	 
+	 gen HE_part = HE_soma/HE_total
+	 label var HE_part "Horas Efetivas - Participação no total"
+	 
+	 gen HH_part = HH_soma/HH_total
+	 label var HH_part "Horas Habituais - Participação no total"
+	 
+	 order T VD3006 HE_soma HE_total HE_part HH_soma HH_total HH_part
+	 
+	 compress
+	 save "$dirdata/C_Horas.dta", replace
+	 export excel using "$dirdata\C_Horas.xlsx", sheet ("Horas", replace) firstrow(varlabels) 
+   restore
+ }
 } 
  
  
