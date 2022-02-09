@@ -39,6 +39,10 @@
    - C_BaseEstimacao.dta                          | Base final com salários preditos, pesos ponderados por horas e componentes do IQT 
    - C_IQT.dta                                    | Base com os IQTs calculados
    - C_IQT.xlsx                                   | Arquivo excel com os IQTs calculados
+
+   - C_Horas.dta                                  | Base com a série histórica da quantidade de horas trabalhadas por grupo de educação
+   - C_Horas.xlsx                                 | Arquivo excel com a série histórica da quantidade de horas trabalhadas por grupo de educação
+   - C_Horas - Trabalhada.xlsx                    | Arquivo excel com as tabelas e gráficos
    
    - C_Regressões/Efetivo_i.ster                  | Arquivo que armazena as regressões - Salário Efetivo - Sem controles
    - C_Regressões/Efetivo_ii.ster                 | Arquivo que armazena as regressões - Salário Efetivo - Cor
@@ -103,6 +107,6 @@
    - C_BaseEstimacao.dta                          
 
   * Outputs:
-   - F_BaseIQTPreço.dta                           | Base final com salários preditos, pesos ponderados por horas e componentes do IQT (Preço e Quantidade)
-   - F_IQTPreço.dta                               | Base com os IQTs (Preço e Quantidade) calculados
-   - F_IQTPreço.xlsx                              | Arquivo excel com os IQTs (Preço e Quantidade) calculados
+   - BaseIQTPreço.dta                           | Base final com salários preditos, pesos ponderados por horas e componentes do IQT (Preço e Quantidade)
+   - IQTPreço.dta                               | Base com os IQTs (Preço e Quantidade) calculados
+   - IQTPreço.xlsx                              | Arquivo excel com os IQTs (Preço e Quantidade) calculados
