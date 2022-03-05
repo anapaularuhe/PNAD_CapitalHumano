@@ -26,8 +26,8 @@
    
 
 ** Janaina:    
-   global dirpath = "C:\Users\janaina.feijo\Documents\capital_humano\result"   
-   global dirdata = "C:\Users\janaina.feijo\Documents\capital_humano\data" 
+   *global dirpath = "C:\Users\janaina.feijo\Documents\capital_humano\result"   
+   *global dirdata = "C:\Users\janaina.feijo\Documents\capital_humano\data" 
    
 * Salvando log:   
   log using "LogIQT.log", replace
@@ -126,6 +126,7 @@
   append using "$diroriginal/PNADC_012021.dta", keep(Ano Trimestre T UF V1027 V1028 V1029 V2007 V2009 V2010 VD3004 VD3005 VD3006 VD4001 VD4002 VD4009 VD4010 VD4016 VD4017 VD4019 VD4020 VD4031 VD4032 VD4035)
   append using "$diroriginal/PNADC_022021.dta", keep(Ano Trimestre T UF V1027 V1028 V1029 V2007 V2009 V2010 VD3004 VD3005 VD3006 VD4001 VD4002 VD4009 VD4010 VD4016 VD4017 VD4019 VD4020 VD4031 VD4032 VD4035)
   append using "$diroriginal/PNADC_032021.dta", keep(Ano Trimestre T UF V1027 V1028 V1029 V2007 V2009 V2010 VD3004 VD3005 VD3006 VD4001 VD4002 VD4009 VD4010 VD4016 VD4017 VD4019 VD4020 VD4031 VD4032 VD4035)
+  append using "$diroriginal/PNADC_042021.dta", keep(Ano Trimestre T UF V1027 V1028 V1029 V2007 V2009 V2010 VD3004 VD3005 VD3006 VD4001 VD4002 VD4009 VD4010 VD4016 VD4017 VD4019 VD4020 VD4031 VD4032 VD4035)
 
   compress 
   save "$dirdata/A_PNADC_20122021.dta", replace
@@ -134,7 +135,7 @@
 * A.2: DEFLATORES *************************************************************
 {
  * Salvando deflatores em dta
-   import excel "$diroriginal\deflator_PNADC_2021_trimestral_070809.xls", firstrow clear
+   import excel "$diroriginal\deflator_PNADC_2021_trimestral_101112.xls", firstrow clear
 	
     destring Ano UF, replace 
 	keep if trim=="01-02-03" || trim=="04-05-06" || trim=="07-08-09" || trim=="10-11-12"
@@ -510,7 +511,11 @@
 	regress logW_hab mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 if T==`t' [iw = Peso]
 	estimates save "$dirdata/C_Regressões/Habitual_i", append
 	predict RegLog_Hi_`t' if(T>=(`t'-1) & T<=(`t'+1))	 
-	
+
+	 
+ * Trecho comentado: controles intermediários (ii e iii)	
+   {	
+/* 
 	
  * (ii) Cor: 
   * Efetivo:
@@ -534,7 +539,10 @@
 	regress logW_hab mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 PretoPardoIndig publico if T==`t' [iw = Peso]
 	estimates save "$dirdata/C_Regressões/Habitual_iii", append
 	gen RegLog_Hiii_`t' = _b[_cons] + _b[mulher]*mulher + _b[educ2]*educ2 + _b[educ3]*educ3 + _b[educ4]*educ4 + _b[educ5]*educ5 + _b[educ6]*educ6 + _b[Experiencia]*Experiencia + _b[Experiencia2]*Experiencia2 + _b[Experiencia3]*Experiencia3 + _b[Experiencia4]*Experiencia4 + _b[ExperMulher]*ExperMulher + _b[ExperMulher2]*ExperMulher2 + _b[ExperMulher3]*ExperMulher3 + _b[ExperMulher4]*ExperMulher4 if(T>=(`t'-1) & T<=(`t'+1)) 
-	  
+
+*/
+   }
+	
 	  
  * (iv) Setor informal: 
   * Efetivo:
@@ -563,18 +571,19 @@
 	  gen RegW_Hi_`t' = exp(RegLog_Hi_`t')	  
 	  
    * (ii) Cor 
-	  gen RegW_Eii_`t' = exp(RegLog_Eii_`t')	  
-	  gen RegW_Hii_`t' = exp(RegLog_Hii_`t')	  
+	*  gen RegW_Eii_`t' = exp(RegLog_Eii_`t')	  
+	*  gen RegW_Hii_`t' = exp(RegLog_Hii_`t')	  
 	  
    * (iii) Setor público 
-	  gen RegW_Eiii_`t' = exp(RegLog_Eiii_`t')
-	  gen RegW_Hiii_`t' = exp(RegLog_Hiii_`t')
+	*  gen RegW_Eiii_`t' = exp(RegLog_Eiii_`t')
+	*  gen RegW_Hiii_`t' = exp(RegLog_Hiii_`t')
 	 
    * (iv) Informal
 	  gen RegW_Eiv_`t' = exp(RegLog_Eiv_`t')	 
 	  gen RegW_Hiv_`t' = exp(RegLog_Hiv_`t')	
 	 
-	 drop RegLog_Ei_`t' RegLog_Eii_`t' RegLog_Eiii_`t' RegLog_Eiv_`t' RegLog_Hi_`t' RegLog_Hii_`t' RegLog_Hiii_`t' RegLog_Hiv_`t'
+	 drop RegLog_Ei_`t' RegLog_Eiv_`t' RegLog_Hi_`t' RegLog_Hiv_`t'
+   * drop RegLog_Ei_`t' RegLog_Eii_`t' RegLog_Eiii_`t' RegLog_Eiv_`t' RegLog_Hi_`t' RegLog_Hii_`t' RegLog_Hiii_`t' RegLog_Hiv_`t'
    }
 
  
@@ -594,22 +603,22 @@
    gen WHi_Tprox = .
    
 * (ii) Cor:
-   gen WEii_T = .
-   gen WEii_Tante = .
-   gen WEii_Tprox = .
+*   gen WEii_T = .
+*   gen WEii_Tante = .
+*   gen WEii_Tprox = .
    
-   gen WHii_T = .
-   gen WHii_Tante = .
-   gen WHii_Tprox = .
+*   gen WHii_T = .
+*   gen WHii_Tante = .
+*   gen WHii_Tprox = .
    
 * (iii) Setor publico: 
-   gen WEiii_T = .
-   gen WEiii_Tante = .
-   gen WEiii_Tprox = .
+*   gen WEiii_T = .
+*   gen WEiii_Tante = .
+*   gen WEiii_Tprox = .
    
-   gen WHiii_T = .
-   gen WHiii_Tante = .
-   gen WHiii_Tprox = .
+*   gen WHiii_T = .
+*   gen WHiii_Tante = .
+*   gen WHiii_Tprox = .
    
 * (iv) Informal
    gen WEiv_T = .
@@ -625,11 +634,11 @@
       replace WEi_T = RegW_Ei_`t' if T==`t'
 	  replace WHi_T = RegW_Hi_`t' if T==`t'
 	  
-	  replace WEii_T = RegW_Eii_`t' if T==`t'
-	  replace WHii_T = RegW_Hii_`t' if T==`t'
+	*  replace WEii_T = RegW_Eii_`t' if T==`t'
+	*  replace WHii_T = RegW_Hii_`t' if T==`t'
 	  
-	  replace WEiii_T = RegW_Eiii_`t' if T==`t'
-	  replace WHiii_T = RegW_Hiii_`t' if T==`t'
+	*  replace WEiii_T = RegW_Eiii_`t' if T==`t'
+	*  replace WHiii_T = RegW_Hiii_`t' if T==`t'
 	  
       replace WEiv_T = RegW_Eiv_`t' if T==`t'
 	  replace WHiv_T = RegW_Hiv_`t' if T==`t'
@@ -639,11 +648,11 @@
 	  if `t' > 1 replace WEi_Tante = RegW_Ei_`i' if T==`t'
 	  if `t' > 1 replace WHi_Tante = RegW_Hi_`i' if T==`t'
 	  
-	  if `t' > 1 replace WEii_Tante = RegW_Eii_`i' if T==`t'
-	  if `t' > 1 replace WHii_Tante = RegW_Hii_`i' if T==`t'
+	*  if `t' > 1 replace WEii_Tante = RegW_Eii_`i' if T==`t'
+	*  if `t' > 1 replace WHii_Tante = RegW_Hii_`i' if T==`t'
 	  
-	  if `t' > 1 replace WEiii_Tante = RegW_Eiii_`i' if T==`t'
-	  if `t' > 1 replace WHiii_Tante = RegW_Hiii_`i' if T==`t'	  
+	*  if `t' > 1 replace WEiii_Tante = RegW_Eiii_`i' if T==`t'
+	*  if `t' > 1 replace WHiii_Tante = RegW_Hiii_`i' if T==`t'	  
 	  
 	  if `t' > 1 replace WEiv_Tante = RegW_Eiv_`i' if T==`t'
 	  if `t' > 1 replace WHiv_Tante = RegW_Hiv_`i' if T==`t'	 
@@ -653,11 +662,11 @@
 	  if `t' < `=Tmax' replace WEi_Tprox = RegW_Ei_`j' if T==`t'
 	  if `t' < `=Tmax' replace WHi_Tprox = RegW_Hi_`j' if T==`t'
 	  
-	  if `t' < `=Tmax' replace WEii_Tprox = RegW_Eii_`j' if T==`t'
-	  if `t' < `=Tmax' replace WHii_Tprox = RegW_Hii_`j' if T==`t'
+	*  if `t' < `=Tmax' replace WEii_Tprox = RegW_Eii_`j' if T==`t'
+	*  if `t' < `=Tmax' replace WHii_Tprox = RegW_Hii_`j' if T==`t'
 	  
-	  if `t' < `=Tmax' replace WEiii_Tprox = RegW_Eiii_`j' if T==`t'
-	  if `t' < `=Tmax' replace WHiii_Tprox = RegW_Hiii_`j' if T==`t'	  
+	*  if `t' < `=Tmax' replace WEiii_Tprox = RegW_Eiii_`j' if T==`t'
+	*  if `t' < `=Tmax' replace WHiii_Tprox = RegW_Hiii_`j' if T==`t'	  
 	  
 	  if `t' < `=Tmax' replace WEiv_Tprox = RegW_Eiv_`j' if T==`t'
 	  if `t' < `=Tmax' replace WHiv_Tprox = RegW_Hiv_`j' if T==`t'
@@ -666,7 +675,8 @@
 
  * Excluindo os salários separados por período, para economizar memória:
    forvalues t = 1/`=Tmax' { 
-       drop RegW_Ei_`t' RegW_Hi_`t' RegW_Eii_`t' RegW_Hii_`t' RegW_Eiii_`t' RegW_Hiii_`t' RegW_Eiv_`t' RegW_Hiv_`t' 
+       drop RegW_Ei_`t' RegW_Hi_`t' RegW_Eiv_`t' RegW_Hiv_`t' 
+	*  drop RegW_Ei_`t' RegW_Hi_`t' RegW_Eii_`t' RegW_Hii_`t' RegW_Eiii_`t' RegW_Hiii_`t' RegW_Eiv_`t' RegW_Hiv_`t' 
    }  
  
    compress
@@ -765,17 +775,17 @@
 {
  * IQT0
   * Efetivo:
-   gen dIQT0_Ei = .        
-   gen dIQT0_Eii = .        
-   gen dIQT0_Eiii = .        
-   gen dIQT0_Eiv = .          
+    gen dIQT0_Ei = .        
+  * gen dIQT0_Eii = .        
+  * gen dIQT0_Eiii = .        
+    gen dIQT0_Eiv = .          
    
   * Habitual: 
-   gen dIQT0_Hi = .        
-   gen dIQT0_Hii = .        
-   gen dIQT0_Hiii = .        
-   gen dIQT0_Hiv = .    
-
+    gen dIQT0_Hi = .        
+  * gen dIQT0_Hii = .        
+  * gen dIQT0_Hiii = .        
+    gen dIQT0_Hiv = .    
+ 
 
    forvalues t = 2/`=Tmax'{
    * (i) Sem controles: 
@@ -794,7 +804,7 @@
 
 	  drop nEi dEi nHi dHi sum_nEi sum_dEi sum_nHi sum_dHi
 	
-	
+   /*	
    * (ii) Cor:
 	  gen nEii = PE*WEii_Tante if T==`t'
 	  gen dEii = PE*WEii_T if T==(`t'-1)
@@ -827,7 +837,8 @@
 	  replace dIQT0_Hiii = sum_nHiii/sum_dHiii if T==`t'  
 
 	  drop nEiii dEiii nHiii dHiii sum_nEiii sum_dEiii sum_nHiii sum_dHiii
-	  
+	*/ 
+	 
 	  
    * (iv) Informal: 
 	  gen nEiv = PE*WEiv_Tante if T==`t'
@@ -849,16 +860,16 @@
   
  * IQT1:
   * Efetivo:
-   gen dIQT1_Ei = .        
-   gen dIQT1_Eii = .        
-   gen dIQT1_Eiii = .        
-   gen dIQT1_Eiv = .        
+    gen dIQT1_Ei = .        
+  * gen dIQT1_Eii = .        
+  * gen dIQT1_Eiii = .        
+    gen dIQT1_Eiv = .        
    
   * Habitual: 
-   gen dIQT1_Hi = .        
-   gen dIQT1_Hii = .        
-   gen dIQT1_Hiii = .        
-   gen dIQT1_Hiv = . 
+    gen dIQT1_Hi = .        
+  * gen dIQT1_Hii = .        
+  * gen dIQT1_Hiii = .        
+    gen dIQT1_Hiv = . 
   
    forvalues t = 2/`=Tmax'{
 	* (i) Sem controles: 
@@ -877,7 +888,7 @@
 
 	  drop nEi dEi nHi dHi sum_nEi sum_dEi sum_nHi sum_dHi
 	
-	
+   /*	
    * (ii) Cor:
 	  gen nEii = PE*WEii_T if T==`t'
 	  gen dEii = PE*WEii_Tprox if T==(`t'-1)
@@ -910,7 +921,8 @@
 	  replace dIQT1_Hiii = sum_nHiii/sum_dHiii if T==`t'  
 
 	  drop nEiii dEiii nHiii dHiii sum_nEiii sum_dEiii sum_nHiii sum_dHiii
-	  
+	*/
+	
 	  
    * (iv) Informal: 
 	  gen nEiv = PE*WEiv_T if T==`t'
@@ -934,11 +946,11 @@
    gen dIQT_Ei = (dIQT0_Ei*dIQT1_Ei)^(1/2)
    gen dIQT_Hi = (dIQT0_Hi*dIQT1_Hi)^(1/2)
    
-   gen dIQT_Eii = (dIQT0_Eii*dIQT1_Eii)^(1/2)
-   gen dIQT_Hii = (dIQT0_Hii*dIQT1_Hii)^(1/2)
+  * gen dIQT_Eii = (dIQT0_Eii*dIQT1_Eii)^(1/2)
+  * gen dIQT_Hii = (dIQT0_Hii*dIQT1_Hii)^(1/2)
   
-   gen dIQT_Eiii = (dIQT0_Eiii*dIQT1_Eiii)^(1/2)
-   gen dIQT_Hiii = (dIQT0_Hiii*dIQT1_Hiii)^(1/2)  
+  * gen dIQT_Eiii = (dIQT0_Eiii*dIQT1_Eiii)^(1/2)
+  * gen dIQT_Hiii = (dIQT0_Hiii*dIQT1_Hiii)^(1/2)  
   
    gen dIQT_Eiv = (dIQT0_Eiv*dIQT1_Eiv)^(1/2)
    gen dIQT_Hiv = (dIQT0_Hiv*dIQT1_Hiv)^(1/2)
@@ -950,7 +962,9 @@
  * IQT: Base separada 
   {
   preserve
-   keep T Tmax dIQT_Ei dIQT_Eii dIQT_Eiii dIQT_Eiv dIQT_Hi dIQT_Hii dIQT_Hiii dIQT_Hiv
+   keep T Tmax dIQT_Ei dIQT_Eiv dIQT_Hi dIQT_Hiv
+ * keep T Tmax dIQT_Ei dIQT_Eii dIQT_Eiii dIQT_Eiv dIQT_Hi dIQT_Hii dIQT_Hiii dIQT_Hiv
+   
    duplicates drop
   
    *OBS: calcularemos apenas os IQT com 2012.2 = 100
@@ -963,7 +977,7 @@
      replace IQT_Hi = IQT_Hi[_n-1]*dIQT_Hi if _n > 2
      label var IQT_Hi "IQT Habitual - Sem controles"
 	 
-	 
+   /*	 
    * (ii) Cor
      gen IQT_Eii = 100 if T==2
      replace IQT_Eii = IQT_Eii[_n-1]*dIQT_Eii if _n > 2
@@ -982,19 +996,20 @@
 	 gen IQT_Hiii = 100 if T==2
      replace IQT_Hiii = IQT_Hiii[_n-1]*dIQT_Hiii if _n > 2
      label var IQT_Hiii "IQT Habitual - Setor público" 
-	 
+   */	 
 	 
    * (iv) Informal
      gen IQT_Eiv = 100 if T==2
      replace IQT_Eiv = IQT_Eiv[_n-1]*dIQT_Eiv if _n > 2
-     label var IQT_Eiv "IQT Efetivo - Informal"
+     label var IQT_Eiv "IQT Efetivo - Com controles"
 	 
 	 gen IQT_Hiv = 100 if T==2
      replace IQT_Hiv = IQT_Hiv[_n-1]*dIQT_Hiv if _n > 2
-     label var IQT_Hiv "IQT Habitual - Informal" 
+     label var IQT_Hiv "IQT Habitual - Com controles" 
    
    save "$dirdata/C_IQT.dta", replace
-   export excel T IQT_Ei IQT_Eii IQT_Eiii IQT_Eiv IQT_Hi IQT_Hii IQT_Hiii IQT_Hiv using "$dirdata\C_IQT.xlsx", firstrow(varlabels) replace
+   export excel T IQT_Ei IQT_Eiv IQT_Hi IQT_Hiv using "$dirdata\C_IQT.xlsx", firstrow(varlabels) replace
+ * export excel T IQT_Ei IQT_Eii IQT_Eiii IQT_Eiv IQT_Hi IQT_Hii IQT_Hiii IQT_Hiv using "$dirdata\C_IQT.xlsx", firstrow(varlabels) replace
 
    restore
    }  
@@ -1024,7 +1039,7 @@
 	regress logW_hab mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 if T==`t' [iw = Peso]
 	outreg2 using "$dirdata\D_Tabelas\Habitual_`t'", replace ctitle("Sem controles") word tex(pretty) label
 	
-	
+ /*	
  * (ii) Cor: 
   * Efetivo:
 	regress logW_efet mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 PretoPardoIndig if T==`t' [iw = Peso]
@@ -1043,16 +1058,17 @@
   * Habitual:
 	regress logW_hab mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 PretoPardoIndig publico if T==`t' [iw = Peso]
 	outreg2 using "$dirdata\D_Tabelas\Habitual_`t'", append ctitle("Setor Publico") word tex(pretty) label
-		 
+ */
+	
 	  	  
  * (iv) Setor informal: 
   * Efetivo:
 	regress logW_efet mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 PretoPardoIndig publico informal if T==`t' [iw = Peso]
-	outreg2 using "$dirdata\D_Tabelas\Efetivo_`t'", append ctitle("Informal") word tex(pretty) label
+	outreg2 using "$dirdata\D_Tabelas\Efetivo_`t'", append ctitle("Com controles") word tex(pretty) label
 	 
   * Habitual:
 	regress logW_hab mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 PretoPardoIndig publico informal if T==`t' [iw = Peso]
-	outreg2 using "$dirdata\D_Tabelas\Habitual_`t'", append ctitle("Informal") word tex(pretty) label
+	outreg2 using "$dirdata\D_Tabelas\Habitual_`t'", append ctitle("Com controles") word tex(pretty) label
 	 
  estimates drop _all 
  }
@@ -1066,11 +1082,11 @@
     statsby, by(T) saving("$dirdata\D_Coeficientes\Efetivo_i.dta", replace): regress logW_efet mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 [iw = Peso]
 	estimates drop _all
     
-	statsby, by(T) saving("$dirdata\D_Coeficientes\Efetivo_ii.dta", replace): regress logW_efet mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 PretoPardoIndig [iw = Peso]
-	estimates drop _all
+  * statsby, by(T) saving("$dirdata\D_Coeficientes\Efetivo_ii.dta", replace): regress logW_efet mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 PretoPardoIndig [iw = Peso]
+  * estimates drop _all
 	
-	statsby, by(T) saving("$dirdata\D_Coeficientes\Efetivo_iii.dta", replace): regress logW_efet mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 PretoPardoIndig publico [iw = Peso]
-    estimates drop _all
+  *	statsby, by(T) saving("$dirdata\D_Coeficientes\Efetivo_iii.dta", replace): regress logW_efet mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 PretoPardoIndig publico [iw = Peso]
+  * estimates drop _all
 	
     statsby, by(T) saving("$dirdata\D_Coeficientes\Efetivo_iv.dta", replace): regress logW_efet mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 PretoPardoIndig publico informal [iw = Peso]
     estimates drop _all	
@@ -1082,11 +1098,11 @@
     statsby, by(T) saving("$dirdata\D_Coeficientes\Habitual_i.dta", replace): regress logW_hab mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 [iw = Peso]
 	estimates drop _all	
 	
-    statsby, by(T) saving("$dirdata\D_Coeficientes\Habitual_ii.dta", replace): regress logW_hab mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 PretoPardoIndig [iw = Peso]
-	estimates drop _all	
+  * statsby, by(T) saving("$dirdata\D_Coeficientes\Habitual_ii.dta", replace): regress logW_hab mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 PretoPardoIndig [iw = Peso]
+  * estimates drop _all	
 	
-    statsby, by(T) saving("$dirdata\D_Coeficientes\Habitual_iii.dta", replace): regress logW_hab mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 PretoPardoIndig publico [iw = Peso] 
-	estimates drop _all	
+  * statsby, by(T) saving("$dirdata\D_Coeficientes\Habitual_iii.dta", replace): regress logW_hab mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 PretoPardoIndig publico [iw = Peso] 
+  * estimates drop _all	
 	
     statsby, by(T) saving("$dirdata\D_Coeficientes\Habitual_iv.dta", replace): regress logW_hab mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 PretoPardoIndig publico informal [iw = Peso]
     estimates drop _all
@@ -1103,12 +1119,12 @@
 	* Renomeando variáveis e labels para diferenciar entre estratégias de controles:
 	foreach x of varlist _b_* {
       local nome = substr("`x'", 4, 12)
-	  label var `x' "`nome' - Informal"
+	  label var `x' "`nome' - Com controles"
 	  rename `x' ivE_`nome'
     }	
 	save "$dirdata/D_Coeficientes_Efetivo", replace   
 	
-	
+    /*	
 	* (iii)
 	use "$dirdata/D_Coeficientes/Efetivo_iii.dta", clear 
 	foreach x of varlist _b_* {
@@ -1133,7 +1149,7 @@
 	merge 1:1 T using "$dirdata/D_Coeficientes_Efetivo"
 	drop _merge
 	save "$dirdata/D_Coeficientes_Efetivo", replace	
-	
+	*/
 	
 	* (i)
 	use "$dirdata/D_Coeficientes/Efetivo_i.dta", clear
@@ -1147,7 +1163,11 @@
 	drop _merge
 	save "$dirdata/D_Coeficientes_Efetivo", replace
 	
-	export excel T iE_cons iE_mulher iE_educ2 iE_educ3 iE_educ4 iE_educ5 iE_educ6 iiE_cons iiE_mulher iiE_educ2 iiE_educ3 iiE_educ4 iiE_educ5 iiE_educ6 iiiE_cons iiiE_mulher iiiE_educ2 iiiE_educ3 iiiE_educ4 iiiE_educ5 iiiE_educ6 ivE_cons ivE_mulher ivE_educ2 ivE_educ3 ivE_educ4 ivE_educ5 ivE_educ6 using "$dirdata\D_CoeficientesEducação.xlsx", sheet ("Efetivo") firstrow(varlabels) replace
+    
+	export excel T iE_cons iE_mulher iE_educ2 iE_educ3 iE_educ4 iE_educ5 iE_educ6 ivE_cons ivE_mulher ivE_educ2 ivE_educ3 ivE_educ4 ivE_educ5 ivE_educ6 using "$dirdata\D_CoeficientesEducação.xlsx", sheet ("Efetivo") firstrow(varlabels) replace
+  * export excel T iE_cons iE_mulher iE_educ2 iE_educ3 iE_educ4 iE_educ5 iE_educ6 iiE_cons iiE_mulher iiE_educ2 iiE_educ3 iiE_educ4 iiE_educ5 iiE_educ6 iiiE_cons iiiE_mulher iiiE_educ2 iiiE_educ3 iiiE_educ4 iiiE_educ5 iiiE_educ6 ivE_cons ivE_mulher ivE_educ2 ivE_educ3 ivE_educ4 ivE_educ5 ivE_educ6 using "$dirdata\D_CoeficientesEducação.xlsx", sheet ("Efetivo") firstrow(varlabels) replace
+	
+	export excel "$dirdata\D_CoeficientesCompletos.xlsx", sheet ("Efetivo") firstrow(varlabels) replace
 	
   } 
  
@@ -1160,12 +1180,12 @@
 	* Renomeando variáveis e labels para diferenciar entre estratégias de controles:
 	foreach x of varlist _b_* {
       local nome = substr("`x'", 4, 12)
-	  label var `x' "`nome' - Informal"
+	  label var `x' "`nome' - Com controles"
 	  rename `x' ivH_`nome'
     }	
 	save "$dirdata/D_Coeficientes_Habitual", replace   
 	
-	
+	/*
 	* (iii)
 	use "$dirdata/D_Coeficientes/Habitual_iii.dta", clear 
 	foreach x of varlist _b_* {
@@ -1190,6 +1210,7 @@
 	merge 1:1 T using "$dirdata/D_Coeficientes_Habitual"
 	drop _merge
 	save "$dirdata/D_Coeficientes_Habitual", replace	
+	*/
 	
 	
 	* (i)
@@ -1204,7 +1225,10 @@
 	drop _merge
 	save "$dirdata/D_Coeficientes_Habitual", replace
 	
-	 export excel T iH_cons iH_mulher iH_educ2 iH_educ3 iH_educ4 iH_educ5 iH_educ6 iiH_cons iiH_mulher iiH_educ2 iiH_educ3 iiH_educ4 iiH_educ5 iiH_educ6 iiiH_cons iiiH_mulher iiiH_educ2 iiiH_educ3 iiiH_educ4 iiiH_educ5 iiiH_educ6 ivH_cons ivH_mulher ivH_educ2 ivH_educ3 ivH_educ4 ivH_educ5 ivH_educ6 using "$dirdata\D_CoeficientesEducação.xlsx", sheet ("Habitual", modify) firstrow(varlabels) 
+	export excel T iH_cons iH_mulher iH_educ2 iH_educ3 iH_educ4 iH_educ5 iH_educ6 ivH_cons ivH_mulher ivH_educ2 ivH_educ3 ivH_educ4 ivH_educ5 ivH_educ6 using "$dirdata\D_CoeficientesEducação.xlsx", sheet ("Habitual", modify) firstrow(varlabels) 
+  * export excel T iH_cons iH_mulher iH_educ2 iH_educ3 iH_educ4 iH_educ5 iH_educ6 iiH_cons iiH_mulher iiH_educ2 iiH_educ3 iiH_educ4 iiH_educ5 iiH_educ6 iiiH_cons iiiH_mulher iiiH_educ2 iiiH_educ3 iiiH_educ4 iiiH_educ5 iiiH_educ6 ivH_cons ivH_mulher ivH_educ2 ivH_educ3 ivH_educ4 ivH_educ5 ivH_educ6 using "$dirdata\D_CoeficientesEducação.xlsx", sheet ("Habitual", modify) firstrow(varlabels) 	
+	 
+	export excel "$dirdata\D_CoeficientesCompletos.xlsx", sheet ("Habitual", modify) firstrow(varlabels)
   } 
  
  }	
@@ -1221,19 +1245,19 @@
 * E.1. POR CONTROLE ***********************************************************
 {
 ** (i) Sem controles:
-   twoway (line IQT_Hi T) (line IQT_Ei T), xtitle(" ") xlabel(1(2)`=Tmax', angle(vertical) valuelabel labsize(*0.8)) graphregion(color(white)) ylab(95(5)125, labsize(*0.8) angle(horizontal))  xline(10 20 32 34, lpattern(dash) lcolor(gray)) legend(c(2) symys(*.7) symxs(*.7) size(*0.7) region(c(none))) name(IQTi, replace) 
+   twoway (line IQT_Hi T, lcolor(orange)) (line IQT_Ei T, lcolor(blue)), xtitle(" ") xlabel(1(2)`=Tmax', angle(vertical) valuelabel labsize(*0.8)) graphregion(color(white)) ylab(95(5)125, labsize(*0.8) angle(horizontal))  xline(10 20 32 34, lpattern(dash) lcolor(gray)) legend(c(2) symys(*.7) symxs(*.7) size(*0.7) region(c(none))) name(IQTi, replace) 
    *graph export "$dirpath/Gráficos/IQTi.png", width(10000) as(png) replace
 
 ** (ii) Cor:
-   twoway (line IQT_Hii T) (line IQT_Eii T), xtitle(" ") xlabel(1(2)`=Tmax', angle(vertical) valuelabel labsize(*0.8)) graphregion(color(white)) ylab(95(5)125, labsize(*0.8) angle(horizontal))  xline(10 20 32 34, lpattern(dash) lcolor(gray)) legend(c(2) symys(*.7) symxs(*.7) size(*0.7) region(c(none))) name(IQTii, replace) 
+   *twoway (line IQT_Hii T) (line IQT_Eii T), xtitle(" ") xlabel(1(2)`=Tmax', angle(vertical) valuelabel labsize(*0.8)) graphregion(color(white)) ylab(95(5)125, labsize(*0.8) angle(horizontal))  xline(10 20 32 34, lpattern(dash) lcolor(gray)) legend(c(2) symys(*.7) symxs(*.7) size(*0.7) region(c(none))) name(IQTii, replace) 
    *graph export "$dirpath/Gráficos/IQTii.png", width(10000) as(png) replace
   
 ** (iii) Setor público:
-   twoway (line IQT_Hiii T) (line IQT_Eiii T), xtitle(" ") xlabel(1(2)`=Tmax', angle(vertical) valuelabel labsize(*0.8)) graphregion(color(white)) ylab(95(5)125, labsize(*0.8) angle(horizontal))  xline(10 20 32 34, lpattern(dash) lcolor(gray)) legend(c(2) symys(*.7) symxs(*.7) size(*0.7) region(c(none))) name(IQTiii, replace) 
+   *twoway (line IQT_Hiii T) (line IQT_Eiii T), xtitle(" ") xlabel(1(2)`=Tmax', angle(vertical) valuelabel labsize(*0.8)) graphregion(color(white)) ylab(95(5)125, labsize(*0.8) angle(horizontal))  xline(10 20 32 34, lpattern(dash) lcolor(gray)) legend(c(2) symys(*.7) symxs(*.7) size(*0.7) region(c(none))) name(IQTiii, replace) 
    *graph export "$dirpath/Gráficos/IQTiii.png", width(10000) as(png) replace
   
 ** (iv) Informal:
-   twoway (line IQT_Hiv T) (line IQT_Eiv T), xtitle(" ") xlabel(1(2)`=Tmax', angle(vertical) valuelabel labsize(*0.8)) graphregion(color(white)) ylab(95(5)125, labsize(*0.8) angle(horizontal))  xline(10 20 32 34, lpattern(dash) lcolor(gray)) legend(c(2) symys(*.7) symxs(*.7) size(*0.7) region(c(none))) name(IQTiv, replace) 
+   twoway (line IQT_Hiv T, lcolor(orange)) (line IQT_Eiv T, lcolor(blue)), xtitle(" ") xlabel(1(2)`=Tmax', angle(vertical) valuelabel labsize(*0.8)) graphregion(color(white)) ylab(95(5)125, labsize(*0.8) angle(horizontal))  xline(10 20 32 34, lpattern(dash) lcolor(gray)) legend(c(2) symys(*.7) symxs(*.7) size(*0.7) region(c(none))) name(IQTiv, replace) 
    *graph export "$dirpath/Gráficos/IQTiv.png", width(10000) as(png) replace
 }
  
@@ -1241,12 +1265,14 @@
 * E.2. COMPARANDO CONTROLES ***************************************************
 {
 ** Efetivo:
-   twoway (line IQT_Ei T) (line IQT_Eii T) (line IQT_Eiii T) (line IQT_Eiv T), xtitle(" ") xlabel(1(2)`=Tmax', angle(vertical) valuelabel labsize(*0.8)) graphregion(color(white)) ylab(95(5)125, labsize(*0.8) angle(horizontal))  xline(10 20 32 34, lpattern(dash) lcolor(gray)) legend(c(2) symys(*.7) symxs(*.7) size(*0.7) region(c(none))) name(IQTEfetivo, replace) 
+   twoway (line IQT_Ei T, lpattern(dash) lcolor(blue)) (line IQT_Eiv T, lcolor(blue)), xtitle(" ") xlabel(1(2)`=Tmax', angle(vertical) valuelabel labsize(*0.8)) graphregion(color(white)) ylab(95(5)125, labsize(*0.8) angle(horizontal))  xline(10 20 32 34, lpattern(dash) lcolor(gray)) legend(c(2) symys(*.7) symxs(*.7) size(*0.7) region(c(none))) name(IQTEfetivo, replace) 
+   *twoway (line IQT_Ei T) (line IQT_Eii T) (line IQT_Eiii T) (line IQT_Eiv T), xtitle(" ") xlabel(1(2)`=Tmax', angle(vertical) valuelabel labsize(*0.8)) graphregion(color(white)) ylab(95(5)125, labsize(*0.8) angle(horizontal))  xline(10 20 32 34, lpattern(dash) lcolor(gray)) legend(c(2) symys(*.7) symxs(*.7) size(*0.7) region(c(none))) name(IQTEfetivo, replace) 
    *graph export "$dirpath/Gráficos/IQTEfetivo.png", width(10000) as(png) replace
    
 
 ** Habitual:
-   twoway (line IQT_Hi T) (line IQT_Hii T) (line IQT_Hiii T) (line IQT_Hiv T), xtitle(" ") xlabel(1(2)`=Tmax', angle(vertical) valuelabel labsize(*0.8)) graphregion(color(white)) ylab(95(5)125, labsize(*0.8) angle(horizontal))  xline(10 20 32 34, lpattern(dash) lcolor(gray)) legend(c(2) symys(*.7) symxs(*.7) size(*0.7) region(c(none))) name(IQTHabitual, replace) 
+   twoway (line IQT_Hi T, lpattern(dash) lcolor(orange)) (line IQT_Hiv T, lcolor(orange)), xtitle(" ") xlabel(1(2)`=Tmax', angle(vertical) valuelabel labsize(*0.8)) graphregion(color(white)) ylab(95(5)125, labsize(*0.8) angle(horizontal))  xline(10 20 32 34, lpattern(dash) lcolor(gray)) legend(c(2) symys(*.7) symxs(*.7) size(*0.7) region(c(none))) name(IQTHabitual, replace) 
+   *twoway (line IQT_Hi T) (line IQT_Hii T) (line IQT_Hiii T) (line IQT_Hiv T), xtitle(" ") xlabel(1(2)`=Tmax', angle(vertical) valuelabel labsize(*0.8)) graphregion(color(white)) ylab(95(5)125, labsize(*0.8) angle(horizontal))  xline(10 20 32 34, lpattern(dash) lcolor(gray)) legend(c(2) symys(*.7) symxs(*.7) size(*0.7) region(c(none))) name(IQTHabitual, replace) 
    *graph export "$dirpath/Gráficos/IQTHabitual.png", width(10000) as(png) replace   
 }
 }
