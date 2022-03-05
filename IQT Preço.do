@@ -20,18 +20,12 @@
 	
 * Diretório: 
 ** Servidor RDPBI1VPR0002 (Ana Paula):   
-   global dirpath = "W:/Ana Paula Ruhe/Capital Humano"
-   global dirdata = "W:/Ana Paula Ruhe/Capital Humano/Dados"
-   global diroriginal = "W:/Ana Paula Ruhe/Capital Humano/Dados/PNAD Original"
-   
-** Servidor bif004 (Ana Paula):
-   global dirpath = "A:/Ana Paula Ruhe/Capital Humano" 
-   global dirdata = "A:/Ana Paula Ruhe/Capital Humano/Dados"
-   global diroriginal = "A:/Ana Paula Ruhe/Capital Humano/Dados/PNAD Original"
+   global dirpath = "T:\pastas_pessoais\ana_ruhe\Capital Humano\IQT Preço"
+   global dirdata = "T:\pastas_pessoais\ana_ruhe\Capital Humano\IQT\Dados"
 
 ** Janaina:    
-   global dirpath = "C:\Users\janaina.feijo\Documents\capital_humano\result"   
-   global dirdata = "C:\Users\janaina.feijo\Documents\capital_humano\data" 
+  * global dirpath = "C:\Users\janaina.feijo\Documents\capital_humano\result"   
+  * global dirdata = "C:\Users\janaina.feijo\Documents\capital_humano\data" 
    
    
 *******************************************************************************
@@ -42,16 +36,16 @@
 
  * IQT0
   * Efetivo:
-   gen dIQTP0_Ei = .        
-   gen dIQTP0_Eii = .        
-   gen dIQTP0_Eiii = .        
-   gen dIQTP0_Eiv = .          
+    gen dIQTP0_Ei = .        
+  * gen dIQTP0_Eii = .        
+  * gen dIQTP0_Eiii = .        
+    gen dIQTP0_Eiv = .          
    
   * Habitual: 
-   gen dIQTP0_Hi = .        
-   gen dIQTP0_Hii = .        
-   gen dIQTP0_Hiii = .        
-   gen dIQTP0_Hiv = .    
+    gen dIQTP0_Hi = .        
+  * gen dIQTP0_Hii = .        
+  * gen dIQTP0_Hiii = .        
+    gen dIQTP0_Hiv = .    
 
 
    forvalues t = 2/`=Tmax'{
@@ -71,7 +65,7 @@
 
 	  drop nEi dEi nHi dHi sum_nEi sum_dEi sum_nHi sum_dHi
 	
-	
+   /*	
    * (ii) Cor:
 	  gen nEii = PE*WEii_Tprox if T==(`t'-1)
 	  gen dEii = PE*WEii_T if T==(`t'-1)
@@ -104,7 +98,7 @@
 	  replace dIQTP0_Hiii = sum_nHiii/sum_dHiii if T==`t'  
 
 	  drop nEiii dEiii nHiii dHiii sum_nEiii sum_dEiii sum_nHiii sum_dHiii
-	  
+   */	  
 	  
    * (iv) Informal: 
 	  gen nEiv = PE*WEiv_Tprox if T==(`t'-1)
@@ -126,16 +120,16 @@
   
  * IQT1:
   * Efetivo:
-   gen dIQTP1_Ei = .        
-   gen dIQTP1_Eii = .        
-   gen dIQTP1_Eiii = .        
-   gen dIQTP1_Eiv = .        
+    gen dIQTP1_Ei = .        
+  * gen dIQTP1_Eii = .        
+  * gen dIQTP1_Eiii = .        
+    gen dIQTP1_Eiv = .        
    
   * Habitual: 
-   gen dIQTP1_Hi = .        
-   gen dIQTP1_Hii = .        
-   gen dIQTP1_Hiii = .        
-   gen dIQTP1_Hiv = . 
+    gen dIQTP1_Hi = .        
+  * gen dIQTP1_Hii = .        
+  * gen dIQTP1_Hiii = .        
+    gen dIQTP1_Hiv = . 
   
    forvalues t = 2/`=Tmax'{
 	* (i) Sem controles: 
@@ -154,7 +148,7 @@
 
 	  drop nEi dEi nHi dHi sum_nEi sum_dEi sum_nHi sum_dHi
 	
-	
+   /*	
    * (ii) Cor:
 	  gen nEii = PE*WEii_T if T==`t'
 	  gen dEii = PE*WEii_Tante if T==`t'
@@ -187,7 +181,7 @@
 	  replace dIQTP1_Hiii = sum_nHiii/sum_dHiii if T==`t'  
 
 	  drop nEiii dEiii nHiii dHiii sum_nEiii sum_dEiii sum_nHiii sum_dHiii
-	  
+   */	  
 	  
    * (iv) Informal: 
 	  gen nEiv = PE*WEiv_T if T==`t'
@@ -211,23 +205,24 @@
    gen dIQTP_Ei = (dIQTP0_Ei*dIQTP1_Ei)^(1/2)
    gen dIQTP_Hi = (dIQTP0_Hi*dIQTP1_Hi)^(1/2)
    
-   gen dIQTP_Eii = (dIQTP0_Eii*dIQTP1_Eii)^(1/2)
-   gen dIQTP_Hii = (dIQTP0_Hii*dIQTP1_Hii)^(1/2)
+ *  gen dIQTP_Eii = (dIQTP0_Eii*dIQTP1_Eii)^(1/2)
+ *  gen dIQTP_Hii = (dIQTP0_Hii*dIQTP1_Hii)^(1/2)
   
-   gen dIQTP_Eiii = (dIQTP0_Eiii*dIQTP1_Eiii)^(1/2)
-   gen dIQTP_Hiii = (dIQTP0_Hiii*dIQTP1_Hiii)^(1/2)  
+ *  gen dIQTP_Eiii = (dIQTP0_Eiii*dIQTP1_Eiii)^(1/2)
+ *  gen dIQTP_Hiii = (dIQTP0_Hiii*dIQTP1_Hiii)^(1/2)  
   
    gen dIQTP_Eiv = (dIQTP0_Eiv*dIQTP1_Eiv)^(1/2)
    gen dIQTP_Hiv = (dIQTP0_Hiv*dIQTP1_Hiv)^(1/2)
    
  
  compress
- save "$dirdata/F_BaseIQTPreço.dta", replace  
+ save "$dirpath/BaseIQTPreço.dta", replace  
  
  * IQT: Base separada 
   {
   preserve
-   keep T Tmax dIQTP_Ei dIQTP_Eii dIQTP_Eiii dIQTP_Eiv dIQTP_Hi dIQTP_Hii dIQTP_Hiii dIQTP_Hiv
+   keep T Tmax dIQTP_Ei dIQTP_Eiv dIQTP_Hi dIQTP_Hiv
+ * keep T Tmax dIQTP_Ei dIQTP_Eii dIQTP_Eiii dIQTP_Eiv dIQTP_Hi dIQTP_Hii dIQTP_Hiii dIQTP_Hiv
    duplicates drop
   
    *OBS: calcularemos apenas os IQT com 2012.2 = 100
@@ -240,7 +235,7 @@
      replace IQTP_Hi = IQTP_Hi[_n-1]*dIQTP_Hi if _n > 2
      label var IQTP_Hi "IQT Preço - Habitual - Sem controles"
 	 
-	 
+   /*	 
    * (ii) Cor
      gen IQTP_Eii = 100 if T==2
      replace IQTP_Eii = IQTP_Eii[_n-1]*dIQTP_Eii if _n > 2
@@ -259,7 +254,7 @@
 	 gen IQTP_Hiii = 100 if T==2
      replace IQTP_Hiii = IQTP_Hiii[_n-1]*dIQTP_Hiii if _n > 2
      label var IQTP_Hiii "IQT Preço - Habitual - Setor público" 
-	 
+   */	 
 	 
    * (iv) Informal
      gen IQTP_Eiv = 100 if T==2
@@ -274,9 +269,12 @@
    merge 1:1 T using "$dirdata/C_IQT.dta"
    drop _merge
    
-   save "$dirdata/F_IQTPreço.dta", replace
-   export excel T IQT_Ei IQT_Eii IQT_Eiii IQT_Eiv IQTP_Ei IQTP_Eii IQTP_Eiii IQTP_Eiv  using "$dirdata\F_IQTPreço.xlsx", sheet("Efetivo") firstrow(varlabels) replace   
-   export excel T IQT_Hi IQT_Hii IQT_Hiii IQT_Hiv IQTP_Hi IQTP_Hii IQTP_Hiii IQTP_Hiv using "$dirdata\F_IQTPreço.xlsx", sheet ("Habitual", modify) firstrow(varlabels)
+   save "$dirpath\IQTPreço.dta", replace
+   export excel T IQT_Ei IQT_Eiv IQTP_Ei IQTP_Eiv  using "$dirpath\IQTPreço.xlsx", sheet("Efetivo") firstrow(varlabels) replace   
+   export excel T IQT_Hi IQT_Hiv IQTP_Hi IQTP_Hiv using "$dirpath\IQTPreço.xlsx", sheet ("Habitual", modify) firstrow(varlabels)
+   
+   *export excel T IQT_Ei IQT_Eii IQT_Eiii IQT_Eiv IQTP_Ei IQTP_Eii IQTP_Eiii IQTP_Eiv  using "$dirpath\IQTPreço.xlsx", sheet("Efetivo") firstrow(varlabels) replace   
+   *export excel T IQT_Hi IQT_Hii IQT_Hiii IQT_Hiv IQTP_Hi IQTP_Hii IQTP_Hiii IQTP_Hiv using "$dirpath\IQTPreço.xlsx", sheet ("Habitual", modify) firstrow(varlabels)
 
    restore
    }  
@@ -288,20 +286,20 @@
 * 2. IQT VALOR
 *******************************************************************************
 {
- use "$dirdata/F_BaseIQTPreço.dta", clear
+ use "$dirpath/BaseIQTPreço.dta", clear
 
  * IQT Valor: dIQT_V = dIQT_P x dIQT_Q
   * Efetivo:
-   gen dIQTV_Ei = .        
-   gen dIQTV_Eii = .        
-   gen dIQTV_Eiii = .        
-   gen dIQTV_Eiv = .          
+    gen dIQTV_Ei = .        
+  * gen dIQTV_Eii = .        
+  * gen dIQTV_Eiii = .        
+    gen dIQTV_Eiv = .          
    
   * Habitual: 
-   gen dIQTV_Hi = .        
-   gen dIQTV_Hii = .        
-   gen dIQTV_Hiii = .        
-   gen dIQTV_Hiv = .    
+    gen dIQTV_Hi = .        
+  * gen dIQTV_Hii = .        
+  * gen dIQTV_Hiii = .        
+    gen dIQTV_Hiv = .    
 
 
    forvalues t = 2/`=Tmax'{
@@ -321,7 +319,7 @@
 
 	  drop nEi dEi nHi dHi sum_nEi sum_dEi sum_nHi sum_dHi
 	
-	
+   /*	
    * (ii) Cor:
 	  gen nEii = PE*WEii_T if T==`t'
 	  gen dEii = PE*WEii_T if T==(`t'-1)
@@ -354,7 +352,7 @@
 	  replace dIQTV_Hiii = sum_nHiii/sum_dHiii if T==`t'  
 
 	  drop nEiii dEiii nHiii dHiii sum_nEiii sum_dEiii sum_nHiii sum_dHiii
-	  
+   */	   
 	  
    * (iv) Informal: 
 	  gen nEiv = PE*WEiv_T if T==`t'
@@ -374,12 +372,13 @@
    }
  
  compress
- save "$dirdata/F_BaseIQTPreço.dta", replace  
+ save "$dirpath/BaseIQTPreço.dta", replace  
  
  * IQT: Base separada 
   {
   preserve
-   keep T Tmax dIQTV_Ei dIQTV_Eii dIQTV_Eiii dIQTV_Eiv dIQTV_Hi dIQTV_Hii dIQTV_Hiii dIQTV_Hiv
+   keep T Tmax dIQTV_Ei dIQTV_Eiv dIQTV_Hi dIQTV_Hiv
+ * keep T Tmax dIQTV_Ei dIQTV_Eii dIQTV_Eiii dIQTV_Eiv dIQTV_Hi dIQTV_Hii dIQTV_Hiii dIQTV_Hiv
    duplicates drop
   
    *OBS: calcularemos apenas os IQT com 2012.2 = 100
@@ -392,7 +391,7 @@
      replace IQTV_Hi = IQTV_Hi[_n-1]*dIQTV_Hi if _n > 2
      label var IQTV_Hi "IQT Valor - Habitual - Sem controles"
 	 
-	 
+   /*	 
    * (ii) Cor
      gen IQTV_Eii = 100 if T==2
      replace IQTV_Eii = IQTV_Eii[_n-1]*dIQTV_Eii if _n > 2
@@ -411,7 +410,7 @@
 	 gen IQTV_Hiii = 100 if T==2
      replace IQTV_Hiii = IQTV_Hiii[_n-1]*dIQTV_Hiii if _n > 2
      label var IQTV_Hiii "IQT Valor - Habitual - Setor público" 
-	 
+  */	 
 	 
    * (iv) Informal
      gen IQTV_Eiv = 100 if T==2
@@ -423,12 +422,15 @@
      label var IQTV_Hiv "IQT Valor - Habitual - Informal" 
 	 
    
-   merge 1:1 T using "$dirdata/F_IQTPreço.dta"
+   merge 1:1 T using "$dirpath/IQTPreço.dta"
    drop _merge
    
-   save "$dirdata/F_IQTPreço.dta", replace
-   export excel T IQT_Ei IQT_Eii IQT_Eiii IQT_Eiv IQTP_Ei IQTP_Eii IQTP_Eiii IQTP_Eiv IQTV_Ei IQTV_Eii IQTV_Eiii IQTV_Eiv  using "$dirdata\F_IQTPreço.xlsx", sheet("Efetivo") firstrow(varlabels) replace   
-   export excel T IQT_Hi IQT_Hii IQT_Hiii IQT_Hiv IQTP_Hi IQTP_Hii IQTP_Hiii IQTP_Hiv IQTV_Hi IQTV_Hii IQTV_Hiii IQTV_Hiv using "$dirdata\F_IQTPreço.xlsx", sheet ("Habitual", modify) firstrow(varlabels)
+   save "$dirpath/IQTPreço.dta", replace
+   export excel T IQT_Ei IQT_Eiv IQTP_Ei IQTP_Eiv IQTV_Ei IQTV_Eiv  using "$dirpath/IQTPreço.xlsx", sheet("Efetivo") firstrow(varlabels) replace   
+   export excel T IQT_Hi IQT_Hiv IQTP_Hi IQTP_Hiv IQTV_Hi IQTV_Hiv using "$dirpath/IQTPreço.xlsx", sheet ("Habitual", modify) firstrow(varlabels)
+   
+   *export excel T IQT_Ei IQT_Eii IQT_Eiii IQT_Eiv IQTP_Ei IQTP_Eii IQTP_Eiii IQTP_Eiv IQTV_Ei IQTV_Eii IQTV_Eiii IQTV_Eiv  using "$dirpath/IQTPreço.xlsx", sheet("Efetivo") firstrow(varlabels) replace   
+   *export excel T IQT_Hi IQT_Hii IQT_Hiii IQT_Hiv IQTP_Hi IQTP_Hii IQTP_Hiii IQTP_Hiv IQTV_Hi IQTV_Hii IQTV_Hiii IQTV_Hiv using "$dirpath/IQTPreço.xlsx", sheet ("Habitual", modify) firstrow(varlabels)
 
    restore
    }  
@@ -436,6 +438,35 @@
 } 
  
   
+*******************************************************************************
+* 3. GRÁFICOS
+*******************************************************************************  
+{
+ use "$dirpath/IQTPreço.dta", clear
+
+* 3.1 SEM CONTROLES ***********************************************************   
+ {
+ * Efetivo:
+   twoway (line IQT_Ei T, lcolor(blue)) (line IQTP_Ei T, lcolor(orange)) (line IQTV_Ei T, lcolor(green)), xtitle(" ") xlabel(1(2)`=Tmax', angle(vertical) valuelabel labsize(*0.8)) graphregion(color(white)) ylab(95(5)125, labsize(*0.8) angle(horizontal))  xline(10 20 32 34, lpattern(dash) lcolor(gray)) legend(c(2) symys(*.7) symxs(*.7) size(*0.7) region(c(none))) name(IQTValorEfetivoSem, replace) 
+   *graph export "$dirpath/Gráficos/IQTValorEfetivoSem.png", width(10000) as(png) replace
+   
+ * Habitual:
+   twoway (line IQT_Hi T, lcolor(blue)) (line IQTP_Hi T, lcolor(orange)) (line IQTV_Hi T, lcolor(green)), xtitle(" ") xlabel(1(2)`=Tmax', angle(vertical) valuelabel labsize(*0.8)) graphregion(color(white)) ylab(95(5)125, labsize(*0.8) angle(horizontal))  xline(10 20 32 34, lpattern(dash) lcolor(gray)) legend(c(2) symys(*.7) symxs(*.7) size(*0.7) region(c(none))) name(IQTValorHabitualSem, replace) 
+   *graph export "$dirpath/Gráficos/IQTValorHabitualSem.png", width(10000) as(png) replace 
+ }
+
+* 3.2 COM CONTROLES ***********************************************************   
+ {
+ * Efetivo:
+   twoway (line IQT_Eiv T, lcolor(blue)) (line IQTP_Eiv T, lcolor(orange)) (line IQTV_Eiv T, lcolor(green)), xtitle(" ") xlabel(1(2)`=Tmax', angle(vertical) valuelabel labsize(*0.8)) graphregion(color(white)) ylab(95(5)125, labsize(*0.8) angle(horizontal))  xline(10 20 32 34, lpattern(dash) lcolor(gray)) legend(c(2) symys(*.7) symxs(*.7) size(*0.7) region(c(none))) name(IQTValorEfetivoCom, replace) 
+   *graph export "$dirpath/Gráficos/IQTValorEfetivoCom.png", width(10000) as(png) replace
+   
+ * Habitual:
+   twoway (line IQT_Hiv T, lcolor(blue)) (line IQTP_Hiv T, lcolor(orange)) (line IQTV_Hiv T, lcolor(green)), xtitle(" ") xlabel(1(2)`=Tmax', angle(vertical) valuelabel labsize(*0.8)) graphregion(color(white)) ylab(95(5)125, labsize(*0.8) angle(horizontal))  xline(10 20 32 34, lpattern(dash) lcolor(gray)) legend(c(2) symys(*.7) symxs(*.7) size(*0.7) region(c(none))) name(IQTValorHabitualCom, replace) 
+   *graph export "$dirpath/Gráficos/IQTValorHabitualSem.png", width(10000) as(png) replace 
+ } 
+}  
+ 
  
  
  
