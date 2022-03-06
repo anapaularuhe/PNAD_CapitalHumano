@@ -447,23 +447,23 @@
 * 3.1 SEM CONTROLES ***********************************************************   
  {
  * Efetivo:
-   twoway (line IQT_Ei T, lcolor(blue)) (line IQTP_Ei T, lcolor(orange)) (line IQTV_Ei T, lcolor(green)), xtitle(" ") xlabel(1(2)`=Tmax', angle(vertical) valuelabel labsize(*0.8)) graphregion(color(white)) ylab(95(5)125, labsize(*0.8) angle(horizontal))  xline(10 20 32 34, lpattern(dash) lcolor(gray)) legend(c(2) symys(*.7) symxs(*.7) size(*0.7) region(c(none))) name(IQTValorEfetivoSem, replace) 
+   twoway (line IQT_Ei T, lcolor(blue)) (line IQTP_Ei T, lcolor(orange)) (line IQTV_Ei T, lcolor(green)), xtitle(" ") xlabel(1(2)`=Tmax', angle(vertical) valuelabel labsize(*0.8)) graphregion(color(white)) ylab(80(5)125, labsize(*0.8) angle(horizontal))  xline(10 20 32 34, lpattern(dash) lcolor(gray)) legend(c(2) symys(*.7) symxs(*.7) size(*0.7) region(c(none))) name(IQTValorEfetivoSem, replace) 
    *graph export "$dirpath/Gráficos/IQTValorEfetivoSem.png", width(10000) as(png) replace
    
  * Habitual:
-   twoway (line IQT_Hi T, lcolor(blue)) (line IQTP_Hi T, lcolor(orange)) (line IQTV_Hi T, lcolor(green)), xtitle(" ") xlabel(1(2)`=Tmax', angle(vertical) valuelabel labsize(*0.8)) graphregion(color(white)) ylab(95(5)125, labsize(*0.8) angle(horizontal))  xline(10 20 32 34, lpattern(dash) lcolor(gray)) legend(c(2) symys(*.7) symxs(*.7) size(*0.7) region(c(none))) name(IQTValorHabitualSem, replace) 
+   twoway (line IQT_Hi T, lcolor(blue)) (line IQTP_Hi T, lcolor(orange)) (line IQTV_Hi T, lcolor(green)), xtitle(" ") xlabel(1(2)`=Tmax', angle(vertical) valuelabel labsize(*0.8)) graphregion(color(white)) ylab(80(5)125, labsize(*0.8) angle(horizontal))  xline(10 20 32 34, lpattern(dash) lcolor(gray)) legend(c(2) symys(*.7) symxs(*.7) size(*0.7) region(c(none))) name(IQTValorHabitualSem, replace) 
    *graph export "$dirpath/Gráficos/IQTValorHabitualSem.png", width(10000) as(png) replace 
  }
 
 * 3.2 COM CONTROLES ***********************************************************   
  {
  * Efetivo:
-   twoway (line IQT_Eiv T, lcolor(blue)) (line IQTP_Eiv T, lcolor(orange)) (line IQTV_Eiv T, lcolor(green)), xtitle(" ") xlabel(1(2)`=Tmax', angle(vertical) valuelabel labsize(*0.8)) graphregion(color(white)) ylab(95(5)125, labsize(*0.8) angle(horizontal))  xline(10 20 32 34, lpattern(dash) lcolor(gray)) legend(c(2) symys(*.7) symxs(*.7) size(*0.7) region(c(none))) name(IQTValorEfetivoCom, replace) 
+   twoway (line IQT_Eiv T, lcolor(blue)) (line IQTP_Eiv T, lcolor(orange)) (line IQTV_Eiv T, lcolor(green)), xtitle(" ") xlabel(1(2)`=Tmax', angle(vertical) valuelabel labsize(*0.8)) graphregion(color(white)) ylab(80(5)125, labsize(*0.8) angle(horizontal))  xline(10 20 32 34, lpattern(dash) lcolor(gray)) legend(c(2) symys(*.7) symxs(*.7) size(*0.7) region(c(none))) name(IQTValorEfetivoCom, replace) 
    *graph export "$dirpath/Gráficos/IQTValorEfetivoCom.png", width(10000) as(png) replace
    
  * Habitual:
-   twoway (line IQT_Hiv T, lcolor(blue)) (line IQTP_Hiv T, lcolor(orange)) (line IQTV_Hiv T, lcolor(green)), xtitle(" ") xlabel(1(2)`=Tmax', angle(vertical) valuelabel labsize(*0.8)) graphregion(color(white)) ylab(95(5)125, labsize(*0.8) angle(horizontal))  xline(10 20 32 34, lpattern(dash) lcolor(gray)) legend(c(2) symys(*.7) symxs(*.7) size(*0.7) region(c(none))) name(IQTValorHabitualCom, replace) 
-   *graph export "$dirpath/Gráficos/IQTValorHabitualSem.png", width(10000) as(png) replace 
+   twoway (line IQT_Hiv T, lcolor(blue)) (line IQTP_Hiv T, lcolor(orange)) (line IQTV_Hiv T, lcolor(green)), xtitle(" ") xlabel(1(2)`=Tmax', angle(vertical) valuelabel labsize(*0.8)) graphregion(color(white)) ylab(80(5)125, labsize(*0.8) angle(horizontal))  xline(10 20 32 34, lpattern(dash) lcolor(gray)) legend(c(2) symys(*.7) symxs(*.7) size(*0.7) region(c(none))) name(IQTValorHabitualCom, replace) 
+   *graph export "$dirpath/Gráficos/IQTValorHabitualCom.png", width(10000) as(png) replace 
  } 
 }  
  
