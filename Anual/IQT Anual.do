@@ -8,6 +8,7 @@
 
 * PREPARAÇÃO ******************************************************************
 * Pacotes:
+ *ssc install labutil
  *ssc install mdesc
  
 * Preparando memória: 
@@ -62,7 +63,7 @@
   }
  
  use "T:\data\pnad\pnad1992pes_comp92.dta", clear
- save "$dirdata\BasePnadAnual.dta", replace
+ save "$dirdata\A_BasePnadAnual.dta", replace
  keep id_dom uf v0101 v0302 v8005 v0404 v9001 v9008 v9029 v9032 v9035 v9058 v9101 v9105 v9115 anoest v4703 v4704 v4706 v4707 v4719 v4729 cond_ocup_s trab_afast deflator v4719def 
  
  append using "T:\data\pnad\pnad1993pes_comp92.dta", keep(id_dom uf v0101 v0302 v8005 v0404 v9001 v9008 v9029 v9032 v9035 v9058 v9101 v9105 v9115 anoest v4703 v4704 v4706 v4707 v4719 v4729 cond_ocup_s trab_afast deflator v4719def)
@@ -88,12 +89,12 @@
  append using "T:\data\pnad\pnad2011pes_comp92.dta", keep(id_dom uf v0101 v0302 v8005 v0404 v9001 v9008 v9029 v9032 v9035 v9058 v9101 v9105 v9115 anoest v4703 v4704 v4706 v4707 v4719 v4729 cond_ocup_s trab_afast deflator v4719def)
  append using "T:\data\pnad\pnad2012pes_comp92.dta", keep(id_dom uf v0101 v0302 v8005 v0404 v9001 v9008 v9029 v9032 v9035 v9058 v9101 v9105 v9115 anoest v4703 v4704 v4706 v4707 v4719 v4729 cond_ocup_s trab_afast deflator v4719def)
  
- save "$dirdata\BasePnadAnual.dta", replace
+ save "$dirdata\A_BasePnadAnual.dta", replace
  }
 
 * A.2. ORGANIZANDO VARIÁVEIS E LABELS *****************************************
  {
-  use "$dirdata\BasePnadAnual.dta", clear
+  use "$dirdata\A_BasePnadAnual.dta", clear
  
  * Renomeando variáveis básicas
   rename v4729 Peso
@@ -267,25 +268,24 @@
   replace po_pnadc = . if Idade<14
   
  * PEA: ocupados e desocupados
- gen byte pea_pnadc = (po_pnadc==0 | po_pnadc==1)
- label var pea_pnadc "Condição na PEA - PNADC"
- label define pea_pnadc_label 0 "Fora da PEA" 1 "Na PEA"
- label values pea_pnadc pea_pnadc_label
- 
- 
+  gen byte pea_pnadc = (po_pnadc==0 | po_pnadc==1)
+  label var pea_pnadc "Condição na PEA - PNADC"
+  label define pea_pnadc_label 0 "Fora da PEA" 1 "Na PEA"
+  label values pea_pnadc pea_pnadc_label
+  
   compress
-  save "$dirdata\BasePnadAnual.dta", replace
+  save "$dirdata\A_BasePnadAnual.dta", replace
  }
  
 * A.3. DEFLATORES *************************************************************
  {
  * Base apenas com os deflatores de 2012:
- use "$dirdata\BasePnadAnual.dta", clear
+ use "$dirdata\A_BasePnadAnual.dta", clear
  keep Ano UF deflator
  keep if Ano<2012
  rename deflator deflator2012
  duplicates drop
- save "$dirdata\Deflatores2012.dta", replace
+ save "$dirdata\A_Deflatores2012.dta", replace
  
  
  * Base apenas com os deflatores da PNADC, para o terceiro trimestre do ano:
@@ -294,12 +294,12 @@
  drop Trimestre trim Efetivo
  rename Habitual deflator_atual
  label var deflator_atual "deflator - base mais recente da PNADC"
- save "$dirdata\Deflatores.dta", replace
+ save "$dirdata\A_Deflatores.dta", replace
  
  
  * Juntando as duas bases de deflatores: 
- use "$dirdata\Deflatores2012.dta", clear
- append using "$dirdata\Deflatores.dta"
+ use "$dirdata\A_Deflatores2012.dta", clear
+ append using "$dirdata\A_Deflatores.dta"
  
  
  * Mudando base dos deflatores até 2012 para a base mais recente: 
@@ -307,25 +307,26 @@
  gen deflator = deflator_atual if Ano>=2012 
  replace deflator = deflator2012/baserecente if Ano<2012
  drop deflator2012 deflator_atual baserecente
- save "$dirdata\Deflatores.dta", replace
+ label var deflator "Deflatores com período base = mais recente da PNADC"
+ save "$dirdata\A_Deflatores.dta", replace
  
  
  * Adicionando os novos deflatores na base de microdados:
- use "$dirdata\BasePnadAnual.dta", clear
+ use "$dirdata\A_BasePnadAnual.dta", clear
  rename deflator deflator2012
  
- merge m:1 Ano UF using "$dirdata\Deflatores.dta"
+ merge m:1 Ano UF using "$dirdata\A_Deflatores.dta"
  drop if Ano>=2013
  drop _merge 
   
  order deflator, after(deflator2012)
  compress
- save "$dirdata\BasePnadAnual.dta", replace 
+ save "$dirdata\A_BasePnadAnual.dta", replace 
  }
 
 * A.4. RENDIMENTO E RESTRIÇÃO DA AMOSTRA **************************************
  {
- use "$dirdata\BasePnadAnual.dta", clear
+ use "$dirdata\A_BasePnadAnual.dta", clear
  
  * Restrição da amostra: PO conforme definição da PNADC - apenas observações sem missing em horas e rendimentos
  keep if po_pnadc ==1
@@ -348,7 +349,240 @@
   ** Missing values: trabalhadores não remunerados e alguns domésticos 
 
  compress
- save "$dirdata\BasePnadAnual.dta", replace 
+ save "$dirdata\A_BasePnadAnual.dta", replace 
  }
-} 
  
+* A.5. ANOS FALTANTES NA PNAD *************************************************
+ {
+ * Não temos dados para 1994, 2000 e 2010.
+ * Estratégia: repetir os dados do ano anterior. 
+  use "$dirdata\A_BasePnadAnual.dta", clear
+ 
+  keep if Ano==1993
+  replace Ano = 1994
+  save "$dirdata\A_temporario.dta", replace
+  
+  use "$dirdata\A_BasePnadAnual.dta", clear
+  append using "$dirdata\A_temporario.dta"
+  save "$dirdata\A_BasePnadAnual.dta", replace
+  
+  keep if Ano==1999
+  replace Ano = 2000
+  save "$dirdata\A_temporario.dta", replace
+  
+  use "$dirdata\A_BasePnadAnual.dta", clear
+  append using "$dirdata\A_temporario.dta"
+  save "$dirdata\A_BasePnadAnual.dta", replace
+  
+  keep if Ano==2009
+  replace Ano = 2010
+  save "$dirdata\A_temporario.dta", replace
+  
+  use "$dirdata\A_BasePnadAnual.dta", clear
+  append using "$dirdata\A_temporario.dta"
+  sort Ano
+  save "$dirdata\A_BasePnadAnual.dta", replace
+  
+ 
+  * Índice de período: criando variável T (compatibilidade com código da PNADC)
+  gen T = Ano - 1991
+  label var T "Período sequencial"
+  order T, after(Ano)
+  
+ ** Label:
+  tostring Ano, generate(Ano_string) 
+  labmask T, values(Ano_string)
+  drop Ano_string 
+ 
+  egen Tmax = max(T)
+ 
+ 
+ save "$dirdata\A_BasePnadAnual.dta", replace 
+ } 
+} 
+
+
+*******************************************************************************
+* B. ESTIMAÇÃO IQT
+*******************************************************************************
+{
+* B.1. REGRESSÕES *************************************************************
+ {
+ use "$dirdata\A_BasePnadAnual.dta", clear
+ 
+ forvalues t = 1/`=Tmax' {     
+ ** Sem controles: 
+   regress logW_hab mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 if T==`t' [iw = Peso]
+   estimates save "$dirdata/B_Regressoes_semcontroles", append
+   predict RegLog_Hi_`t' if(T>=(`t'-1) & T<=(`t'+1))	 
+  
+ ** Com controles: 
+   regress logW_hab mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 PretoPardoIndig publico informal if T==`t' [iw = Peso]
+   estimates save "$dirdata/B_Regressoes_comcontroles", append
+   gen RegLog_Hiv_`t' = _b[_cons] + _b[mulher]*mulher + _b[educ2]*educ2 + _b[educ3]*educ3 + _b[educ4]*educ4 + _b[educ5]*educ5 + _b[educ6]*educ6 + _b[Experiencia]*Experiencia + _b[Experiencia2]*Experiencia2 + _b[Experiencia3]*Experiencia3 + _b[Experiencia4]*Experiencia4 + _b[ExperMulher]*ExperMulher + _b[ExperMulher2]*ExperMulher2 + _b[ExperMulher3]*ExperMulher3 + _b[ExperMulher4]*ExperMulher4 if(T>=(`t'-1) & T<=(`t'+1)) 
+	  
+  estimates drop _all
+  }
+
+  save "$dirdata/B_BaseEstimacao.dta", replace  
+ } 
+ 
+* B.2. SALÁRIO PREDITO ********************************************************
+ {
+  use "$dirdata/B_BaseEstimacao.dta", clear
+  
+ * Exponencial + descartamos log para economizar memória
+   forvalues t = 1/`=Tmax' {
+   	 gen RegW_Hi_`t' = exp(RegLog_Hi_`t')	  
+	 gen RegW_Hiv_`t' = exp(RegLog_Hiv_`t')	
+	 
+	 drop RegLog_Hi_`t' RegLog_Hiv_`t'
+   }
+ 
+ /* Vamos consolidar os salários preditos em 3 variáveis: 
+    - W_T     = salários em t preditos pelos coeficientes estimados de t
+	- W_Tante = salários em t preditos pelos coeficientes estimados de t-1
+	- W_Tprox = salários em t preditos pelos coeficientes estimados de t+1
+ */
+   
+ * Sem controles:  
+   gen WHi_T = .
+   gen WHi_Tante = .
+   gen WHi_Tprox = .
+   
+ * Com controles:
+   gen WHiv_T = .
+   gen WHiv_Tante = .
+   gen WHiv_Tprox = .
+   
+   forvalues t = 1/`=Tmax' {
+	  replace WHi_T = RegW_Hi_`t' if T==`t'
+	  replace WHiv_T = RegW_Hiv_`t' if T==`t'
+	  	  
+	  local i = `t'-1
+	  if `t' > 1 replace WHi_Tante = RegW_Hi_`i' if T==`t'
+	  if `t' > 1 replace WHiv_Tante = RegW_Hiv_`i' if T==`t'	 
+	 	 
+	  local j = `t'+1 
+	  if `t' < `=Tmax' replace WHi_Tprox = RegW_Hi_`j' if T==`t'
+	  if `t' < `=Tmax' replace WHiv_Tprox = RegW_Hiv_`j' if T==`t'
+   }
+ 
+ * Excluindo os salários separados por período, para economizar memória:
+   forvalues t = 1/`=Tmax' { 
+       drop RegW_Hi_`t' RegW_Hiv_`t' 
+   }  
+ 
+   compress
+   save "$dirdata/B_BaseEstimacao.dta", replace  
+ } 
+ 
+* B.3. PESOS ******************************************************************
+ {
+ use "$dirdata/B_BaseEstimacao.dta", clear
+ 
+ bysort T VD3006 Experiencia: egen HH = mean(horas)
+ order HH, after(horas)
+ label var HH "Horas habituais médias por grupo de educação e experiência para cada trimestre"
+
+ * Peso ajustado por hora:
+ gen PHi = Peso*HH
+ bysort T: egen PHt = sum(PHi)
+ gen PH = PHi/PHt
+ label var PH "Peso para cálculo do IQT de rendimento habitual"
+   
+ order PH, after(Peso) 
+ drop PHi PHt
+
+ compress
+ save "$dirdata/B_BaseEstimacao.dta", replace 
+ }
+ 
+* B.4. IQT ********************************************************************
+ {
+ use "$dirdata/B_BaseEstimacao.dta", clear
+ 
+ * IQT0
+  gen dIQT0_Hi = .        
+  gen dIQT0_Hiv = .    
+ 
+  forvalues t = 2/`=Tmax'{
+  * Sem controles: 
+	gen nHi = PH*WHi_Tante if T==`t'
+	gen dHi = PH*WHi_T if T==(`t'-1)
+	  
+	egen sum_nHi = sum(nHi)
+	egen sum_dHi = sum(dHi)
+	
+	replace dIQT0_Hi = sum_nHi/sum_dHi if T==`t'
+	drop nHi dHi sum_nHi sum_dHi
+	
+  * Com controles:
+	gen nHiv = PH*WHiv_Tante if T==`t'
+	gen dHiv = PH*WHiv_T if T==(`t'-1)
+	  
+	egen sum_nHiv = sum(nHiv)
+	egen sum_dHiv = sum(dHiv)
+	  
+	replace dIQT0_Hiv = sum_nHiv/sum_dHiv if T==`t'
+	drop nHiv dHiv sum_nHiv sum_dHiv
+   }
+  
+  
+ * IQT1:
+  gen dIQT1_Hi = .        
+  gen dIQT1_Hiv = . 
+  
+  forvalues t = 2/`=Tmax'{
+  * Sem controles: 
+	gen nHi = PH*WHi_T if T==`t'
+	gen dHi = PH*WHi_Tprox if T==(`t'-1)
+	  
+	egen sum_nHi = sum(nHi)
+	egen sum_dHi = sum(dHi)
+	  
+	replace dIQT1_Hi = sum_nHi/sum_dHi if T==`t'
+	drop nHi dHi sum_nHi sum_dHi
+
+  * Com controles:
+	gen nHiv = PH*WHiv_T if T==`t'
+	gen dHiv = PH*WHiv_Tprox if T==(`t'-1)
+	  
+	egen sum_nHiv = sum(nHiv)
+	egen sum_dHiv = sum(dHiv)
+	  
+	replace dIQT1_Hiv = sum_nHiv/sum_dHiv if T==`t'
+	drop nHiv dHiv sum_nHiv sum_dHiv  
+   }  
+   
+   
+ * dIQT: índice de Fisher    
+  gen dIQT_Hi = (dIQT0_Hi*dIQT1_Hi)^(1/2)
+  gen dIQT_Hiv = (dIQT0_Hiv*dIQT1_Hiv)^(1/2)
+   
+  compress
+  save "$dirdata/B_BaseEstimacao.dta", replace  
+ 
+ * IQT: Base separada 
+  {
+  preserve
+   keep T Tmax dIQT_Hi dIQT_Hiv
+   duplicates drop
+  
+   * 1992 = 100
+   * Sem controles
+     gen IQT_Hi = 100 if T==1
+     replace IQT_Hi = IQT_Hi[_n-1]*dIQT_Hi if _n > 1
+     label var IQT_Hi "IQT Anual - Sem controles"
+	 
+	 gen IQT_Hiv = 100 if T==1
+     replace IQT_Hiv = IQT_Hiv[_n-1]*dIQT_Hiv if _n > 1
+     label var IQT_Hiv "IQT Anual - Com controles" 
+   
+   save "$dirdata/B_IQT.dta", replace
+   export excel T IQT_Hi IQT_Hiv using "$dirdata\B_IQT.xlsx", firstrow(varlabels) replac
+  restore
+  }
+ } 
+  
+}
