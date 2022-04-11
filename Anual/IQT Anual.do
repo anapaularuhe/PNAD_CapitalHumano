@@ -338,7 +338,7 @@
  label var v4719_real "Rendimento real habitual de todos os trabalhos a preços mais recentes"
  order v4719_real, after(v4719def)
  
- * Salário-hora (Estratégia IPEA: drop observações com horas efetivas nulas)
+ * Salário-hora
   gen W_hora = v4719_real/(horas*4)
   label var W_hora "Rendimento real por hora habitual de todos os trabalhos a preços mais recentes"
   order W_hora, after(v4719_real)
@@ -753,7 +753,7 @@
 * D. COMPATIBILIZAÇÃO COM IQT TRIMESTRAL
 *******************************************************************************
 {
-* D.1. TRIMESTRAL A PARTIR DE 2012.3 ******************************************
+* D.1. TRIMESTRAL A PARTIR DE 2012.1 ******************************************
  {
 * D.1.1. Preparação da Base ***************************************************
   {
@@ -769,11 +769,10 @@
  * Preparando base PNADC para o append:
    use "$dirpreco/BaseIQTPreço.dta", clear
    keep Ano Trimestre T Peso PH mulher Cor VD3006 Experiencia Experiencia2 Experiencia3 Experiencia4 publico informal VD4031 HH educ1 educ2 educ3 educ4 educ5 educ6 logW_hab ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 PretoPardoIndig WHi_T WHi_Tante WHi_Tprox WHiv_T WHiv_Tante WHiv_Tprox dIQT0_Hi dIQT0_Hiv dIQT1_Hi dIQT1_Hiv dIQT_Hi dIQT_Hiv dIQTP0_Hi dIQTP0_Hiv dIQTP1_Hi dIQTP1_Hiv dIQTP_Hi dIQTP_Hiv dIQTV_Hi dIQTV_Hiv 
-   keep if T>=3
    drop T
  
  * Contabilizando períodos desde 1992: 
-   gen Ttrim = 20 + ((Ano - 2012)*4 - 2) + Trimestre
+   gen Ttrim = 20 + (Ano - 2012)*4 + Trimestre
    label var Ttrim "Período sequencial - com trimestres"
    order Ttrim, after(Trimestre)
    
@@ -824,11 +823,11 @@
 	 drop RegLog_Hi_`t' RegLog_Hiv_`t'
    }
    
-   if T==21 replace WHi_Tante = RegW_Hi_20
-   if T==21 replace WHiv_Tante = RegW_Hiv_20
+   replace WHi_Tante = RegW_Hi_20 if T==21 
+   replace WHiv_Tante = RegW_Hiv_20 if T==21 
    
-   if T==20 replace WHi_Tprox = RegW_Hi_21
-   if T==20 replace WHiv_Tprox = RegW_Hiv_21
+   replace WHi_Tprox = RegW_Hi_21 if T==20 
+   replace WHiv_Tprox = RegW_Hiv_21 if T==20 
  
    forvalues t = 20/21 { 
      drop RegW_Hi_`t' RegW_Hiv_`t' 
@@ -985,18 +984,283 @@
      replace IQTV_Hiv_trim = IQTV_Hiv[_n-1]*dIQTV_Hiv if _n > 1
      label var IQTV_Hiv_trim "IQT Valor Anual - Com controles - PNADC Trimestral"
 	 
-     save "$dirdata\D_IQT_compatibilizado", replace
+     save "$dirdata\D_IQT_compatib_trim", replace
      export excel T Ttrim IQT_Hi_trim IQT_Hiv_trim IQTP_Hi_trim IQTP_Hiv_trim IQTV_Hi_trim IQTV_Hiv_trim using "$dirdata\B_IQT.xlsx", sheet("PNADC Trimestral", modify) firstrow(varlabels)
    restore
    }    
   } 
  }
  
-* D.2. ANUAL A PARTIR DE 2012.3 ***********************************************
+ 
+* D.2. ANUAL A PARTIR DE 2013.3 ***********************************************
  {
+* D.2.1. Preparação da Base ***************************************************
+  {
+   use "$dirdata/C_BaseIQTPreço.dta", clear
  
+ * Base restrita da PNAD:
+ * - Mantemos apenas variáveis necessárias
+ * - Dessa vez, deixaremos o ano de 2012 da PNAD e usaremos a PNADC a partir de 2013
+   drop UF Sexo Idade v9001 v9008 v9029 v9032 v9035 v9058 v9101 v9105 v9115 v4703 v4704 v4706 v4707 v4719 id_dom anoest trab_afast cond_ocup_s pia po_pnadc pea_pnadc Tmax
+   save "$dirdata/D_BaseAnual.dta", replace
  
+ * Preparando base PNADC para o append:
+   use "$dirpreco/BaseIQTPreço.dta", clear
+   keep Ano Trimestre T Peso PH mulher Cor VD3006 Experiencia Experiencia2 Experiencia3 Experiencia4 publico informal VD4031 HH educ1 educ2 educ3 educ4 educ5 educ6 logW_hab ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 PretoPardoIndig WHi_T WHi_Tante WHi_Tprox WHiv_T WHiv_Tante WHiv_Tprox dIQT0_Hi dIQT0_Hiv dIQT1_Hi dIQT1_Hiv dIQT_Hi dIQT_Hiv dIQTP0_Hi dIQTP0_Hiv dIQTP1_Hi dIQTP1_Hiv dIQTP_Hi dIQTP_Hiv dIQTV_Hi dIQTV_Hiv
+   keep if Trimestre == 3
+   drop if Ano == 2012
+   drop T Trimestre
+ 
+ * Contabilizando períodos desde 1992: 
+   gen T = 21 + (Ano - 2012)
+   order T, after(Ano)
+   
+   * Label:
+   tostring Ano, generate(Ano_string)
+   labmask T, values(Ano_string)
+   drop Ano_string 
+   
+   save "$dirdata\temporario.dta", replace  
+ 
+ * Juntando as bases:
+   use "$dirdata/D_BaseAnual.dta", clear
+   append using "$dirdata/temporario.dta"
+   egen Tmax = max(T)
+ 
+   compress	
+   save "$dirdata/D_BaseAnual.dta", replace 
+  } 
+ 
+* D.2.2. Estimação: transição entre pesquisas
+  {
+   use "$dirdata/D_BaseAnual.dta", clear
+   
+   forvalues t = 21/22 {     
+   ** Sem controles: 
+     regress logW_hab mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 if T==`t' [iw = Peso]
+     predict RegLog_Hi_`t' if(T>=(`t'-1) & T<=(`t'+1))	 
+  
+   ** Com controles: 
+     regress logW_hab mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 PretoPardoIndig publico informal if T==`t' [iw = Peso]
+     gen RegLog_Hiv_`t' = _b[_cons] + _b[mulher]*mulher + _b[educ2]*educ2 + _b[educ3]*educ3 + _b[educ4]*educ4 + _b[educ5]*educ5 + _b[educ6]*educ6 + _b[Experiencia]*Experiencia + _b[Experiencia2]*Experiencia2 + _b[Experiencia3]*Experiencia3 + _b[Experiencia4]*Experiencia4 + _b[ExperMulher]*ExperMulher + _b[ExperMulher2]*ExperMulher2 + _b[ExperMulher3]*ExperMulher3 + _b[ExperMulher4]*ExperMulher4 if(T>=(`t'-1) & T<=(`t'+1)) 
+	  
+     estimates drop _all
+   }
+
+   save "$dirdata/D_BaseAnual.dta", replace  
+  
+ * Salário predito: 
+   forvalues t = 21/22 {
+   	 gen RegW_Hi_`t' = exp(RegLog_Hi_`t')	  
+	 gen RegW_Hiv_`t' = exp(RegLog_Hiv_`t')	
+	 
+	 drop RegLog_Hi_`t' RegLog_Hiv_`t'
+   }
+   
+   replace WHi_Tante = RegW_Hi_21 if T==22 
+   replace WHiv_Tante = RegW_Hiv_21 if T==22 
+   
+   replace WHi_Tprox = RegW_Hi_22 if T==21 
+   replace WHiv_Tprox = RegW_Hiv_22 if T==21 
+ 
+   forvalues t = 21/22 { 
+     drop RegW_Hi_`t' RegW_Hiv_`t' 
+   }  
+ 
+   compress
+   save "$dirdata/D_BaseAnual.dta", replace  
+  } 
+  
+* D.2.3. IQT: ajustando transição entre pesquisas *****************************  
+  {
+   use "$dirdata/D_BaseAnual.dta", clear
+   
+ ** IQT0:
+   {
+  * Sem controles: 
+   * IQT Quantidade
+	gen nHi = PH*WHi_Tante if T==22
+	gen dHi = PH*WHi_T if T==21
+	  
+	egen sum_nHi = sum(nHi)
+	egen sum_dHi = sum(dHi)
+	
+	replace dIQT0_Hi = sum_nHi/sum_dHi if T==22
+	drop nHi dHi sum_nHi sum_dHi
+	
+   * IQT Preço:	
+	gen nHi = PH*WHi_Tprox if T==21
+    gen dHi = PH*WHi_T if T==21 
+   
+    egen sum_nHi = sum(nHi)
+    egen sum_dHi = sum(dHi)
+   
+    replace dIQTP0_Hi = sum_nHi/sum_dHi if T==22
+    drop nHi dHi sum_nHi sum_dHi
+	
+	
+  * Com controles:
+   * IQT Quantidade	
+	gen nHiv = PH*WHiv_Tante if T==22
+	gen dHiv = PH*WHiv_T if T==21
+	  
+	egen sum_nHiv = sum(nHiv)
+	egen sum_dHiv = sum(dHiv)
+	  
+	replace dIQT0_Hiv = sum_nHiv/sum_dHiv if T==22
+	drop nHiv dHiv sum_nHiv sum_dHiv
+	
+   * IQT Preço
+    gen nHiv = PH*WHiv_Tprox if T==21
+    gen dHiv = PH*WHiv_T if T==21
+   
+    egen sum_nHiv = sum(nHiv)
+    egen sum_dHiv = sum(dHiv)
+   
+    replace dIQTP0_Hiv = sum_nHiv/sum_dHiv if T==22
+    drop nHiv dHiv sum_nHiv sum_dHiv
+   }
+   
+ ** IQT1:
+   {
+  * Sem controles: 
+   * IQT Quantidade
+	gen nHi = PH*WHi_T if T==22
+	gen dHi = PH*WHi_Tprox if T==21
+	  
+	egen sum_nHi = sum(nHi)
+	egen sum_dHi = sum(dHi)
+	  
+	replace dIQT1_Hi = sum_nHi/sum_dHi if T==22
+	drop nHi dHi sum_nHi sum_dHi
+	
+   * IQT Preço
+    gen nHi = PH*WHi_T if T==22
+	gen dHi = PH*WHi_Tante if T==22
+	  
+	egen sum_nHi = sum(nHi)
+	egen sum_dHi = sum(dHi)
+	  
+	replace dIQTP1_Hi = sum_nHi/sum_dHi if T==22
+	drop nHi dHi sum_nHi sum_dHi 
+
+
+  * Com controles:
+   * IQT Quantidade
+	gen nHiv = PH*WHiv_T if T==22
+	gen dHiv = PH*WHiv_Tprox if T==21
+	  
+	egen sum_nHiv = sum(nHiv)
+	egen sum_dHiv = sum(dHiv)
+	  
+	replace dIQT1_Hiv = sum_nHiv/sum_dHiv if T==22
+	drop nHiv dHiv sum_nHiv sum_dHiv
+	
+   * IQT Preço
+    gen nHiv = PH*WHiv_T if T==22
+	gen dHiv = PH*WHiv_Tante if T==22
+	  
+	egen sum_nHiv = sum(nHiv)
+	egen sum_dHiv = sum(dHiv)
+	  
+	replace dIQTP1_Hiv = sum_nHiv/sum_dHiv if T==22
+	drop nHiv dHiv sum_nHiv sum_dHiv 
+   } 
+	
+ ** dIQT: Índice de Fisher
+  * IQT Quantidade 
+    replace dIQT_Hi = (dIQT0_Hi*dIQT1_Hi)^(1/2) if T==22
+	replace dIQT_Hiv = (dIQT0_Hiv*dIQT1_Hiv)^(1/2) if T==22
+
+  * IQT Preço
+    replace dIQTP_Hi = (dIQTP0_Hi*dIQTP1_Hi)^(1/2) if T==22
+	replace dIQTP_Hiv = (dIQTP0_Hiv*dIQTP1_Hiv)^(1/2) if T==22
+
+  * IQT Valor
+    replace dIQTV_Hi = (dIQT_Hi*dIQTP_Hi) if T==22
+	replace dIQTV_Hiv = (dIQT_Hiv*dIQTP_Hiv) if T==22
+   
+   compress
+   save "$dirdata\D_BaseAnual.dta", replace
+  
+   
+ ** IQT: Base separada 
+   {
+   preserve
+     keep T Ano Tmax dIQT_Hi dIQT_Hiv dIQTP_Hi dIQTP_Hiv dIQTV_Hi dIQTV_Hiv
+     duplicates drop
+  
+   * 1992 = 100
+   * IQT Quantidade
+     gen IQT_Hi_anual = 100 if T==1
+     replace IQT_Hi_anual = IQT_Hi[_n-1]*dIQT_Hi if _n > 1
+     label var IQT_Hi_anual "IQT Quantidade Anual - Sem controles - PNADC Anual"
+	 
+	 gen IQT_Hiv_anual = 100 if T==1
+     replace IQT_Hiv_anual = IQT_Hiv[_n-1]*dIQT_Hiv if _n > 1
+     label var IQT_Hiv_anual "IQT Quantidade Anual - Com controles - PNADC Anual" 
+	 
+   * IQT Preço
+     gen IQTP_Hi_anual = 100 if T==1
+     replace IQTP_Hi_anual = IQTP_Hi[_n-1]*dIQTP_Hi if _n > 1
+     label var IQTP_Hi_anual "IQT Preço Anual - Sem controles - PNADC Anual"
+	 
+	 gen IQTP_Hiv_anual = 100 if T==1
+     replace IQTP_Hiv_anual = IQTP_Hiv[_n-1]*dIQTP_Hiv if _n > 1
+     label var IQTP_Hiv_anual "IQT Preço Anual - Com controles - PNADC Anual"
+ 	 
+   * IQT Valor
+     gen IQTV_Hi_anual = 100 if T==1
+     replace IQTV_Hi_anual = IQTV_Hi[_n-1]*dIQTV_Hi if _n > 1
+     label var IQTV_Hi_anual "IQT Valor Anual - Sem controles - PNADC Anual"
+	 
+	 gen IQTV_Hiv_anual = 100 if T==1
+     replace IQTV_Hiv_anual = IQTV_Hiv[_n-1]*dIQTV_Hiv if _n > 1
+     label var IQTV_Hiv_anual "IQT Valor Anual - Com controles - PNADC Anual"
+	 
+     save "$dirdata\D_IQT_compatib_anual", replace
+     export excel T Ano IQT_Hi_anual IQT_Hiv_anual IQTP_Hi_anual IQTP_Hiv_anual IQTV_Hi_anual IQTV_Hiv_anual using "$dirdata\B_IQT.xlsx", sheet("PNADC Anual", modify) firstrow(varlabels)
+   restore
+   }    
+  }
  } 
 }
 
 
+*******************************************************************************
+* E. RETORNOS EDUCAÇÃO
+*******************************************************************************
+{
+ use "$dirdata/D_BaseTrimestral.dta", clear
+
+* Salvando coeficientes em dta: 
+  statsby, by(T) saving("$dirdata\E_Coeficientes_i.dta", replace): regress logW_hab mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 [iw = Peso]
+ estimates drop _all	
+ 
+  statsby, by(T) saving("$dirdata\E_Coeficientes_iv.dta", replace): regress logW_hab mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 PretoPardoIndig publico informal [iw = Peso]
+ estimates drop _all
+ 
+* Consolidando base única:
+  use "$dirdata\E_Coeficientes_iv.dta", clear
+  
+  * Renomeando variáveis e labels para diferenciar entre estratégias de controles:
+	foreach x of varlist _b_* {
+      local nome = substr("`x'", 4, 12)
+	  label var `x' "`nome' - Com controles"
+	  rename `x' iv_`nome'
+    }	
+	save "$dirdata\E_Coeficientes", replace   
+	
+	use "$dirdata\E_Coeficientes_i.dta", clear
+	foreach x of varlist _b_* {
+      local nome = substr("`x'", 4, 12)
+	  label var `x' "`nome' - Sem controles"
+	  rename `x' i_`nome'
+    }	
+	
+	merge 1:1 T using "$dirdata\E_Coeficientes"
+	drop _merge
+	save "$dirdata\E_Coeficientes", replace
+	
+	export excel T i_cons i_mulher i_educ2 i_educ3 i_educ4 i_educ5 i_educ6 iv_cons iv_mulher iv_educ2 iv_educ3 iv_educ4 iv_educ5 iv_educ6 using "$dirdata\E_CoeficientesEducação.xlsx", sheet ("PNAD", modify) firstrow(varlabels) 
+}
