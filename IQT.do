@@ -37,7 +37,9 @@
 * A. IMPORTAÇÃO DADOS, DEFLATORES E SELEÇÃO DE VARIÁVEIS: 2012.1-2021.3 
 *******************************************************************************
 {
-/* Vamos manter as seguintes variáveis:
+* Vamos manter as seguintes variáveis:
+ {
+ /*
 	Ano        | Ano
 	Trimestre  | Trimestre
 	UF         | UF
@@ -67,9 +69,10 @@
 	VD4035     | Horas efetivamente trabalhadas na semana   (todos os trabalhos)
 	
 	Efetivo    | Deflator com base nos redimentos efetivos
-	Habitual   | Deflator com base nos rendimentos habituais	
-	
-*/
+	Habitual   | Deflator com base nos rendimentos habituais		
+ */
+ }
+
 
 * A.1: IMPORTANDO DADOS EM .DTA ***********************************************
 *(Apenas variáveis acima)
@@ -81,7 +84,6 @@
   append using "$diroriginal/PNADC_022012.dta", keep(Ano Trimestre T UF V1027 V1028 V1029 V2007 V2009 V2010 VD3004 VD3005 VD3006 VD4001 VD4002 VD4009 VD4010 VD4016 VD4017 VD4019 VD4020 VD4031 VD4032 VD4035)
   append using "$diroriginal/PNADC_032012.dta", keep(Ano Trimestre T UF V1027 V1028 V1029 V2007 V2009 V2010 VD3004 VD3005 VD3006 VD4001 VD4002 VD4009 VD4010 VD4016 VD4017 VD4019 VD4020 VD4031 VD4032 VD4035)
   append using "$diroriginal/PNADC_042012.dta", keep(Ano Trimestre T UF V1027 V1028 V1029 V2007 V2009 V2010 VD3004 VD3005 VD3006 VD4001 VD4002 VD4009 VD4010 VD4016 VD4017 VD4019 VD4020 VD4031 VD4032 VD4035)
-  append using "$diroriginal/PNADC_022012.dta", keep(Ano Trimestre T UF V1027 V1028 V1029 V2007 V2009 V2010 VD3004 VD3005 VD3006 VD4001 VD4002 VD4009 VD4010 VD4016 VD4017 VD4019 VD4020 VD4031 VD4032 VD4035)
   
   append using "$diroriginal/PNADC_012013.dta", keep(Ano Trimestre T UF V1027 V1028 V1029 V2007 V2009 V2010 VD3004 VD3005 VD3006 VD4001 VD4002 VD4009 VD4010 VD4016 VD4017 VD4019 VD4020 VD4031 VD4032 VD4035)
   append using "$diroriginal/PNADC_022013.dta", keep(Ano Trimestre T UF V1027 V1028 V1029 V2007 V2009 V2010 VD3004 VD3005 VD3006 VD4001 VD4002 VD4009 VD4010 VD4016 VD4017 VD4019 VD4020 VD4031 VD4032 VD4035)
