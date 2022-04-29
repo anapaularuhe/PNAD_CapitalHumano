@@ -902,3 +902,4 @@
 	
 	export excel T i_cons i_mulher i_educ2 i_educ3 i_educ4 i_educ5 i_educ6 iv_cons iv_mulher iv_educ2 iv_educ3 iv_educ4 iv_educ5 iv_educ6 using "$dirdata\D_CoeficientesEducação.xlsx", sheet ("Anual", modify) firstrow(varlabels) 
 }
+
