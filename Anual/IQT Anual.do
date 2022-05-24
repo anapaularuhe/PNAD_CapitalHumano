@@ -20,7 +20,6 @@
   global dirpath = "T:\pastas_pessoais\ana_ruhe\Capital Humano\IQT Anual"
   global dirdata = "T:\pastas_pessoais\ana_ruhe\Capital Humano\IQT Anual\Dados"
   global dirtrim = "T:\pastas_pessoais\ana_ruhe\Capital Humano\IQT"
-  global dirpreco = "T:\pastas_pessoais\ana_ruhe\Capital Humano\IQT Preço"
   global diroriginal = "T:\pastas_pessoais\ana_ruhe\Capital Humano\IQT\Dados\PNAD Original"
    
 * Salvando log:   
@@ -467,11 +466,17 @@
  * Salário-hora
   gen W_hora = rendimento_real/(horas*4)
   label var W_hora "Rendimento real por hora habitual de todos os trabalhos a preços mais recentes"
-  order W_hora, after(rendimento_real)
+  
+  gen W_hora_nominal = rendimento/(horas*4)
+  label var W_hora_nominal "Rendimento nominal por hora habitual de todos os trabalhos a preços mais recentes"
+  order W_hora W_hora_nominal, after(rendimento_real)
   
  * Log: 
   gen logW_hab = ln(W_hora)
   label var logW_hab "Log do rendimento real habitual por hora"
+  
+  gen logW_hab_nominal = ln(W_hora_nominal)
+  label var logW_hab_nominal "Log do rendimento nominal habitual por hora"
 
  compress
  save "$dirdata\A_BaseAnual.dta", replace 
@@ -528,16 +533,28 @@
  use "$dirdata\A_BaseAnual.dta", clear
  
  forvalues t = 1/`=Tmax' {     
- ** Sem controles: 
-   regress logW_hab mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 if T==`t' [iw = Peso]
-   estimates save "$dirdata/B_Regressoes_semcontroles", append
-   predict RegLog_Hi_`t' if(T>=(`t'-1) & T<=(`t'+1))	 
+ * Sem controles: 
+  * Rendimento real:
+    regress logW_hab mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 if T==`t' [iw = Peso]
+    estimates save "$dirdata/B_Regressoes_semcontroles", append
+    predict RegLog_Hi_`t' if(T>=(`t'-1) & T<=(`t'+1))
+   
+  * Rendimento nominal: 
+    regress logW_hab_nominal mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 if T==`t' [iw = Peso]
+    estimates save "$dirdata/B_Regressoes_semcontroles_nominal", append
+    predict RegLog_Hi_nominal_`t' if(T>=(`t'-1) & T<=(`t'+1))
+	
   
  ** Com controles: 
-   regress logW_hab mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 PretoPardoIndig publico informal if T==`t' [iw = Peso]
-   estimates save "$dirdata/B_Regressoes_comcontroles", append
-   gen RegLog_Hiv_`t' = _b[_cons] + _b[mulher]*mulher + _b[educ2]*educ2 + _b[educ3]*educ3 + _b[educ4]*educ4 + _b[educ5]*educ5 + _b[educ6]*educ6 + _b[Experiencia]*Experiencia + _b[Experiencia2]*Experiencia2 + _b[Experiencia3]*Experiencia3 + _b[Experiencia4]*Experiencia4 + _b[ExperMulher]*ExperMulher + _b[ExperMulher2]*ExperMulher2 + _b[ExperMulher3]*ExperMulher3 + _b[ExperMulher4]*ExperMulher4 if(T>=(`t'-1) & T<=(`t'+1)) 
-	  
+  * Rendimento real:
+    regress logW_hab mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 PretoPardoIndig publico informal if T==`t' [iw = Peso]
+    estimates save "$dirdata/B_Regressoes_comcontroles", append
+    gen RegLog_Hiv_`t' = _b[_cons] + _b[mulher]*mulher + _b[educ2]*educ2 + _b[educ3]*educ3 + _b[educ4]*educ4 + _b[educ5]*educ5 + _b[educ6]*educ6 + _b[Experiencia]*Experiencia + _b[Experiencia2]*Experiencia2 + _b[Experiencia3]*Experiencia3 + _b[Experiencia4]*Experiencia4 + _b[ExperMulher]*ExperMulher + _b[ExperMulher2]*ExperMulher2 + _b[ExperMulher3]*ExperMulher3 + _b[ExperMulher4]*ExperMulher4 if(T>=(`t'-1) & T<=(`t'+1)) 
+	
+  * Rendimento real:
+   regress logW_hab_nominal mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 PretoPardoIndig publico informal if T==`t' [iw = Peso]
+   estimates save "$dirdata/B_Regressoes_comcontroles_nominal", append
+   gen RegLog_Hiv_nominal_`t' = _b[_cons] + _b[mulher]*mulher + _b[educ2]*educ2 + _b[educ3]*educ3 + _b[educ4]*educ4 + _b[educ5]*educ5 + _b[educ6]*educ6 + _b[Experiencia]*Experiencia + _b[Experiencia2]*Experiencia2 + _b[Experiencia3]*Experiencia3 + _b[Experiencia4]*Experiencia4 + _b[ExperMulher]*ExperMulher + _b[ExperMulher2]*ExperMulher2 + _b[ExperMulher3]*ExperMulher3 + _b[ExperMulher4]*ExperMulher4 if(T>=(`t'-1) & T<=(`t'+1)) 	
   estimates drop _all
   }
 
@@ -553,7 +570,10 @@
    	 gen RegW_Hi_`t' = exp(RegLog_Hi_`t')	  
 	 gen RegW_Hiv_`t' = exp(RegLog_Hiv_`t')	
 	 
-	 drop RegLog_Hi_`t' RegLog_Hiv_`t'
+	 gen RegW_Hi_nominal_`t' = exp(RegLog_Hi_nominal_`t')	  
+	 gen RegW_Hiv_nominal_`t' = exp(RegLog_Hiv_nominal_`t')	
+	 
+	 drop RegLog_Hi_`t' RegLog_Hiv_`t' RegLog_Hi_nominal_`t' RegLog_Hiv_nominal_`t' 
    }
  
  /* Vamos consolidar os salários preditos em 3 variáveis: 
@@ -567,27 +587,47 @@
    gen WHi_Tante = .
    gen WHi_Tprox = .
    
+   gen WHi_T_nominal = .
+   gen WHi_Tante_nominal = .
+   gen WHi_Tprox_nominal = .
+   
+   
  * Com controles:
    gen WHiv_T = .
    gen WHiv_Tante = .
    gen WHiv_Tprox = .
    
+   gen WHiv_T_nominal = .
+   gen WHiv_Tante_nominal = .
+   gen WHiv_Tprox_nominal = .
+   
    forvalues t = 1/`=Tmax' {
 	  replace WHi_T = RegW_Hi_`t' if T==`t'
 	  replace WHiv_T = RegW_Hiv_`t' if T==`t'
-	  	  
+	  
+	  replace WHi_T_nominal = RegW_Hi_nominal_`t' if T==`t'
+	  replace WHiv_T_nominal = RegW_Hiv_nominal_`t' if T==`t'
+	  
+	  
 	  local i = `t'-1
 	  if `t' > 1 replace WHi_Tante = RegW_Hi_`i' if T==`t'
-	  if `t' > 1 replace WHiv_Tante = RegW_Hiv_`i' if T==`t'	 
-	 	 
+	  if `t' > 1 replace WHiv_Tante = RegW_Hiv_`i' if T==`t'
+	  
+	  if `t' > 1 replace WHi_Tante_nominal = RegW_Hi_nominal_`i' if T==`t'
+	  if `t' > 1 replace WHiv_Tante_nominal = RegW_Hiv_nominal_`i' if T==`t'
+	 
+	 
 	  local j = `t'+1 
 	  if `t' < `=Tmax' replace WHi_Tprox = RegW_Hi_`j' if T==`t'
 	  if `t' < `=Tmax' replace WHiv_Tprox = RegW_Hiv_`j' if T==`t'
+	  
+	  if `t' < `=Tmax' replace WHi_Tprox_nominal = RegW_Hi_nominal_`j' if T==`t'
+	  if `t' < `=Tmax' replace WHiv_Tprox_nominal = RegW_Hiv_nominal_`j' if T==`t'	  
    }
  
  * Excluindo os salários separados por período, para economizar memória:
    forvalues t = 1/`=Tmax' { 
-       drop RegW_Hi_`t' RegW_Hiv_`t' 
+       drop RegW_Hi_`t' RegW_Hiv_`t' RegW_Hi_nominal_`t' RegW_Hiv_nominal_`t' 
    }  
  
    compress
@@ -706,10 +746,10 @@
 
 
 *******************************************************************************
-* C. IQT PREÇO E VALOR
+* C. IQT PRODUTIVIDADE E VALOR
 *******************************************************************************
 {
-* C.1. IQT PREÇO **************************************************************
+* C.1. IQT PRODUTIVIDADE ******************************************************
  {
  use "$dirdata/B_BaseEstimacao.dta", clear
  
@@ -774,7 +814,7 @@
   gen dIQTP_Hiv = (dIQTP0_Hiv*dIQTP1_Hiv)^(1/2)
    
   compress
-  save "$dirdata/C_BaseIQTPreço.dta", replace  
+  save "$dirdata/C_BaseIQTProdutividade.dta", replace  
  
  * IQT: Base separada 
   {
@@ -786,59 +826,87 @@
   * Sem controles:
     gen IQTP_Hi = 100 if T==1
     replace IQTP_Hi = IQTP_Hi[_n-1]*dIQTP_Hi if _n > 1
-    label var IQTP_Hi "IQT Anual Preço - Sem controles"
+    label var IQTP_Hi "IQT Anual Produtividade - Sem controles"
 	
   * Com controles:	
 	gen IQTP_Hiv = 100 if T==1
 	replace IQTP_Hiv = IQTP_Hiv[_n-1]*dIQTP_Hiv if _n > 1
-    label var IQTP_Hiv "IQT Anual Preço - Com controles" 
+    label var IQTP_Hiv "IQT Anual Produtividade - Com controles" 
 	 
    merge 1:1 T using "$dirdata/B_IQT.dta"
    drop _merge
    
-   save "$dirdata\C_IQTPreço.dta", replace
-   export excel T IQTP_Hi IQTP_Hiv using "$dirdata\B_IQT.xlsx", sheet ("Preço", modify) firstrow(varlabels)
+   save "$dirdata\C_IQTProdutividade.dta", replace
+   export excel T IQTP_Hi IQTP_Hiv using "$dirdata\B_IQT.xlsx", sheet ("Produtividade", modify) firstrow(varlabels)
   restore
   }
  }
  
 * C.2. IQT VALOR **************************************************************
  {
- use "$dirdata/C_BaseIQTPreço.dta", clear
+ use "$dirdata/C_BaseIQTProdutividade.dta", clear
  
  * IQT Valor: dIQT_V = dIQT_P x dIQT_Q
   gen dIQTV_Hi = .        
   gen dIQTV_Hiv = .    
+  
+  gen dIQTV_Hi_nominal = .        
+  gen dIQTV_Hiv_nominal = .    
+  
 
   forvalues t = 2/`=Tmax'{
   * Sem controles: 
-	gen nHi = PH*WHi_T if T==`t'
-	gen dHi = PH*WHi_T if T==(`t'-1)
+   * Rendimento real:
+	 gen nHi = PH*WHi_T if T==`t'
+	 gen dHi = PH*WHi_T if T==(`t'-1)
 	  
-	egen sum_nHi = sum(nHi)
-	egen sum_dHi = sum(dHi)
+	 egen sum_nHi = sum(nHi)
+	 egen sum_dHi = sum(dHi)
 	  
-	replace dIQTV_Hi = sum_nHi/sum_dHi if T==`t'
-	drop nHi dHi sum_nHi sum_dHi
+	 replace dIQTV_Hi = sum_nHi/sum_dHi if T==`t'
+	 drop nHi dHi sum_nHi sum_dHi
+	
+	
+   * Rendimento nominal:
+	 gen nHi = PH*WHi_T_nominal if T==`t'
+	 gen dHi = PH*WHi_T_nominal if T==(`t'-1)
+	  
+	 egen sum_nHi = sum(nHi)
+	 egen sum_dHi = sum(dHi)
+	  
+	 replace dIQTV_Hi_nominal = sum_nHi/sum_dHi if T==`t'
+	 drop nHi dHi sum_nHi sum_dHi
+	 
 	
   * Com controles:
-	gen nHiv = PH*WHiv_T if T==`t'
-	gen dHiv = PH*WHiv_T if T==(`t'-1)
+   * Rendimento real:
+	 gen nHiv = PH*WHiv_T if T==`t'
+	 gen dHiv = PH*WHiv_T if T==(`t'-1)
 	  
-	egen sum_nHiv = sum(nHiv)
-	egen sum_dHiv = sum(dHiv)
+	 egen sum_nHiv = sum(nHiv)
+	 egen sum_dHiv = sum(dHiv)
 	  
-	replace dIQTV_Hiv = sum_nHiv/sum_dHiv if T==`t'
-	drop nHiv dHiv sum_nHiv sum_dHiv
+	 replace dIQTV_Hiv = sum_nHiv/sum_dHiv if T==`t'
+	 drop nHiv dHiv sum_nHiv sum_dHiv
+	 
+   * Rendimento nominal:
+	 gen nHiv = PH*WHiv_T_nominal if T==`t'
+	 gen dHiv = PH*WHiv_T_nominal if T==(`t'-1)
+	  
+	 egen sum_nHiv = sum(nHiv)
+	 egen sum_dHiv = sum(dHiv)
+	  
+	 replace dIQTV_Hiv_nominal = sum_nHiv/sum_dHiv if T==`t'
+	 drop nHiv dHiv sum_nHiv sum_dHiv
   }
   
   compress
-  save "$dirdata/C_BaseIQTPreço.dta", replace  
+  save "$dirdata/C_BaseIQTProdutividade.dta", replace  
  
  * IQT: Base separada 
   {
   preserve
-   keep T Tmax dIQTV_Hi dIQTV_Hiv
+   keep T Tmax dIQTV_Hi dIQTV_Hiv dIQTV_Hi_nominal dIQTV_Hiv_nominal
    duplicates drop
   
    * 1992 = 100
@@ -847,17 +915,26 @@
      replace IQTV_Hi = IQTV_Hi[_n-1]*dIQTV_Hi if _n > 1
      label var IQTV_Hi "IQT Anual Valor - Sem controles"
 	 
+	 gen IQTV_Hi_nominal = 100 if T==1
+     replace IQTV_Hi_nominal = IQTV_Hi_nominal[_n-1]*dIQTV_Hi_nominal if _n > 1
+     label var IQTV_Hi_nominal "IQT Anual Valor Nominal - Sem controles"
+	 
+	 
    * Com controles:
      gen IQTV_Hiv = 100 if T==1
      replace IQTV_Hiv = IQTV_Hiv[_n-1]*dIQTV_Hiv if _n > 1
      label var IQTV_Hiv "IQT Anual Valor - Com controles" 
 	 
+	 gen IQTV_Hiv_nominal = 100 if T==1
+     replace IQTV_Hiv_nominal = IQTV_Hiv_nominal[_n-1]*dIQTV_Hiv_nominal if _n > 1
+     label var IQTV_Hiv_nominal "IQT Anual Valor Nominal - Com controles"
+	 
    
-   merge 1:1 T using "$dirdata\C_IQTPreço.dta"
+   merge 1:1 T using "$dirdata\C_IQTProdutividade.dta"
    drop _merge
    
-   save "$dirdata\C_IQTPreço.dta", replace
-   export excel T IQT_Hi IQT_Hiv IQTP_Hi IQTP_Hiv IQTV_Hi IQTV_Hiv using "$dirdata\B_IQT.xlsx", sheet ("Preço", modify) firstrow(varlabels)
+   save "$dirdata\C_IQTProdutividade.dta", replace
+   export excel T IQT_Hi IQT_Hiv IQTP_Hi IQTP_Hiv IQTV_Hi IQTV_Hiv IQTV_Hi_nominal IQTV_Hiv_nominal using "$dirdata\B_IQT.xlsx", sheet ("Produtividade", modify) firstrow(varlabels)
    
   restore
   }  
@@ -903,3 +980,4 @@
 	export excel T i_cons i_mulher i_educ2 i_educ3 i_educ4 i_educ5 i_educ6 iv_cons iv_mulher iv_educ2 iv_educ3 iv_educ4 iv_educ5 iv_educ6 using "$dirdata\D_CoeficientesEducação.xlsx", sheet ("Anual", modify) firstrow(varlabels) 
 }
 
+log close
