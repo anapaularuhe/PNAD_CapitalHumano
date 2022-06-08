@@ -1,5 +1,4 @@
-> Projeto Capital Humano e Produtividade  
 > FGV IBRE - Núcleo de Mercado de Trabalho e Produtividade  
-> IQT  
+> Projeto Capital Humano e Produtividade - IQT  
 > 2022  
 > ---------------------------------------------------------
