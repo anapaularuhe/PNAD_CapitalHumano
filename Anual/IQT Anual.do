@@ -10,6 +10,7 @@
 * Pacotes:
  *ssc install labutil
  *ssc install mdesc
+ *ssc install tabout
  
 * Preparando memória: 
   clear all
@@ -521,6 +522,29 @@
  
  save "$dirdata\A_BaseAnual.dta", replace 
  } 
+
+* A.8. ANÁLISE DESCRITIVA DA AMOSTRA ******************************************
+ {
+ use "$dirdata\A_BaseAnual.dta", clear
+ 
+ * Tamanho da amostra e representação:
+ tab T PO 
+ tab T PO [iw=Peso]
+ 
+ * Características básicas: gênero e educação
+ bysort T: tab mulher 
+ bysort T: tab VD3006
+  
+ tabout T mulher using "$dirdata\A_EstatisticasDescritivas.xls", replace
+ tabout T VD3006 using "$dirdata\A_EstatisticasDescritivas.xls", append
+ 
+ * Rendimento real médio por ano:
+ preserve
+   keep T W_hora
+   collapse (mean) W_hora, by(T)  
+   export excel using "$dirdata\A_RendimentoReal.xlsx", firstrow(variables) sheet("Rendimento") replace
+ restore  
+ } 
 } 
 
 
@@ -545,13 +569,13 @@
     predict RegLog_Hi_nominal_`t' if(T>=(`t'-1) & T<=(`t'+1))
 	
   
- ** Com controles: 
+ * Com controles: 
   * Rendimento real:
     regress logW_hab mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 PretoPardoIndig publico informal if T==`t' [iw = Peso]
     estimates save "$dirdata/B_Regressoes_comcontroles", append
     gen RegLog_Hiv_`t' = _b[_cons] + _b[mulher]*mulher + _b[educ2]*educ2 + _b[educ3]*educ3 + _b[educ4]*educ4 + _b[educ5]*educ5 + _b[educ6]*educ6 + _b[Experiencia]*Experiencia + _b[Experiencia2]*Experiencia2 + _b[Experiencia3]*Experiencia3 + _b[Experiencia4]*Experiencia4 + _b[ExperMulher]*ExperMulher + _b[ExperMulher2]*ExperMulher2 + _b[ExperMulher3]*ExperMulher3 + _b[ExperMulher4]*ExperMulher4 if(T>=(`t'-1) & T<=(`t'+1)) 
 	
-  * Rendimento real:
+  * Rendimento nominal:
    regress logW_hab_nominal mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 PretoPardoIndig publico informal if T==`t' [iw = Peso]
    estimates save "$dirdata/B_Regressoes_comcontroles_nominal", append
    gen RegLog_Hiv_nominal_`t' = _b[_cons] + _b[mulher]*mulher + _b[educ2]*educ2 + _b[educ3]*educ3 + _b[educ4]*educ4 + _b[educ5]*educ5 + _b[educ6]*educ6 + _b[Experiencia]*Experiencia + _b[Experiencia2]*Experiencia2 + _b[Experiencia3]*Experiencia3 + _b[Experiencia4]*Experiencia4 + _b[ExperMulher]*ExperMulher + _b[ExperMulher2]*ExperMulher2 + _b[ExperMulher3]*ExperMulher3 + _b[ExperMulher4]*ExperMulher4 if(T>=(`t'-1) & T<=(`t'+1)) 	
@@ -948,7 +972,25 @@
 {
  use "$dirdata/B_BaseEstimacao.dta", clear
 
-* Salvando coeficientes em dta: 
+* D.1. EXPORTANDO TABELAS *****************************************************
+ { 
+ local periodos 1 27 
+
+ foreach t of local periodos {    
+ * Sem controles: 
+   regress logW_hab mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 if T==`t' [iw = Peso]
+   outreg2 using "$dirdata\D_EstimacaoTabela_`t'", replace ctitle("Sem controles") word label
+	
+ * Com controles: 
+   regress logW_hab mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 PretoPardoIndig publico informal if T==`t' [iw = Peso]
+   outreg2 using "$dirdata\D_EstimacaoTabela_`t'", append ctitle("Com controles") word label 
+  
+ estimates drop _all 
+ }
+ }
+ 
+* D.2 EXPORTANDO COEFICIENTES *************************************************
+ {
   statsby, by(T) saving("$dirdata\D_Coeficientes_i.dta", replace): regress logW_hab mulher educ2 educ3 educ4 educ5 educ6 Experiencia Experiencia2 Experiencia3 Experiencia4 ExperMulher ExperMulher2 ExperMulher3 ExperMulher4 [iw = Peso]
  estimates drop _all	
  
@@ -978,6 +1020,7 @@
 	save "$dirdata\D_Coeficientes", replace
 	
 	export excel T i_cons i_mulher i_educ2 i_educ3 i_educ4 i_educ5 i_educ6 iv_cons iv_mulher iv_educ2 iv_educ3 iv_educ4 iv_educ5 iv_educ6 using "$dirdata\D_CoeficientesEducação.xlsx", sheet ("Anual", modify) firstrow(varlabels) 
+ }
 }
 
 log close
